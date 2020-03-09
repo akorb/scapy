@@ -7,7 +7,7 @@ from scapy.contrib.isotp import ISOTPSocket
 
 from scapy.tools.packet_viewer.viewer import viewer
 
-socket = PythonCANSocket(bustype='virtual', channel="vcan1")
-#socket = CANSocket("can0")
+#socket = PythonCANSocket(bustype='virtual', channel="vcan1")
+socket = CANSocket("can0")
 viewer(socket)
 socket.close()
