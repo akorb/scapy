@@ -16,7 +16,7 @@ class Sniffer(Thread):
 
         self.kwargs = kwargs
         self.main_window = main_view
-        self.packet_list_view = main_view.body.packet_list_view
+        self.packet_list_view, _ = main_view.body.contents[0]
         self.draw_lock: RLock = self.packet_list_view.draw_lock
         self.sockets = sockets
         Thread.__init__(self)

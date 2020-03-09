@@ -1,13 +1,13 @@
 from threading import RLock
 from typing import List
 
-from urwid import Frame, Widget
+from urwid import Frame, Widget, Pile, AttrMap, Text
 
 from scapy.tools.packet_viewer.datalayer.behaviors.default_behavior import DefaultBehavior
 from scapy.tools.packet_viewer.datalayer.behaviors.all import DIC_SOCKET_INFORMATION
 from scapy.tools.packet_viewer.techlayer.sniffer import Sniffer
 from scapy.tools.packet_viewer.viewlayer.command_line_interface import CommandLineInterface
-from scapy.tools.packet_viewer.viewlayer.views.packet_view import PacketView
+from scapy.tools.packet_viewer.viewlayer.views.packet_list_view import PacketListView
 from scapy.tools.packet_viewer.viewlayer.views.pop_ups import show_exit_pop_up
 
 
@@ -22,7 +22,10 @@ class MainWindow(Frame):
     def __init__(self, socket, **kwargs):
         socket_info = DIC_SOCKET_INFORMATION.get(socket.basecls, DefaultBehavior)(socket)
         super().__init__(
-            body=PacketView(self, socket_info, DRAW_LOCK), footer=CommandLineInterface(self), focus_part="footer",
+            body=Pile([PacketListView(self, socket_info, DRAW_LOCK)]),
+            header=AttrMap(Text("   " + socket_info.get_header()), "packet_view_header"),
+            footer=CommandLineInterface(self),
+            focus_part="footer",
         )
 
         self.main_loop = None
