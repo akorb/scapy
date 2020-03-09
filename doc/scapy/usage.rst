@@ -1640,6 +1640,78 @@ To allow Scapy to reach target destination additional options must be used::
 
 
 
+Viewing packets as in Wireshark
+-------------------------------
+
+.. index::
+   single: viewer()
+
+Problem
+^^^^^^^
+You want to see packets as in Wireshark with great flexibility.
+
+Solution
+^^^^^^^^
+That's what :py:func:``viewer`` is for!
+The ``viewer`` allows you to inspect, edit and filter lists of packets or shows
+all captured packets on an interface. All packets can be modified in the terminal
+interface. Any packet can be re-send on the current interface and new packets
+can be crafted.
+
+Columns
+^^^^^^^
+
+There are three groups of columns.
+The viewer will always show the default columns.
+If the user provides a custom configuration these columns will be shown.
+If the user provides a ``basecls``, the packet viewer will try to get a
+``basecls`` specific configuration from ``conf.contribs["packet_viewer_columns"]``. If no configuration
+is present, the packet viewer will automatically create columns from the
+``field_desc`` of the ``basecls``.
+
++---------------------+----------------------------+---------------------------------------------+
+| Default             | Additional columns         | basecls                                     |
++=====================+============================+=============================================+
+| NO, TIME            | Defined by the user        | The fields of the basecls.                  |
+|                     | with                       | Example: UDP --> SPORT, DPORT, LEN, CHKSUM  |
+|                     | ``viewer(s, cols, ...)``   |                                             |
+|                     | or defined in the config   |                                             |
++---------------------+----------------------------+---------------------------------------------+
+
+
+`Example: Default columns`
+
+``viewer(s)``
+will have this columns:
+
+``NO, TIME, REPR``
+
+
+`Example: Custom configuration`
+
+``viewer(s, [("MyLengthColumn", 10, lambda p: len(p))], UDP)``
+will have this columns:
+
+``NO, TIME, MyLengthColumn, PAYLOAD``
+
+
+`Example: Basecls auto-generated columns`
+
+``viewer(s, UDP)``
+will have this columns:
+
+``NO, TIME, SPORT, DPORT, LEN, CHKSUM, PAYLOAD``
+
+
+`Example: Basecls configurated columns`
+
+``conf.contribs["packet_viewer_columns"]["UDP"] = [("MyLengthColumn", 10, lambda p: len(p))]``
+``viewer(s, UDP)``
+will have this columns:
+
+``NO, TIME, MyLengthColumn, PAYLOAD``
+
+
 Viewing packets with Wireshark
 ------------------------------
 

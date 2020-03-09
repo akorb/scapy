@@ -1,0 +1,117 @@
+% Regression tests for Packet Viewer RowFormatter
+
++ Configuration
+~ conf
+
+= Imports
+from scapy.modules.packet_viewer.row_formatter import RowFormatter
+from scapy.packet import Raw
+from scapy.config import conf
+import six
+
++ Basic Tests
+
+= Init test 1
+
+rw = RowFormatter()
+
+assert rw.basecls == None
+assert len(rw.columns) == 3  # default columns NO, TIME, REPR
+assert rw._format_string == "{NO:5.5} {TIME:11.11} {REPR}"
+assert rw._time == 0.0
+assert len(rw._id_map.items()) == 0
+
+= Test header_string
+
+assert rw.get_header_string() == "NO    TIME        REPR"
+
+= Test format method
+
+p = Raw("deadbeef")
+p.time = 42.0
+assert rw.format(p)[:18] == "0     0.0         "
+
+p.time = 43.0
+assert rw.format(p)[:18] == "1     1.0         "
+
+p.time = 43.5
+assert rw.format(p)[:18] == "2     1.5         "
+
+
++ Custom Column configuration based on basecls tests
+
+= Init test
+
+conf.contribs["packet_viewer_columns"] = dict()
+
+conf.contribs["packet_viewer_columns"]["Raw"] = [("rawval", 10, bytes)]
+
+rw = RowFormatter(basecls=Raw)
+
+assert rw.basecls == Raw
+assert len(rw.columns) == 3  # default columns NO, TIME
+print(rw._format_string)
+assert rw._format_string == "{NO:5.5} {TIME:11.11} {rawval}"
+assert rw._time == 0.0
+assert len(rw._id_map.items()) == 0
+
+= Test header_string
+
+assert rw.get_header_string() == "NO    TIME        RAWVAL"
+
+= Test format method
+
+p = Raw(b"\xde\xad\xbe\xef")
+p.time = 42.0
+
+#print(rw.format(p)[:28])
+if six.PY3:
+    assert rw.format(p)[:28] == """0     0.0         b\'\\xde\\xad"""
+else:
+    assert rw.format(p)[:22] == """0     0.0         """ + str(b'\xde\xad\xbe\xef')
+
+p = Raw(b"deadbeef")
+p.time = 43.0
+if six.PY3:
+    assert rw.format(p)[:28] == """1     1.0         b'deadbeef"""
+else:
+    assert rw.format(p)[:26] == """1     1.0         deadbeef"""
+
+p.time = 43.5
+assert rw.format(p)[:18] == "2     1.5         "
+
+
++ Custom Column configuration based on argument tests
+
+= Init test
+
+columns = [("rawval", 10, bytes)]
+
+rw = RowFormatter(columns=columns)
+
+assert rw.basecls == None
+assert len(rw.columns) == 1  # default columns NO, TIME
+assert rw._format_string == "{rawval}"
+assert rw._time == 0.0
+assert len(rw._id_map.items()) == 0
+
+= Test header_string
+
+assert rw.get_header_string() == "RAWVAL"
+
+= Test format method
+
+p = Raw(b"\xde\xad\xbe\xef")
+
+if six.PY3:
+    assert rw.format(p)[:10] == """b\'\\xde\\xad"""
+else:
+    assert rw.format(p) == b'\xde\xad\xbe\xef'
+
+p = Raw(b"deadbeef")
+
+if six.PY3:
+    assert rw.format(p)[:10] == """b'deadbeef"""
+    assert rw.format(p)[:11] == """b'deadbeef'"""
+else:
+    assert rw.format(p) == """deadbeef"""
