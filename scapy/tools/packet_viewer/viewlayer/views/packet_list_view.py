@@ -54,6 +54,7 @@ class PacketListView(ListBox):
         """
 
         packet_in_focus = self.body[self.focus_position].get_focus().original_widget
+        # TODO: new detail-view instead of menu
         open_menu(self.main_window, self.behavior, packet_in_focus)
 
     def keypress(self, size, key):
