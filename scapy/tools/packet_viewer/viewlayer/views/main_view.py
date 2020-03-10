@@ -3,9 +3,9 @@ from typing import List
 
 from urwid import Frame, Widget, Pile, AttrMap, Text
 
+from scapy.sendrecv import AsyncSniffer
 from scapy.tools.packet_viewer.datalayer.behaviors.default_behavior import DefaultBehavior
 from scapy.tools.packet_viewer.datalayer.behaviors.all import DIC_SOCKET_INFORMATION
-from scapy.tools.packet_viewer.techlayer.sniffer import Sniffer
 from scapy.tools.packet_viewer.viewlayer.command_line_interface import CommandLineInterface
 from scapy.tools.packet_viewer.viewlayer.views.packet_list_view import PacketListView
 from scapy.tools.packet_viewer.viewlayer.views.pop_ups import show_exit_pop_up
@@ -31,7 +31,7 @@ class MainWindow(Frame):
         self.main_loop = None
         self.view_stack: List[Widget] = []
 
-        self.sniffer = Sniffer(self, socket, **kwargs)
+        self.sniffer = AsyncSniffer(opened_socket=socket, store=False, prn=self.add_packet, **kwargs)
         self.sniffer.start()
 
     def pause_packet_sniffer(self):
@@ -46,6 +46,20 @@ class MainWindow(Frame):
         self.sniffer.stop()
         show_exit_pop_up(self)
         # TODO: Popup really required?
+
+    def add_packet(self, packet):
+        """
+        Adds a packet to the packet_view_list.
+
+        :param packet: packet sniffed on the interface
+        :type packet: Packet
+        :return: None
+        """
+
+        packet_list_view, _ = self.body.contents[0]
+        with DRAW_LOCK:
+            packet_list_view.add_packet(packet)
+            self.main_loop.draw_screen()
 
     def set_focus_footer(self):
         self.focus_position = "footer"

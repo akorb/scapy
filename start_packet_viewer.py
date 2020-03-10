@@ -5,6 +5,6 @@ from scapy.tools.packet_viewer.viewer import viewer
 
 # socket = ISOTPSocket("vcan0", did=0x123, sid=0x456)
 # socket = PythonCANSocket(bustype='virtual', channel="vcan1")
-socket = CANSocket("can0")
+socket = CANSocket("vcan0")
 viewer(socket)
 socket.close()
