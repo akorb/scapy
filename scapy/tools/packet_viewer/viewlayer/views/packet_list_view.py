@@ -44,7 +44,6 @@ class PacketListView(ListBox):
 
         add_new_packet(the_packet, self.behavior)
         self.body.append(Pile([AttrMap(GuiPacket(the_packet, self.behavior), {"cursor": "unfocused"})]))
-        self.main_window.main_loop.draw_screen()
 
     def open_packet_menu(self):
         """
@@ -68,10 +67,6 @@ class PacketListView(ListBox):
                 if next_focus >= 0:
                     self.body.set_focus(next_focus)
         elif key in ["down", "j"]:
-            if self.main_window.sniffer is None:
-                self.main_window.footer.set_caption(":")
-                self.main_window.set_focus("footer")
-                return
             focus = self.body.get_focus()[1]
             if focus is not None:
                 next_focus = focus + 1
