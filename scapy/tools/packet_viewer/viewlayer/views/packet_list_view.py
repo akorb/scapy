@@ -14,7 +14,7 @@ class PacketListView(ListBox):
     Lists all the packets which have been sniffed so far. Is part of the packet_view.
     """
 
-    def __init__(self, main_window, behavior: DefaultBehavior, draw_lock: RLock):
+    def __init__(self, main_window, behavior: DefaultBehavior):
         """
         :param main_window: Main window, which contains the packetview
         :type main_window: view.MainWindow
@@ -24,7 +24,6 @@ class PacketListView(ListBox):
 
         self.main_window = main_window
         self.behavior = behavior
-        self.draw_lock: RLock = draw_lock
 
         body: SimpleFocusListWalker = SimpleFocusListWalker([])
         # registers `self.on_focus_change` as a callback method, whenever the list is modified

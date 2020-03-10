@@ -1,4 +1,3 @@
-from threading import RLock
 from typing import List
 
 from urwid import Frame, Widget, Pile, AttrMap, Text
@@ -11,9 +10,6 @@ from scapy.tools.packet_viewer.viewlayer.views.packet_list_view import PacketLis
 from scapy.tools.packet_viewer.viewlayer.views.pop_ups import show_exit_pop_up
 
 
-DRAW_LOCK: RLock = RLock()
-
-
 class MainWindow(Frame):
     """
     Assembles all parts of the view.
@@ -22,7 +18,7 @@ class MainWindow(Frame):
     def __init__(self, socket, **kwargs):
         socket_info = DIC_SOCKET_INFORMATION.get(socket.basecls, DefaultBehavior)(socket)
         super().__init__(
-            body=Pile([PacketListView(self, socket_info, DRAW_LOCK)]),
+            body=Pile([PacketListView(self, socket_info)]),
             header=AttrMap(Text("   " + socket_info.get_header()), "packet_view_header"),
             footer=CommandLineInterface(self),
             focus_part="footer",
@@ -57,9 +53,8 @@ class MainWindow(Frame):
         """
 
         packet_list_view, _ = self.body.contents[0]
-        with DRAW_LOCK:
-            packet_list_view.add_packet(packet)
-            self.main_loop.draw_screen()
+        packet_list_view.add_packet(packet)
+        self.main_loop.draw_screen()
 
     def set_focus_footer(self):
         self.focus_position = "footer"
