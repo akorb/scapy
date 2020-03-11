@@ -8,7 +8,6 @@ from scapy.tools.packet_viewer.datalayer.behaviors.default_behavior import Defau
 from scapy.tools.packet_viewer.datalayer.behaviors.all import DIC_SOCKET_INFORMATION
 from scapy.tools.packet_viewer.viewlayer.command_line_interface import CommandLineInterface
 from scapy.tools.packet_viewer.viewlayer.packet import GuiPacket
-from scapy.tools.packet_viewer.viewlayer.views.menu_view import CanDetailView
 from scapy.tools.packet_viewer.viewlayer.views.packet_list_view import PacketListView
 from scapy.tools.packet_viewer.viewlayer.views.pop_ups import show_exit_pop_up
 from scapy.utils import hexdump
@@ -47,10 +46,7 @@ class MainWindow(Frame):
         show_exit_pop_up(self)
         # TODO: Popup really required?
 
-    def show_details(self, packet: GuiPacket, message_details):
-        # detail_view = LineBox(CanDetailView(self, packet, message_details))
-        # widget, (t, w) = self.body.contents[0]
-        # self.body.contents[0] = (widget, (t, 0.5))
+    def show_details(self, packet: GuiPacket):
         show_text = packet.packet.show(dump=True)
 
         show_text = Text(show_text)
