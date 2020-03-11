@@ -1,10 +1,6 @@
-from threading import RLock
-
 from scapy.packet import Packet
 from urwid import AttrMap, ListBox, SimpleFocusListWalker, connect_signal, Pile
 
-from scapy.tools.packet_viewer.datalayer.behaviors.default_behavior import DefaultBehavior
-from scapy.tools.packet_viewer.datalayer.message_information import add_new_packet
 from scapy.tools.packet_viewer.viewlayer.packet import GuiPacket
 
 
@@ -13,35 +9,37 @@ class PacketListView(ListBox):
     Lists all the packets which have been sniffed so far. Is part of the packet_view.
     """
 
-    def __init__(self, main_window, behavior: DefaultBehavior):
+    def __init__(self, main_window, columns):
         """
-        :param main_window: Main window, which contains the packetview
+        :param main_window: Main window, which contains the packet view
         :type main_window: view.MainWindow
-        :param draw_lock: lock, which makes sure the view.MainLoop can redraw the interface for every new packet
-        :type draw_lock: RLock
         """
 
         self.main_window = main_window
-        self.behavior = behavior
+        self.columns = columns
 
         body: SimpleFocusListWalker = SimpleFocusListWalker([])
         # registers `self.on_focus_change` as a callback method, whenever the list is modified
         connect_signal(body, "modified", self.on_focus_change)
         super(PacketListView, self).__init__(body)
 
-    def add_packet(self, the_packet: Packet):
+    def add_packet(self, packet: Packet):
         """
         Creates and appends a Packet widget to the end of the list.
         The cursor in front of the packet content is colored in the default background color.
         This way, it is invisible and only the cursor in front of the packet in focus is colored.
 
-        :param the_packet: packet, which is passed on from the sniffer
-        :type the_packet: Packet
+        :param packet: packet, which is passed on from the sniffer
+        :type packet: Packet
         :return: None
         """
 
-        add_new_packet(the_packet, self.behavior)
-        self.body.append(Pile([AttrMap(GuiPacket(the_packet, self.behavior), {"cursor": "unfocused"})]))
+        # add_new_packet(packet, behavior)
+
+        text = self.packet_to_string(packet)
+        gui_packet = GuiPacket(packet, [("cursor", u">> "), text])
+
+        self.body.append(Pile([AttrMap(gui_packet, {"cursor": "unfocused"})]))
 
     def open_packet_menu(self):
         """
@@ -52,6 +50,13 @@ class PacketListView(ListBox):
 
         packet_in_focus = self.body[self.focus_position].get_focus().original_widget
         self.main_window.show_details(packet_in_focus)
+
+    def packet_to_string(self, packet: Packet):
+        cols: dict = dict()
+        for (name, _, fun) in self.columns:
+            cols[name] = str(fun(packet))
+
+        return self.main_window.format_string.format(**cols)
 
     def keypress(self, size, key):
         """

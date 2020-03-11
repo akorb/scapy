@@ -4,8 +4,6 @@ from urwid import Frame, Widget, Pile, AttrMap, Text, Filler, LineBox, Columns
 
 from scapy.packet import Packet
 from scapy.sendrecv import AsyncSniffer
-from scapy.tools.packet_viewer.datalayer.behaviors.default_behavior import DefaultBehavior
-from scapy.tools.packet_viewer.datalayer.behaviors.all import DIC_SOCKET_INFORMATION
 from scapy.tools.packet_viewer.viewlayer.command_line_interface import CommandLineInterface
 from scapy.tools.packet_viewer.viewlayer.packet import GuiPacket
 from scapy.tools.packet_viewer.viewlayer.views.packet_list_view import PacketListView
@@ -18,11 +16,38 @@ class MainWindow(Frame):
     Assembles all parts of the view.
     """
 
-    def __init__(self, socket, basecls, **kwargs):
-        socket_info = DIC_SOCKET_INFORMATION.get(basecls, DefaultBehavior)(socket, basecls)
+    def get_header(self) -> str:
+        cols: dict = dict()
+        for (name, _, _) in self.columns:
+            cols[name] = name.upper()
+
+        return self.format_string.format(**cols)
+
+    @staticmethod
+    def _create_format_string(columns):
+        format_string = ""
+        for (name, length, _) in columns:
+            format_string += "{" + name + ":<" + str(length) + "}"
+        return format_string
+
+    def __init__(self, socket, columns, get_group, get_data, basecls, **kwargs):
+        self.basecls = socket.basecls if hasattr(socket, 'basecls') else basecls
+
+        self.columns = [('TIME', 20, lambda p: p.time),
+                        ('LENGTH', 7, lambda p: len(p))]
+
+        if columns:
+            self.columns += columns
+
+        for field in self.basecls.fields_desc:
+            col = (field.name, 10, lambda p, name=field.name: p.fields[name])
+            self.columns.append(col)
+
+        self.format_string = self._create_format_string(self.columns)
+
         super().__init__(
-            body=Pile([PacketListView(self, socket_info)]),
-            header=AttrMap(Text("   " + socket_info.get_header()), "packet_view_header"),
+            body=Pile([PacketListView(self, self.columns)]),
+            header=AttrMap(Text("   " + self.get_header()), "packet_view_header"),
             footer=CommandLineInterface(self),
             focus_part="footer",
         )
@@ -30,7 +55,8 @@ class MainWindow(Frame):
         self.main_loop = None
         self.view_stack: List[Widget] = []
 
-        self.sniffer = AsyncSniffer(opened_socket=socket, store=False, prn=self.add_packet, lfilter=lambda p: isinstance(p, basecls), **kwargs)
+        self.sniffer = AsyncSniffer(opened_socket=socket, store=False, prn=self.add_packet,
+                                    lfilter=lambda p: isinstance(p, basecls), **kwargs)
         self.sniffer.start()
 
     def pause_packet_sniffer(self):
