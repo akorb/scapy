@@ -4,7 +4,7 @@ from scapy.packet import Packet
 from urwid import AttrMap, ListBox, SimpleFocusListWalker, connect_signal, Pile
 
 from scapy.tools.packet_viewer.datalayer.behaviors.default_behavior import DefaultBehavior
-from scapy.tools.packet_viewer.datalayer.message_information import add_new_packet, MessageDetailsData
+from scapy.tools.packet_viewer.datalayer.message_information import add_new_packet
 from scapy.tools.packet_viewer.viewlayer.packet import GuiPacket
 
 
@@ -51,12 +51,7 @@ class PacketListView(ListBox):
         """
 
         packet_in_focus = self.body[self.focus_position].get_focus().original_widget
-
-        message_details = MessageDetailsData(self.behavior.get_group(packet_in_focus.packet), self.behavior)
-        message_details.set_detailed_message_information()
-        message_details.create_graph()
-        message_details.create_bit_correlation()
-        self.main_window.show_details(packet_in_focus, message_details)
+        self.main_window.show_details(packet_in_focus)
 
     def keypress(self, size, key):
         """
