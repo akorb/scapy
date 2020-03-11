@@ -1,7 +1,7 @@
 from urwid import Button, ListBox, SimpleFocusListWalker, Pile, LineBox
 
 from scapy.tools.packet_viewer.datalayer.message_information import MessageDetailsData
-from scapy.tools.packet_viewer.viewlayer.packet import Packet
+from scapy.tools.packet_viewer.viewlayer.packet import Packet, GuiPacket
 
 
 # TODO: Close button muss wo anders hin
@@ -42,14 +42,14 @@ class StatisticAnalysis(ListBox):
             self.close(None)
 
 
-class Menu(Pile):
+class CanDetailView(Pile):
     """
     Widget, which is being displayed, whenever a packet is being inspected.
     It is exchanged for the packetview.
     It lets one edit each packet field included in the selected packet.
     """
 
-    def __init__(self, main_window, packet: Packet, message_details: MessageDetailsData):
+    def __init__(self, main_window, packet: GuiPacket, message_details: MessageDetailsData):
         """
         :param packet: packet, which is currently selected and can be edited within this menu
         :type packet: Packet
@@ -57,7 +57,7 @@ class Menu(Pile):
 
         statistic_analysis = LineBox(StatisticAnalysis(main_window, packet, message_details), "Statistics")
         all_pile = [("weight", 0.3, statistic_analysis), message_details.graph]
-        super(Menu, self).__init__(all_pile)
+        super(CanDetailView, self).__init__(all_pile)
 
 
 def open_menu(main_window, behavior, packet_in_focus):
@@ -68,4 +68,4 @@ def open_menu(main_window, behavior, packet_in_focus):
     message_details.create_graph()
     message_details.create_bit_correlation()
 
-    main_window.body = Menu(main_window, packet_in_focus, message_details)
+    main_window.body = CanDetailView(main_window, packet_in_focus, message_details)
