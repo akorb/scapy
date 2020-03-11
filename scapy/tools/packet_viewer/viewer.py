@@ -1,9 +1,10 @@
 from urwid import AttrMap, MainLoop
 
+from scapy.packet import Raw
 from scapy.tools.packet_viewer.viewlayer.views.main_view import MainWindow
 
 
-def viewer(socket, **kwargs):
+def viewer(socket, basecls=Raw, **kwargs):
     palette = [
         ("default", "light gray", "black"),
         ("header", "light blue", "black"),
@@ -26,7 +27,7 @@ def viewer(socket, **kwargs):
         ("bg 2 line", "dark red", "dark cyan"),
     ]
 
-    main_window: AttrMap = AttrMap(MainWindow(socket, **kwargs), "default")
+    main_window: AttrMap = AttrMap(MainWindow(socket, basecls, **kwargs), "default")
     # main_window is the top most widget used to render the whole screen
     loop: MainLoop = MainLoop(main_window, palette)
     main_window.base_widget.main_loop = loop

@@ -7,9 +7,10 @@ from scapy.supersocket import SuperSocket
 class DefaultBehavior(ABC):
     # Do NOT remove the 'socket' parameter. All constructors of all behaviors have to be 'call-compatible'
     # Also the 'additional_columns' parameter is usually used by sub classes, but not restricted to it.
-    def __init__(self, socket: SuperSocket, additional_columns: list = None):
+    def __init__(self, socket: SuperSocket, basecls, additional_columns: list = None):
         self.counter = 0
         # Tuple: Name, length of column, function to get the value from (lambda p: p.identifier)
+        self.basecls = socket.basecls if hasattr(socket, 'basecls') else basecls
         self.additional_columns: list = additional_columns or []
         self.packets = {}
 
@@ -18,10 +19,14 @@ class DefaultBehavior(ABC):
         return bytearray(bytes(packet))
 
     def get_header(self) -> str:
-        additional_cols: dict = dict()
+        cols: dict = dict()
         for (name, _, _) in self.additional_columns:
-            additional_cols[name] = name.upper()
-        return self._format_strings(time="TIME", data="DATA", **additional_cols)
+            cols[name] = name.upper()
+
+        for field in self.basecls.fields_desc:
+            cols[field.name] = field.name.upper()
+
+        return self._format_strings(time="TIME", **cols)
 
     def get_group(self, packet):
         # by default all packets are considered to be in the same group
@@ -30,6 +35,8 @@ class DefaultBehavior(ABC):
 
     def _format_strings(self, **kwargs):
         template: str = self._get_format_string()
+        for key, value in kwargs.items():
+            kwargs[key] = str(value)
         return template.format(**kwargs)
 
     def _get_format_string(self) -> str:
@@ -37,16 +44,21 @@ class DefaultBehavior(ABC):
         # space for cursor
         format_str = "{time:<20}"
 
+        obj = self.basecls()
+        obj.build()
+
         # Now add additional columns
         for (name, length, _) in self.additional_columns:
             format_str += "{" + name + ":<" + str(length) + "}"
 
-        # Last column is DATA
-        format_str += "{data}"
+        for field in self.basecls.fields_desc:
+            format_str += "{" + field.name + ":<" + str(obj.fields[field.name]) + "}"
+
         return format_str
 
     def get_packet_formatted(self, packet: Packet):
-        additional_cols: dict = dict()
+        cols: dict = packet.fields.copy()
         for (name, _, fun) in self.additional_columns:
-            additional_cols[name] = fun(packet)
-        return self._format_strings(time=packet.time, data=repr(packet), **additional_cols)
+            cols[name] = fun(packet)
+
+        return self._format_strings(time=packet.time, **cols)
