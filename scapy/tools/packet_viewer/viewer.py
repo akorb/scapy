@@ -38,18 +38,18 @@ def viewer(socket,
     loop.run()
 
 
-def get_isotp_predefined(socket):
+def get_isotp_preset(socket):
     return \
         {
             'columns':
             [
-                ("SRC", 6, lambda p: format(socket.src, "03X")),
-                ("DST", 6, lambda p: format(socket.dst, "03X")),
+                ("SRC", 6, lambda p: format(p.src, "03X")),
+                ("DST", 6, lambda p: format(p.dst, "03X")),
             ]
         }
 
 
-def get_can_predefined():
+def get_can_preset():
     return \
         {
             'columns': [("ID", 8, lambda p: format(p.identifier, "03X"))],
