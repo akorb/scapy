@@ -5,9 +5,9 @@ from scapy.tools.packet_viewer.datalayer.behaviors.default_behavior import Defau
 
 class CanBehavior(DefaultBehavior):
     # Do NOT remove the 'socket' parameter. All constructors of all behaviors have to be 'call-compatible'
-    def __init__(self, socket):
+    def __init__(self, socket, basecls):
         additional_columns = [("ID", 8, lambda p: format(self.get_group(p), "03X"))]
-        super().__init__(socket, additional_columns)
+        super().__init__(socket, CAN, additional_columns)
 
     def get_data(self, packet: CAN):
         return packet.data

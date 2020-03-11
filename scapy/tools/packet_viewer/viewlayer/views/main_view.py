@@ -18,8 +18,8 @@ class MainWindow(Frame):
     Assembles all parts of the view.
     """
 
-    def __init__(self, socket, **kwargs):
-        socket_info = DIC_SOCKET_INFORMATION.get(socket.basecls, DefaultBehavior)(socket)
+    def __init__(self, socket, basecls, **kwargs):
+        socket_info = DIC_SOCKET_INFORMATION.get(basecls, DefaultBehavior)(socket, basecls)
         super().__init__(
             body=Pile([PacketListView(self, socket_info)]),
             header=AttrMap(Text("   " + socket_info.get_header()), "packet_view_header"),
@@ -30,7 +30,7 @@ class MainWindow(Frame):
         self.main_loop = None
         self.view_stack: List[Widget] = []
 
-        self.sniffer = AsyncSniffer(opened_socket=socket, store=False, prn=self.add_packet, **kwargs)
+        self.sniffer = AsyncSniffer(opened_socket=socket, store=False, prn=self.add_packet, lfilter=lambda p: isinstance(p, basecls), **kwargs)
         self.sniffer.start()
 
     def pause_packet_sniffer(self):
