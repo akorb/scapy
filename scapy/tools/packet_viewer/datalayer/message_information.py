@@ -4,51 +4,47 @@ from scapy.packet import Packet
 from urwid import Text, LineBox
 
 from scapy.tools.packet_viewer.datalayer.funcs import variance, byte_flips, bit_flips, graph_values, bit_flip_correlation
-from scapy.tools.packet_viewer.datalayer.behaviors.default_behavior import DefaultBehavior
 from scapy.tools.packet_viewer.viewlayer.utils import create_flips_heat_map
 from scapy.tools.packet_viewer.viewlayer.views.graph_view import GraphView
 
 
 # pylint: disable=too-few-public-methods
 class MessageInformation:
-    def __init__(self, packet: Packet, behavior: DefaultBehavior):
-        self.behavior = behavior
+    def __init__(self, packet: Packet, data):
         self.count = 1
         # TODO: maybe list of objects with more data, like time, fields and length
-        self.all_data = [behavior.get_data(packet)]
+        self.all_data = [data]
         self.all_time = [packet.time]
 
-    def add_packet_information(self, packet: Packet):
+    def add_packet_information(self, packet: Packet, data):
         self.count += 1
-        self.all_data.append(self.behavior.get_data(packet))
+        self.all_data.append(data)
         self.all_time.append(packet.time)
 
 
 ALL_MESSAGE_INFORMATION: Dict[str, MessageInformation] = {}
 
 
-def add_new_packet(packet: Packet, behavior: DefaultBehavior) -> MessageInformation:
-    identifier = behavior.get_group(packet)
+def add_new_packet(packet: Packet, group) -> MessageInformation:
     global ALL_MESSAGE_INFORMATION
-    if identifier in ALL_MESSAGE_INFORMATION:
-        ALL_MESSAGE_INFORMATION[identifier].add_packet_information(packet)
+    if group in ALL_MESSAGE_INFORMATION:
+        ALL_MESSAGE_INFORMATION[group].add_packet_information(packet)
     else:
-        ALL_MESSAGE_INFORMATION[identifier] = MessageInformation(packet, behavior)
+        ALL_MESSAGE_INFORMATION[group] = MessageInformation(packet, "temp header")
 
-    return ALL_MESSAGE_INFORMATION[identifier]
+    return ALL_MESSAGE_INFORMATION[group]
 
 
-def get_count_and_variance(packet: Packet, behavior: DefaultBehavior) -> Tuple[int, float]:
-    identifier = behavior.get_group(packet)
-    message_info = ALL_MESSAGE_INFORMATION[identifier]
+def get_count_and_variance(packet: Packet, group) -> Tuple[int, float]:
+    message_info = ALL_MESSAGE_INFORMATION[group]
     time_variance = variance(message_info.all_time, True)
     return message_info.count, time_variance
 
 
 class MessageDetailsData:
-    def __init__(self, group, behavior):
+    def __init__(self, group, header):
         self.all_data = ALL_MESSAGE_INFORMATION[group].all_data
-        self.header = Text(f"   {behavior.get_header()}")
+        self.header = Text(f"   {header}")
         self.detail_view_header = Text(("bold-blue", "Details"))
         self.byte_heat_map: List[Union[Tuple[str, str], str]] = None
         self.bit_heat_map: List[Union[Tuple[str, str], str]] = None
