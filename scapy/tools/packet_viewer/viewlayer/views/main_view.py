@@ -1,13 +1,17 @@
 from typing import List
 
-from urwid import Frame, Widget, Pile, AttrMap, Text
+from urwid import Frame, Widget, Pile, AttrMap, Text, Filler, LineBox, Columns
 
+from scapy.packet import Packet
 from scapy.sendrecv import AsyncSniffer
 from scapy.tools.packet_viewer.datalayer.behaviors.default_behavior import DefaultBehavior
 from scapy.tools.packet_viewer.datalayer.behaviors.all import DIC_SOCKET_INFORMATION
 from scapy.tools.packet_viewer.viewlayer.command_line_interface import CommandLineInterface
+from scapy.tools.packet_viewer.viewlayer.packet import GuiPacket
+from scapy.tools.packet_viewer.viewlayer.views.menu_view import CanDetailView
 from scapy.tools.packet_viewer.viewlayer.views.packet_list_view import PacketListView
 from scapy.tools.packet_viewer.viewlayer.views.pop_ups import show_exit_pop_up
+from scapy.utils import hexdump
 
 
 class MainWindow(Frame):
@@ -42,6 +46,27 @@ class MainWindow(Frame):
         self.sniffer.stop()
         show_exit_pop_up(self)
         # TODO: Popup really required?
+
+    def show_details(self, packet: GuiPacket, message_details):
+        # detail_view = LineBox(CanDetailView(self, packet, message_details))
+        # widget, (t, w) = self.body.contents[0]
+        # self.body.contents[0] = (widget, (t, 0.5))
+        show_text = packet.packet.show(dump=True)
+
+        show_text = Text(show_text)
+        hexdump_text = Text(hexdump(packet.packet, dump=True))
+
+        col = Columns([('pack', show_text), hexdump_text], dividechars=4)
+        linebox = LineBox(Filler(col, 'top'))
+
+        new_widget = (linebox, ('weight', 0.3))
+
+        # must give a box widget
+        # weight 1.0 is fine, since it automatically divides it evenly between all widgets if all of its weights are 1.0
+        if len(self.body.contents) == 2:
+            self.body.contents[1] = new_widget
+        else:
+            self.body.contents.append(new_widget)
 
     def add_packet(self, packet):
         """
