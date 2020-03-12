@@ -1,15 +1,19 @@
-from typing import List, Union, Tuple
+from typing import List, Union, Tuple, Optional
 
 from urwid import Text
 
 
-def create_flips_heat_map(flips: Union[List[int], None], name: str) -> List[Union[Tuple[str, str], str]]:
+def create_flips_heat_map(
+    flips,  # type: Optional[List[int]]
+    name,  # type: str
+):
+    # type: (...) -> Text
     if not flips:
         return Text([("bold", name), ": could not be generated"])
 
-    max_flips: int = max(flips)
+    max_flips = max(flips)  # type: int
 
-    all_flips_text: List[Union[Tuple[str, str], str]] = [("bold", name)]
+    all_flips_text = [("bold", name)]  # type: List[Union[Tuple[str, str], str]]
     for flip in flips:
         if flip == 0:
             layout = "green"
@@ -22,5 +26,4 @@ def create_flips_heat_map(flips: Union[List[int], None], name: str) -> List[Unio
         all_flips_text.append((layout, str(flip)))
         all_flips_text.append(" | ")
 
-    text = Text(all_flips_text)
-    return text
+    return Text(all_flips_text)

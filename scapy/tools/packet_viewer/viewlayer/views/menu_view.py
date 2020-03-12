@@ -6,13 +6,18 @@ from scapy.tools.packet_viewer.viewlayer.packet import Packet, GuiPacket
 
 # TODO: Close button muss wo anders hin
 class StatisticAnalysis(ListBox):
-    def __init__(self, main_window, packet: Packet, message_details: MessageDetailsData):
+    def __init__(
+        self,
+        main_window,
+        packet,  # type: Packet
+        message_details,  # type: MessageDetailsData
+    ):
         """
         :param packet: packet, which is currently selected and can be edited within this menu
         :type packet: Packet
         """
         self.main_window = main_window
-        body: SimpleFocusListWalker = SimpleFocusListWalker(
+        body = SimpleFocusListWalker(
             [
                 message_details.header,
                 packet,
@@ -22,7 +27,7 @@ class StatisticAnalysis(ListBox):
                 message_details.corr_coef,
                 Button("close", self.close),
             ]
-        )
+        )  # type: SimpleFocusListWalker
         super(StatisticAnalysis, self).__init__(body)
 
     def close(self, _button):
@@ -49,7 +54,12 @@ class CanDetailView(Pile):
     It lets one edit each packet field included in the selected packet.
     """
 
-    def __init__(self, main_window, packet: GuiPacket, message_details: MessageDetailsData):
+    def __init__(
+        self,
+        main_window,
+        packet,  # type: GuiPacket,
+        message_details,  # type: MessageDetailsData
+    ):
         """
         :param packet: packet, which is currently selected and can be edited within this menu
         :type packet: Packet

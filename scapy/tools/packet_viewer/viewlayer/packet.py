@@ -1,5 +1,6 @@
-from scapy.packet import Packet
 from urwid import Text
+
+from scapy.packet import Packet
 
 
 class GuiPacket(Text):
@@ -8,12 +9,18 @@ class GuiPacket(Text):
     and has a reference to the packet in form of a uuid.
     """
 
-    def __init__(self, packet: Packet, *args, **kwargs):
+    def __init__(
+        self,
+        packet,  # type: Packet
+        *args,
+        **kwargs
+    ):
         """
         :param packet: a packet, which attributes are copied into this wrapper class
         :type packet: CAN
         """
-        self._selectable: bool = True  # necessary, so that entries in the packetView can be selected by mouse click
+        # necessary, so that entries in the packetView can be selected by mouse click
+        self._selectable = True  # type: bool
         self.packet = packet
 
         # not needed at the moment
