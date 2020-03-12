@@ -1,13 +1,12 @@
-from typing import List
-
-from urwid import Frame, Widget, Pile, AttrMap, Text, Filler, LineBox, Columns
-
-from scapy.packet import Packet
-from scapy.sendrecv import AsyncSniffer
 from scapy.tools.packet_viewer.viewlayer.command_line_interface import CommandLineInterface
 from scapy.tools.packet_viewer.viewlayer.packet import GuiPacket
 from scapy.tools.packet_viewer.viewlayer.views.packet_list_view import PacketListView
 from scapy.tools.packet_viewer.viewlayer.views.pop_ups import show_exit_pop_up
+from typing import List, Dict, Tuple
+from urwid import Frame, Widget, Pile, AttrMap, Text, Filler, LineBox, Columns
+
+from scapy.packet import Packet
+from scapy.sendrecv import AsyncSniffer
 from scapy.utils import hexdump
 
 
@@ -16,8 +15,9 @@ class MainWindow(Frame):
     Assembles all parts of the view.
     """
 
-    def get_header(self) -> str:
-        cols: dict = dict()
+    def get_header(self):
+        # type: (...) -> str
+        cols = dict()  # type: Dict[str, str]
         for (name, _, _) in self.columns:
             cols[name] = name.upper()
 
@@ -30,11 +30,10 @@ class MainWindow(Frame):
             format_string += "{" + name + ":<" + str(length) + "}"
         return format_string
 
-    def __init__(self, socket, columns, get_group, get_data, basecls, **kwargs):
-        self.basecls = socket.basecls if hasattr(socket, 'basecls') else basecls
+    def __init__(self, socket, columns, _get_group, _get_data, basecls, **kwargs):
+        self.basecls = socket.basecls if hasattr(socket, "basecls") else basecls
 
-        self.columns = [('TIME', 20, lambda p: p.time),
-                        ('LENGTH', 7, lambda p: len(p))]
+        self.columns = [("TIME", 20, lambda p: p.time), ("LENGTH", 7, lambda p: len(p))]
 
         if columns:
             self.columns += columns
@@ -45,7 +44,7 @@ class MainWindow(Frame):
 
         self.format_string = self._create_format_string(self.columns)
 
-        super().__init__(
+        super(MainWindow, self).__init__(
             body=Pile([PacketListView(self, self.columns)]),
             header=AttrMap(Text("   " + self.get_header()), "packet_view_header"),
             footer=CommandLineInterface(self),
@@ -53,10 +52,11 @@ class MainWindow(Frame):
         )
 
         self.main_loop = None
-        self.view_stack: List[Widget] = []
+        self.view_stack = []  # type: List[Widget]
 
-        self.sniffer = AsyncSniffer(opened_socket=socket, store=False, prn=self.add_packet,
-                                    lfilter=lambda p: isinstance(p, basecls), **kwargs)
+        self.sniffer = AsyncSniffer(
+            opened_socket=socket, store=False, prn=self.add_packet, lfilter=lambda p: isinstance(p, basecls), **kwargs
+        )
         self.sniffer.start()
 
     def pause_packet_sniffer(self):
@@ -72,16 +72,18 @@ class MainWindow(Frame):
         show_exit_pop_up(self)
         # TODO: Popup really required?
 
-    def show_details(self, packet: GuiPacket):
+    def show_details(
+        self, packet  # type: GuiPacket
+    ):
         show_text = packet.packet.show(dump=True)
 
         show_text = Text(show_text)
         hexdump_text = Text(hexdump(packet.packet, dump=True))
 
-        col = Columns([('pack', show_text), hexdump_text], dividechars=4)
-        linebox = LineBox(Filler(col, 'top'))
+        col = Columns([("pack", show_text), hexdump_text], dividechars=4)
+        linebox = LineBox(Filler(col, "top"))
 
-        new_widget = (linebox, ('weight', 0.3))
+        new_widget = (linebox, ("weight", 0.3))
 
         # must give a box widget
         # weight 1.0 is fine, since it automatically divides it evenly between all widgets if all of its weights are 1.0

@@ -1,10 +1,9 @@
 import shlex
 from argparse import ArgumentParser as NativeArgumentParser, Namespace
-from typing import Tuple, Union
-
-from urwid import Edit
 
 from scapy.tools.packet_viewer.viewlayer.views.pop_ups import show_info_pop_up
+from typing import Tuple, Union
+from urwid import Edit
 
 
 class ArgumentError(Exception):
@@ -32,7 +31,9 @@ class CommandLineInterface(Edit):
         self.set_caption(":")  # required, because the initial focus is on the command line
         self.sniffer = None
 
-    def execute_command(self, infos: Namespace):
+    def execute_command(
+        self, infos  # type: Namespace
+    ):
         if infos.cmd == "pause":
             self.main_window.pause_packet_sniffer()
         elif infos.cmd == "continue":
@@ -42,7 +43,7 @@ class CommandLineInterface(Edit):
 
     def keypress(self, size, key):
         if key == "enter":
-            text: str = self.get_edit_text()
+            text = self.get_edit_text()  # type: str
             success, infos_or_error = self._parse_user_input(text)
             if success:
                 self.execute_command(infos_or_error)
@@ -57,7 +58,10 @@ class CommandLineInterface(Edit):
             super(CommandLineInterface, self).keypress(size, key)
 
     @staticmethod
-    def _parse_user_input(text: str) -> Tuple[bool, Union[str, Namespace]]:
+    def _parse_user_input(
+        text,  # type: str
+    ):
+        # type: (...) -> Tuple[bool, Union[str, Namespace]]
         """
         :param text: The input of the user.
         :return: First parameter determines if input was valid.

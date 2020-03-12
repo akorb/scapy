@@ -1,14 +1,19 @@
+from typing import List, Union, Tuple, Optional, Dict, Callable
 from urwid import AttrMap, MainLoop
 
 from scapy.packet import Raw
+from scapy.supersocket import SuperSocket
 from scapy.tools.packet_viewer.viewlayer.views.main_view import MainWindow
 
 
-def viewer(socket,
-           columns=None,
-           get_group=lambda p: len(p),
-           get_data=lambda p: bytearray(bytes(p)),
-           basecls=Raw, **kwargs):
+def viewer(
+    socket,  # type: SuperSocket
+    columns=None,  # type: Optional[List[Tuple[str, str, str]]]
+    get_group=lambda p: len(p),  # type: Optional[Callable]
+    get_data=lambda p: bytearray(bytes(p)),  # type: Optional[Callable]
+    basecls=Raw,
+    **kwargs
+):
     palette = [
         ("default", "light gray", "black"),
         ("header", "light blue", "black"),
@@ -29,30 +34,26 @@ def viewer(socket,
         ("bg 2", "black", "dark cyan", "standout"),
         ("bg 1 line", "dark red", "dark blue"),
         ("bg 2 line", "dark red", "dark cyan"),
-    ]
+    ]  # type: List[Union[Tuple[str, str, str],Tuple[str, str, str, str], Tuple[str, str, str, str, str, str] ]]
 
-    main_window: AttrMap = AttrMap(MainWindow(socket, columns, get_group, get_data, basecls, **kwargs), "default")
+    main_window = AttrMap(
+        MainWindow(socket, columns, get_group, get_data, basecls, **kwargs), "default"
+    )  # type: AttrMap
     # main_window is the top most widget used to render the whole screen
-    loop: MainLoop = MainLoop(main_window, palette)
+    loop = MainLoop(main_window, palette)  # type: MainLoop
     main_window.base_widget.main_loop = loop
     loop.run()
 
 
-def get_isotp_preset(socket):
-    return \
-        {
-            'columns':
-            [
-                ("SRC", 6, lambda p: format(p.src, "03X")),
-                ("DST", 6, lambda p: format(p.dst, "03X")),
-            ]
-        }
+def get_isotp_preset():
+    # type: (...) -> Dict[str, List[Tuple[str, int, Callable]]]
+    return {"columns": [("SRC", 6, lambda p: format(p.src, "03X")), ("DST", 6, lambda p: format(p.dst, "03X")),]}
 
 
 def get_can_preset():
-    return \
-        {
-            'columns': [("ID", 8, lambda p: format(p.identifier, "03X"))],
-            'get_group': lambda p: p.identifier,
-            'get_data': lambda p: p.data
-        }
+    # type: (...) -> Dict[str, Union[List[Tuple], Callable]]
+    return {
+        "columns": [("ID", 8, lambda p: format(p.identifier, "03X"))],
+        "get_group": lambda p: p.identifier,
+        "get_data": lambda p: p.data,
+    }

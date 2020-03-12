@@ -1,7 +1,7 @@
-from scapy.packet import Packet
+from scapy.tools.packet_viewer.viewlayer.packet import GuiPacket
 from urwid import AttrMap, ListBox, SimpleFocusListWalker, connect_signal, Pile
 
-from scapy.tools.packet_viewer.viewlayer.packet import GuiPacket
+from scapy.packet import Packet
 
 
 class PacketListView(ListBox):
@@ -18,12 +18,15 @@ class PacketListView(ListBox):
         self.main_window = main_window
         self.columns = columns
 
-        body: SimpleFocusListWalker = SimpleFocusListWalker([])
+        body = SimpleFocusListWalker([])  # type: SimpleFocusListWalker
         # registers `self.on_focus_change` as a callback method, whenever the list is modified
         connect_signal(body, "modified", self.on_focus_change)
         super(PacketListView, self).__init__(body)
 
-    def add_packet(self, packet: Packet):
+    def add_packet(
+        self, packet  # type: Packet
+    ):
+        # type: (...) -> None
         """
         Creates and appends a Packet widget to the end of the list.
         The cursor in front of the packet content is colored in the default background color.
@@ -51,8 +54,10 @@ class PacketListView(ListBox):
         packet_in_focus = self.body[self.focus_position].get_focus().original_widget
         self.main_window.show_details(packet_in_focus)
 
-    def packet_to_string(self, packet: Packet):
-        cols: dict = dict()
+    def packet_to_string(
+        self, packet  # type: Packet
+    ):
+        cols = dict()  # type: dict
         for (name, _, fun) in self.columns:
             cols[name] = str(fun(packet))
 

@@ -1,6 +1,7 @@
 import math
 from itertools import tee
-from typing import List, Union, Tuple, Optional
+
+from typing import List, Tuple, Optional
 
 
 def pairwise(iterable):
@@ -10,7 +11,11 @@ def pairwise(iterable):
     return zip(first, second)
 
 
-def variance(values: List[float], is_sorted=False) -> float:
+def variance(
+    values,  # type: List[float]
+    is_sorted=False,  # type: bool
+):
+    # type: (...) -> float
     # If the caller knows it is already sorted
     # we do not need to waste time here.
     if len(values) < 2:
@@ -26,8 +31,11 @@ def variance(values: List[float], is_sorted=False) -> float:
     return numerator / len(values)
 
 
-def byte_flips(all_data: List[bytes]) -> Union[List[int], None]:
-    # Wir gehen erstmal davon aus dass alle Daten die selbe Länge haben
+def byte_flips(
+    all_data,  # type: List[bytes]
+):
+    # type: (...) -> Optional[List[int]]
+    # We assume that all data has the same length
     if not all_data:
         return None
 
@@ -41,7 +49,10 @@ def byte_flips(all_data: List[bytes]) -> Union[List[int], None]:
         return None
 
 
-def bit_flips(all_data: List[bytes]) -> Union[List[int], None]:
+def bit_flips(
+    all_data,  # type: List[bytes]
+):
+    # type: (...) -> Optional[List[int]]
     if not all_data:
         return None
 
@@ -59,11 +70,15 @@ def bit_flips(all_data: List[bytes]) -> Union[List[int], None]:
         return None
 
 
-def data_flips(all_data, length: int) -> List[int]:
+def data_flips(
+    all_data, length  # type: int
+):
+    # type: (...) -> List[int]
+
     """ This method takes a list of iterable data, of same length,
     and counts the data changes for each position of the data."""
     flips = [0] * length
-    prev_data: List[int] = list(all_data[0])
+    prev_data = list(all_data[0])  # type: List[int]
     for data in all_data[1:]:
         for i in range(length):
             if data[i] != prev_data[i]:
@@ -72,32 +87,42 @@ def data_flips(all_data, length: int) -> List[int]:
     return flips
 
 
-def graph_values(all_data: List[bytes]) -> Tuple[List[List[int]], int]:
+def graph_values(
+    all_data,  # type: List[bytes]
+):
+    # type: (...) -> Tuple[List[List[int]], int]
     # TODO: for simplicity we only take the first byte of each message -> later this should be fields
-    number_values = len(all_data)
-    graph_data = [[all_data[x][0]] for x in range(number_values)]
+    number_values = len(all_data)  # type: int
+    graph_data = [[all_data[x][0]] for x in range(number_values)]  # type:  List[List[int]]
     flattened_list = [y for x in graph_data for y in x]
     top = max(flattened_list)
     return graph_data, top
 
 
-def average(values: List[float]) -> float:
+def average(
+    values,  # type: List[float]
+):
+    # type: (...) -> float
+
     if not values:
         return 0
     return float(sum(values)) / len(values)
 
 
 # from https://stackoverflow.com/questions/3949226/calculating-pearson-correlation-and-significance-in-python
-def pearson_corr_coeff(values_x: List[float], values_y: List[float]):
+def pearson_corr_coeff(
+    values_x,  # type: List[float]
+    values_y,  # type: List[float]
+):
     # Check both lists have the same length and are not empty
     if values_x and len(values_x) != len(values_y):
         return None
     number_values = len(values_x)
     average_values_x = average(values_x)
     average_values_y = average(values_y)
-    sum_deviation_prod: float = 0
-    sum_value_x_deviation_square: float = 0
-    sum_value_y_deviation_square: float = 0
+    sum_deviation_prod = 0  # type: float
+    sum_value_x_deviation_square = 0  # type: float
+    sum_value_y_deviation_square = 0  # type: float
     for idx in range(number_values):
         value_x_deviation = values_x[idx] - average_values_x
         value_y_deviation = values_y[idx] - average_values_y
@@ -110,10 +135,14 @@ def pearson_corr_coeff(values_x: List[float], values_y: List[float]):
 
 
 def bit_flips_for_correlation(
-    all_data_in_bits: List[str], length_payload: int, nr_messages: int
-) -> Optional[List[List[float]]]:
-    all_bit_flips: List[List[float]] = [[0 for _ in range(nr_messages - 1)] for _ in range(length_payload)]
-    prev_data: List[str] = []
+    all_data_in_bits,  # type: List[str]
+    length_payload,  # type:  int
+    nr_messages,  # type:  int
+):
+    # type: (...) -> Optional[List[List[float]]]
+
+    all_bit_flips = [[0 for _ in range(nr_messages - 1)] for _ in range(length_payload)]  # type: List[List[float]]
+    prev_data = []  # type: List[str]
     try:
         for idx, data in enumerate(all_data_in_bits):
             if not prev_data:
@@ -121,7 +150,7 @@ def bit_flips_for_correlation(
                     prev_data.append(data[i])
                 continue
             for i in range(length_payload):
-                # data[i] gibt das byte als int zurück
+                # data[i] returns byte as int
                 if data[i] != prev_data[i]:
                     all_bit_flips[i][idx - 1] += 1
                 prev_data[i] = data[i]
@@ -133,7 +162,11 @@ def bit_flips_for_correlation(
         return None
 
 
-def bit_flip_correlation(all_data: List[bytes]) -> Union[List[float], None]:
+def bit_flip_correlation(
+    all_data,  # type: List[bytes]
+):
+    # type: (...) -> Optional[List[float]]
+
     # TODO: for simplicity only successive bits wil be looked at
     if not all_data and len(all_data) < 2:
         return None
@@ -144,7 +177,7 @@ def bit_flip_correlation(all_data: List[bytes]) -> Union[List[float], None]:
     length_payload = len(all_data_in_bits[0])
     nr_messages = len(all_data)
     all_bit_flips = bit_flips_for_correlation(all_data_in_bits, length_payload, nr_messages)
-    correlations: List[float] = []
+    correlations = []  # type: List[float]
     if not all_bit_flips:
         return correlations
 
