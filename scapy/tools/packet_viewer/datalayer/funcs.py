@@ -139,9 +139,9 @@ def bit_flips_for_correlation(
     length_payload,  # type:  int
     nr_messages,  # type:  int
 ):
-    # type: (...) -> Optional[List[List[float]]]
+    # type: (...) -> Optional[List[List[int]]]
 
-    all_bit_flips = [[0 for _ in range(nr_messages - 1)] for _ in range(length_payload)]  # type: List[List[float]]
+    all_bit_flips = [[0] * (nr_messages - 1)] * length_payload  # type: List[List[int]]
     prev_data = []  # type: List[str]
     try:
         for idx, data in enumerate(all_data_in_bits):
