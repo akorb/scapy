@@ -2,7 +2,7 @@ from scapy.tools.packet_viewer.viewlayer.command_line_interface import CommandLi
 from scapy.tools.packet_viewer.viewlayer.packet import GuiPacket
 from scapy.tools.packet_viewer.viewlayer.views.packet_list_view import PacketListView
 from scapy.tools.packet_viewer.viewlayer.views.pop_ups import show_exit_pop_up
-from typing import List, Dict, Tuple
+from typing import List, Dict
 from urwid import Frame, Widget, Pile, AttrMap, Text, Filler, LineBox, Columns
 
 from scapy.packet import Packet
@@ -103,7 +103,8 @@ class MainWindow(Frame):
 
         packet_list_view, _ = self.body.contents[0]
         packet_list_view.add_packet(packet)
-        self.main_loop.draw_screen()
+        if self.main_loop:
+            self.main_loop.draw_screen()
 
     def set_focus_footer(self):
         self.focus_position = "footer"

@@ -10,6 +10,8 @@ def send_msg():
     socket2 = PythonCANSocket(bustype='virtual', channel="vcan1")
 
     for i in range(10):
+        # TODO: mit does not work with bytes -> return ???
+        #socket2.send(CAN(identifier=0x1001, data=b'\10\11'))
         socket2.send(CAN(identifier=0x1001, data='test'))
         time.sleep(1)
 
