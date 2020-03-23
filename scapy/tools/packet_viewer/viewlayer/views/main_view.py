@@ -1,5 +1,5 @@
 from typing import List, Dict
-from urwid import Frame, Widget, Pile, AttrMap, Text, Filler, LineBox, Columns
+from urwid import Frame, Widget, Pile, AttrMap, Text, Filler, LineBox, Columns, Button
 
 from scapy.packet import Packet
 from scapy.sendrecv import AsyncSniffer
@@ -72,9 +72,19 @@ class MainWindow(Frame):
         show_exit_pop_up(self)
         # TODO: Popup really required?
 
+    def close_details(
+        self, _button=None  # type: Button
+    ):
+        self.body.contents.pop(2)
+        self.body.contents.pop(1)
+
     def show_details(
         self, packet  # type: GuiPacket
     ):
+
+        close_btn = AttrMap(Button("Close details (press this button or click c)", self.close_details), "green")
+        close_btn_widget = (close_btn, ("pack", None))
+
         show_text = packet.packet.show(dump=True)
 
         show_text = Text(show_text)
@@ -87,15 +97,16 @@ class MainWindow(Frame):
 
         # must give a box widget
         # weight 1.0 is fine, since it automatically divides it evenly between all widgets if all of its weights are 1.0
-        if len(self.body.contents) == 2:
+        if len(self.body.contents) >= 2:
             self.body.contents[1] = new_widget
         else:
             self.body.contents.append(new_widget)
+            self.body.contents.append(close_btn_widget)
 
     def update_details(
         self, packet  # type: GuiPacket
     ):
-        if len(self.body.contents) == 2:
+        if len(self.body.contents) >= 2:
             self.show_details(packet)
 
     def add_packet(self, packet):
