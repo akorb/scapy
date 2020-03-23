@@ -50,19 +50,20 @@ def get_isotp_preset():
     return {"columns": [("SRC", 6, lambda p: format(p.src, "03X")), ("DST", 6, lambda p: format(p.dst, "03X")), ]}
 
 
+# TODO: This show Identifier(integer?) and ID(hex)
 def get_can_preset():
     # type: (...) -> Dict[str, Union[List[Tuple], Callable]]
     return {
         "columns": [("ID", 8, lambda p: format(p.identifier, "03X"))],
         "get_group": lambda p: p.identifier,
-        "get_data": lambda p: p.data,
+        "get_data": lambda p: p.data.hex().upper(),
     }
 
 
-def get_python_can_preset():
+def get_can_preset_py2():
     # type: (...) -> Dict[str, Union[List[Tuple], Callable]]
     return {
         "columns": [("ID", 8, lambda p: format(p.identifier, "03X"))],
         "get_group": lambda p: p.identifier,
-        "get_data": lambda p: p.fields.data,
+        "get_data": lambda p: p.data,
     }
