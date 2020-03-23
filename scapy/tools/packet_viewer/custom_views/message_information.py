@@ -2,15 +2,15 @@ from typing import Dict, Tuple, List, Union, Optional
 from urwid import Text, LineBox
 
 from scapy.packet import Packet
-from scapy.tools.packet_viewer.datalayer.funcs import (
+from scapy.tools.packet_viewer.custom_views import (
     variance,
     byte_flips,
     bit_flips,
     graph_values,
     bit_flip_correlation,
 )
-from scapy.tools.packet_viewer.viewlayer.utils import create_flips_heat_map
-from scapy.tools.packet_viewer.viewlayer.views.graph_view import GraphView
+from scapy.tools.packet_viewer.custom_views.utils import create_flips_heat_map
+from scapy.tools.packet_viewer.custom_views.graph_view import GraphView
 
 
 # pylint: disable=too-few-public-methods

@@ -1,7 +1,7 @@
 import unittest
 from typing import List
 
-from scapy.tools.packet_viewer.datalayer.funcs import (
+from scapy.tools.packet_viewer.custom_views import (
     variance,
     pairwise,
     data_flips,

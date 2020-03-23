@@ -9,6 +9,10 @@ from scapy.tools.packet_viewer.viewlayer.views.packet_list_view import PacketLis
 from scapy.tools.packet_viewer.viewlayer.views.pop_ups import show_exit_pop_up
 from scapy.utils import hexdump
 
+STATUS_INDEX = 1
+DETAIL_VIEW_INDEX = 2
+DETAIL_CLOSE_BUTTON_INDEX = 3
+
 
 class MainWindow(Frame):
     """
@@ -58,14 +62,15 @@ class MainWindow(Frame):
             opened_socket=socket, store=False, prn=self.add_packet, lfilter=lambda p: isinstance(p, basecls), **kwargs
         )
         self.sniffer.start()
+        self.body.contents.append((AttrMap(Text("Active"), "green"), ("pack", None)))
 
     def pause_packet_sniffer(self):
         self.sniffer.stop()
-        # TODO: Add status label at the bottom-right corner like in vim
+        self.body.contents[STATUS_INDEX] = (AttrMap(Text("Paused"), "red"), ("pack", None))
 
     def continue_packet_sniffer(self):
         self.sniffer.start()
-        # TODO: Add status label at the bottom-right corner like in vim
+        self.body.contents[STATUS_INDEX] = (AttrMap(Text("Active"), "green"), ("pack", None))
 
     def quit(self):
         self.sniffer.stop()
@@ -75,8 +80,8 @@ class MainWindow(Frame):
     def close_details(
         self, _button=None  # type: Button
     ):
-        self.body.contents.pop(2)
-        self.body.contents.pop(1)
+        self.body.contents.pop(DETAIL_CLOSE_BUTTON_INDEX)
+        self.body.contents.pop(DETAIL_VIEW_INDEX)
 
     def show_details(
         self, packet  # type: GuiPacket
@@ -97,8 +102,8 @@ class MainWindow(Frame):
 
         # must give a box widget
         # weight 1.0 is fine, since it automatically divides it evenly between all widgets if all of its weights are 1.0
-        if len(self.body.contents) >= 2:
-            self.body.contents[1] = new_widget
+        if len(self.body.contents) >= DETAIL_CLOSE_BUTTON_INDEX:
+            self.body.contents[DETAIL_VIEW_INDEX] = new_widget
         else:
             self.body.contents.append(new_widget)
             self.body.contents.append(close_btn_widget)
@@ -106,7 +111,7 @@ class MainWindow(Frame):
     def update_details(
         self, packet  # type: GuiPacket
     ):
-        if len(self.body.contents) >= 2:
+        if len(self.body.contents) >= DETAIL_CLOSE_BUTTON_INDEX:
             self.show_details(packet)
 
     def add_packet(self, packet):

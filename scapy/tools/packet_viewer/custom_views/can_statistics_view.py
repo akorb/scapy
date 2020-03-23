@@ -1,6 +1,6 @@
 from urwid import Button, ListBox, SimpleFocusListWalker, Pile, LineBox
 
-from scapy.tools.packet_viewer.datalayer.message_information import MessageDetailsData
+from scapy.tools.packet_viewer.custom_views import MessageDetailsData
 from scapy.tools.packet_viewer.viewlayer.packet import Packet, GuiPacket
 
 
