@@ -7,12 +7,12 @@ from scapy.tools.packet_viewer.viewlayer.views.main_view import MainWindow
 
 
 def viewer(
-        socket,  # type: SuperSocket
-        columns=None,  # type: Optional[List[Tuple[str, str, str]]]
-        get_group=lambda p: len(p),  # type: Optional[Callable]
-        get_data=lambda p: bytearray(bytes(p)),  # type: Optional[Callable]
-        basecls=Raw,
-        **kwargs
+    socket,  # type: SuperSocket
+    columns=None,  # type: Optional[List[Tuple[str, str, str]]]
+    get_group=lambda p: len(p),  # type: Optional[Callable]
+    get_data=lambda p: bytearray(bytes(p)),  # type: Optional[Callable]
+    basecls=Raw,
+    **kwargs
 ):
     palette = [
         ("default", "light gray", "black"),
@@ -47,7 +47,7 @@ def viewer(
 
 def get_isotp_preset():
     # type: (...) -> Dict[str, List[Tuple[str, int, Callable]]]
-    return {"columns": [("SRC", 6, lambda p: format(p.src, "03X")), ("DST", 6, lambda p: format(p.dst, "03X")), ]}
+    return {"columns": [("SRC", 6, lambda p: format(p.src, "03X")), ("DST", 6, lambda p: format(p.dst, "03X")),]}
 
 
 # TODO: This show Identifier(integer?) and ID(hex)

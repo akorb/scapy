@@ -12,7 +12,7 @@ def send_msg():
     for i in range(10):
         # TODO: if you use a bytestring it tries to encode the bytes in python2 and returns mostly questionmarks
         # socket2.send(CAN(identifier=0x602, data=b'\x24\x89'))
-        socket2.send(CAN(identifier=0x1001, data="test"))
+        socket2.send(CAN(identifier=0x1001, data="test" + str(i)))
         time.sleep(1)
 
 
