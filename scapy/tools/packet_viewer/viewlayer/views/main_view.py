@@ -1,12 +1,12 @@
-from scapy.tools.packet_viewer.viewlayer.command_line_interface import CommandLineInterface
-from scapy.tools.packet_viewer.viewlayer.packet import GuiPacket
-from scapy.tools.packet_viewer.viewlayer.views.packet_list_view import PacketListView
-from scapy.tools.packet_viewer.viewlayer.views.pop_ups import show_exit_pop_up
 from typing import List, Dict
 from urwid import Frame, Widget, Pile, AttrMap, Text, Filler, LineBox, Columns
 
 from scapy.packet import Packet
 from scapy.sendrecv import AsyncSniffer
+from scapy.tools.packet_viewer.viewlayer.command_line_interface import CommandLineInterface
+from scapy.tools.packet_viewer.viewlayer.packet import GuiPacket
+from scapy.tools.packet_viewer.viewlayer.views.packet_list_view import PacketListView
+from scapy.tools.packet_viewer.viewlayer.views.pop_ups import show_exit_pop_up
 from scapy.utils import hexdump
 
 
@@ -91,6 +91,12 @@ class MainWindow(Frame):
             self.body.contents[1] = new_widget
         else:
             self.body.contents.append(new_widget)
+
+    def update_details(
+        self, packet  # type: GuiPacket
+    ):
+        if len(self.body.contents) == 2:
+            self.show_details(packet)
 
     def add_packet(self, packet):
         """

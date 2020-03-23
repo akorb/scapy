@@ -1,7 +1,7 @@
-from scapy.tools.packet_viewer.viewlayer.packet import GuiPacket
 from urwid import AttrMap, ListBox, SimpleFocusListWalker, connect_signal, Pile
 
 from scapy.packet import Packet
+from scapy.tools.packet_viewer.viewlayer.packet import GuiPacket
 
 
 class PacketListView(ListBox):
@@ -44,7 +44,9 @@ class PacketListView(ListBox):
 
         self.body.append(Pile([AttrMap(gui_packet, {"cursor": "unfocused"})]))
 
-    def open_packet_menu(self):
+    def open_packet_menu(
+        self, is_update=False  # type: bool
+    ):
         """
         Gets the packet, currently in focus and creates a new edit menu,
         which will then allow to edit all the packet fields.
@@ -52,7 +54,22 @@ class PacketListView(ListBox):
         """
 
         packet_in_focus = self.body[self.focus_position].get_focus().original_widget
+        if is_update:
+            self.main_window.update_details(packet_in_focus)
+            return
         self.main_window.show_details(packet_in_focus)
+
+    def update_packet_in_focus(
+        self, focus_change  # type: int
+    ):
+        focus = self.body.get_focus()[1]
+        if focus is None:
+            return
+        next_focus = focus + focus_change
+        if next_focus < 0 or next_focus >= len(self.body):
+            return
+        self.body.set_focus(next_focus)
+        self.open_packet_menu(is_update=True)
 
     def packet_to_string(
         self, packet  # type: Packet
@@ -69,17 +86,9 @@ class PacketListView(ListBox):
         """
 
         if key in ["up", "k"]:
-            focus = self.body.get_focus()[1]
-            if focus:
-                next_focus = focus - 1
-                if next_focus >= 0:
-                    self.body.set_focus(next_focus)
+            self.update_packet_in_focus(-1)
         elif key in ["down", "j"]:
-            focus = self.body.get_focus()[1]
-            if focus is not None:
-                next_focus = focus + 1
-                if next_focus < len(self.body):
-                    self.body.set_focus(next_focus)
+            self.update_packet_in_focus(1)
         elif key in ["enter", "i"]:
             self.open_packet_menu()
 
