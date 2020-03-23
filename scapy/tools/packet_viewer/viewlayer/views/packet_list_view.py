@@ -91,6 +91,8 @@ class PacketListView(ListBox):
             self.update_packet_in_focus(1)
         elif key in ["enter", "i"]:
             self.open_packet_menu()
+        elif key in ["c"]:
+            self.main_window.close_details()
 
     # Overwrites function from ListBox
     # pylint: disable=too-many-arguments
@@ -101,6 +103,8 @@ class PacketListView(ListBox):
         """
 
         self.main_window.footer.remove_display_text()
+        if event == "mouse release":
+            self.open_packet_menu(is_update=True)
         super(PacketListView, self).mouse_event(size, event, button, col, row, focus)
 
     def on_focus_change(self):
