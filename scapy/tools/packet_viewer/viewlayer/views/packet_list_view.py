@@ -1,4 +1,4 @@
-from urwid import AttrMap, ListBox, SimpleFocusListWalker, connect_signal, Pile
+from urwid import AttrMap, ListBox, SimpleFocusListWalker, connect_signal, Pile, Frame, Text
 
 from scapy.packet import Packet
 from scapy.tools.packet_viewer.viewlayer.packet import GuiPacket
@@ -17,7 +17,6 @@ class PacketListView(ListBox):
 
         self.main_window = main_window
         self.columns = columns
-
         body = SimpleFocusListWalker([])  # type: SimpleFocusListWalker
         # registers `self.on_focus_change` as a callback method, whenever the list is modified
         connect_signal(body, "modified", self.on_focus_change)
@@ -44,13 +43,11 @@ class PacketListView(ListBox):
 
         self.body.append(Pile([AttrMap(gui_packet, {"cursor": "unfocused"})]))
 
-    def open_packet_menu(
+    def open_packet_details(
         self, is_update=False  # type: bool
     ):
         """
-        Gets the packet, currently in focus and creates a new edit menu,
-        which will then allow to edit all the packet fields.
-        :return: None
+        Gets the packet, currently in focus and creates or updates an existing view with the packets details.
         """
 
         packet_in_focus = self.body[self.focus_position].get_focus().original_widget
@@ -62,6 +59,9 @@ class PacketListView(ListBox):
     def update_packet_in_focus(
         self, focus_change  # type: int
     ):
+        """
+        Changes the packet focus inside the list by moving up or down the list by given value.
+        """
         focus = self.body.get_focus()[1]
         if focus is None:
             return
@@ -69,7 +69,7 @@ class PacketListView(ListBox):
         if next_focus < 0 or next_focus >= len(self.body):
             return
         self.body.set_focus(next_focus)
-        self.open_packet_menu(is_update=True)
+        self.open_packet_details(is_update=True)
 
     def packet_to_string(
         self, packet  # type: Packet
@@ -90,7 +90,7 @@ class PacketListView(ListBox):
         elif key in ["down", "j"]:
             self.update_packet_in_focus(1)
         elif key in ["enter", "i"]:
-            self.open_packet_menu()
+            self.open_packet_details()
         elif key in ["c"]:
             self.main_window.close_details()
 
@@ -104,7 +104,7 @@ class PacketListView(ListBox):
 
         self.main_window.footer.remove_display_text()
         if event == "mouse release":
-            self.open_packet_menu(is_update=True)
+            self.open_packet_details(is_update=True)
         super(PacketListView, self).mouse_event(size, event, button, col, row, focus)
 
     def on_focus_change(self):
