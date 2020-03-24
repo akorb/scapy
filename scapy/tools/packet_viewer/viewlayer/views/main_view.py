@@ -1,13 +1,14 @@
 from typing import List, Dict
 from urwid import Frame, Widget, Pile, AttrMap, Text, Filler, LineBox, Columns, Button
 
-from scapy.packet import Packet
+from scapy.packet import Packet, Raw
 from scapy.sendrecv import AsyncSniffer
+from scapy.utils import hexdump
+
 from scapy.tools.packet_viewer.viewlayer.command_line_interface import CommandLineInterface
 from scapy.tools.packet_viewer.viewlayer.packet import GuiPacket
 from scapy.tools.packet_viewer.viewlayer.views.packet_list_view import PacketListView
 from scapy.tools.packet_viewer.viewlayer.views.pop_ups import show_exit_pop_up
-from scapy.utils import hexdump
 
 STATUS_INDEX = 1
 DETAIL_VIEW_INDEX = 2
@@ -34,17 +35,16 @@ class MainWindow(Frame):
             format_string += "{" + name + ":<" + str(length) + "}"
         return format_string
 
-    def __init__(self, socket, columns, _get_group, _get_bytes_for_analysis, basecls, **kwargs):
-        self.basecls = socket.basecls if hasattr(socket, "basecls") else basecls
+    def __init__(self, socket, columns=None, _get_group=len,
+                 _get_data=lambda p: bytearray(bytes(p)),
+                 basecls=Raw, **kwargs):
+        self.basecls = getattr(socket, "basecls", basecls)
 
-        self.columns = [("TIME", 20, lambda p: p.time), ("LENGTH", 7, lambda p: len(p))]
+        self.columns = [("TIME", 20, lambda p: p.time), ("LENGTH", 7, len)] + \
+                       (columns or [])
 
-        if columns:
-            self.columns += columns
-
-        for field in self.basecls.fields_desc:
-            col = (field.name, 10, lambda p, name=field.name: p.fields[name])
-            self.columns.append(col)
+        self.columns += [(f.name, 10, lambda p, name=f.name: p.fields[name])
+                         for f in self.basecls.fields_desc]
 
         self.format_string = self._create_format_string(self.columns)
 
@@ -59,18 +59,22 @@ class MainWindow(Frame):
         self.view_stack = []  # type: List[Widget]
 
         self.sniffer = AsyncSniffer(
-            opened_socket=socket, store=False, prn=self.add_packet, lfilter=lambda p: isinstance(p, basecls), **kwargs
+            opened_socket=socket, store=False, prn=self.add_packet,
+            lfilter=lambda p: isinstance(p, basecls), **kwargs
         )
         self.sniffer.start()
-        self.body.contents.append((AttrMap(Text("Active"), "green"), ("pack", None)))
+        self.body.contents.append((AttrMap(Text("Active"), "green"),
+                                   ("pack", None)))
 
     def pause_packet_sniffer(self):
         self.sniffer.stop()
-        self.body.contents[STATUS_INDEX] = (AttrMap(Text("Paused"), "red"), ("pack", None))
+        self.body.contents[STATUS_INDEX] = (AttrMap(Text("Paused"), "red"),
+                                            ("pack", None))
 
     def continue_packet_sniffer(self):
         self.sniffer.start()
-        self.body.contents[STATUS_INDEX] = (AttrMap(Text("Active"), "green"), ("pack", None))
+        self.body.contents[STATUS_INDEX] = (AttrMap(Text("Active"), "green"),
+                                            ("pack", None))
 
     def quit(self):
         self.sniffer.stop()
