@@ -43,8 +43,9 @@ class MainWindow(Frame):
         self.columns = [("TIME", 20, lambda p: p.time), ("LENGTH", 7, len)] + \
                        (columns or [])
 
-        self.columns += [(f.name, 10, lambda p, name=f.name: p.fields[name])
-                         for f in self.basecls.fields_desc]
+        self.columns += [(field.name, 10,
+                          lambda p, name=field.name: p.fields[name])
+                         for field in self.basecls.fields_desc]
 
         self.format_string = self._create_format_string(self.columns)
 
