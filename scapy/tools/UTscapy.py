@@ -517,10 +517,16 @@ def import_UTscapy_tools(ses):
     ses["Bunch"] = Bunch
 
 
+scapy_session = None
+
 def run_campaign(test_campaign, get_interactive_session, drop_to_interpreter=False, verb=3, ignore_globals=None):  # noqa: E501
+    global scapy_session
     passed = failed = 0
-    scapy_ses = importlib.import_module(".all", "scapy").__dict__
-    import_UTscapy_tools(scapy_ses)
+    if scapy_session is None:
+        scapy_session = importlib.import_module(".all", "scapy").__dict__
+        import_UTscapy_tools(scapy_session)
+
+    scapy_ses = copy.copy(scapy_session)
     if test_campaign.preexec:
         test_campaign.preexec_output = get_interactive_session(test_campaign.preexec.strip(), ignore_globals=ignore_globals, my_globals=scapy_ses)[0]
     # Drop
