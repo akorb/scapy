@@ -112,11 +112,9 @@ load_contrib("isotp")
 
 if six.PY3 and ISOTP_KERNEL_MODULE_AVAILABLE:
     from scapy.contrib.isotp import ISOTPNativeSocket
-    ISOTPSocket = ISOTPNativeSocket
     assert ISOTPSocket == ISOTPNativeSocket
 else:
     from scapy.contrib.isotp import ISOTPSoftSocket
-    ISOTPSocket = ISOTPSoftSocket
     assert ISOTPSocket == ISOTPSoftSocket
 
 

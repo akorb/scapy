@@ -1,17 +1,9 @@
 {
   "testfiles": [
-    "test/*.uts",
-    "test/contrib/*.uts",
-    "test/contrib/automotive/*.uts",
-    "test/contrib/automotive/obd/*.uts",
-    "test/contrib/automotive/gm/*.uts",
-    "test/contrib/automotive/bmw/*.uts",
-    "test/tools/*.uts",
-    "test/tls/tests_tls_netaccess.uts"
+    "test/contrib/isotp.uts",
+    "test/contrib/isotpscan.uts"
   ],
   "remove_testfiles": [
-    "test/windows.uts",
-    "test/bpf.uts"
   ],
   "breakfailed": true,
   "onlyfailed": true,
