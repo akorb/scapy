@@ -1,13 +1,14 @@
 from typing import List, Dict
-from urwid import Frame, Widget, Pile, AttrMap, Text, Filler, LineBox, Columns, Button
+from urwid import Frame, Widget, Pile, AttrMap, Text, Filler, LineBox, \
+    Columns, Button
 
-from scapy.packet import Packet, Raw
+from scapy.packet import Raw
 from scapy.sendrecv import AsyncSniffer
 from scapy.utils import hexdump
 
-from scapy.tools.packet_viewer.viewlayer.command_line_interface import CommandLineInterface
+from scapy.tools.packet_viewer.viewlayer.command_line_interface import CommandLineInterface  # noqa: E501
 from scapy.tools.packet_viewer.viewlayer.packet import GuiPacket
-from scapy.tools.packet_viewer.viewlayer.views.packet_list_view import PacketListView
+from scapy.tools.packet_viewer.viewlayer.views.packet_list_view import PacketListView  # noqa: E501
 from scapy.tools.packet_viewer.viewlayer.views.pop_ups import show_exit_pop_up
 
 STATUS_INDEX = 1
@@ -40,8 +41,8 @@ class MainWindow(Frame):
                  basecls=Raw, **kwargs):
         self.basecls = getattr(socket, "basecls", basecls)
 
-        self.columns = [("TIME", 20, lambda p: p.time), ("LENGTH", 7, len)] + \
-                       (columns or [])
+        self.columns = [("TIME", 20, lambda p: p.time),
+                        ("LENGTH", 7, len)] + (columns or [])
 
         self.columns += [(field.name, 10,
                           lambda p, name=field.name: p.fields[name])
