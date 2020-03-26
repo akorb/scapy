@@ -10,7 +10,7 @@ def viewer(
     socket,  # type: SuperSocket
     columns=None,  # type: Optional[List[Tuple[str, str, str]]]
     get_group=lambda p: len(p),  # type: Optional[Callable]
-    get_data=lambda p: bytearray(bytes(p)),  # type: Optional[Callable]
+    get_bytes_for_analysis=lambda p: bytearray(bytes(p)),  # type: Optional[Callable]
     basecls=Raw,
     **kwargs
 ):
@@ -37,7 +37,7 @@ def viewer(
     ]  # type: List[Union[Tuple[str, str, str],Tuple[str, str, str, str], Tuple[str, str, str, str, str, str] ]]
 
     main_window = AttrMap(
-        MainWindow(socket, columns, get_group, get_data, basecls, **kwargs), "default"
+        MainWindow(socket, columns, get_group, get_bytes_for_analysis, basecls, **kwargs), "default"
     )  # type: AttrMap
     # main_window is the top most widget used to render the whole screen
     loop = MainLoop(main_window, palette)  # type: MainLoop
@@ -56,14 +56,5 @@ def get_can_preset():
     return {
         "columns": [("ID", 8, lambda p: format(p.identifier, "03X"))],
         "get_group": lambda p: p.identifier,
-        "get_data": lambda p: p.data.hex().upper(),
-    }
-
-
-def get_can_preset_py2():
-    # type: (...) -> Dict[str, Union[List[Tuple], Callable]]
-    return {
-        "columns": [("ID", 8, lambda p: format(p.identifier, "03X"))],
-        "get_group": lambda p: p.identifier,
-        "get_data": lambda p: p.data,
+        "get_bytes_for_analysis": lambda p: p.data,
     }
