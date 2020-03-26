@@ -3,6 +3,9 @@ from urwid import AttrMap, ListBox, SimpleFocusListWalker, connect_signal
 from scapy.packet import Packet
 from scapy.tools.packet_viewer.viewlayer.packet import GuiPacket
 
+SCROLL_WHEEL_UP = 4
+SCROLL_WHEEL_DOWN = 5
+
 
 class PacketListView(ListBox):
     """
@@ -84,6 +87,15 @@ class PacketListView(ListBox):
         Handles mouse events.
         Unhandled mouse events are being passed on to the keypress method of the super class.
         """
+
+        # Translate mouse scrolling to up and down keys
+        # to allow scrolling with the scrolling wheel
+        if button == SCROLL_WHEEL_UP:
+            self.keypress(size, "up")
+            return
+        if button == SCROLL_WHEEL_DOWN:
+            self.keypress(size, "down")
+            return
 
         self.main_window.footer.remove_display_text()
         super(PacketListView, self).mouse_event(size, event, button, col, row, focus)

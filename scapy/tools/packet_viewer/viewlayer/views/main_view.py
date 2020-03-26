@@ -56,7 +56,6 @@ class MainWindow(Frame):
         )
 
         self.main_loop = None
-        self.view_stack = []  # type: List[Widget]
 
         self.sniffer = AsyncSniffer(
             opened_socket=socket, store=False, prn=self.add_packet, lfilter=lambda p: isinstance(p, basecls), **kwargs
