@@ -34,7 +34,7 @@ class MainWindow(Frame):
             format_string += "{" + name + ":<" + str(length) + "}"
         return format_string
 
-    def __init__(self, socket, columns, _get_group, _get_data, basecls, **kwargs):
+    def __init__(self, socket, columns, _get_group, _get_bytes_for_analysis, basecls, **kwargs):
         self.basecls = socket.basecls if hasattr(socket, "basecls") else basecls
 
         self.columns = [("TIME", 20, lambda p: p.time), ("LENGTH", 7, lambda p: len(p))]
@@ -80,8 +80,10 @@ class MainWindow(Frame):
     def close_details(
         self, _button=None  # type: Button
     ):
-        self.body.contents.pop(DETAIL_CLOSE_BUTTON_INDEX)
-        self.body.contents.pop(DETAIL_VIEW_INDEX)
+        # if it is not four, the detail window is not shown yet
+        if len(self.body.contents) == 4:
+            self.body.contents.pop(DETAIL_CLOSE_BUTTON_INDEX)
+            self.body.contents.pop(DETAIL_VIEW_INDEX)
 
     def show_details(
         self, packet  # type: GuiPacket
