@@ -6,11 +6,7 @@ from scapy.compat import bytes_hex
 from scapy.tools.packet_viewer.viewlayer.views.main_view import MainWindow
 
 
-def viewer(
-    socket,  # type: SuperSocket
-    **kwargs
-):
-    palette = [
+palette = [
         ("default", "light gray", "black"),
         ("header", "light blue", "black"),
         ("packet_view_header", "light cyan", "black"),
@@ -32,9 +28,9 @@ def viewer(
         ("bg 2 line", "dark red", "dark cyan"),
     ]  # type: List[Union[Tuple[str, str, str],Tuple[str, str, str, str], Tuple[str, str, str, str, str, str] ]]
 
-    main_window = AttrMap(
-        MainWindow(socket, **kwargs), "default"
-    )  # type: AttrMap
+def viewer(*args, **kwargs):
+    main_window = \
+        AttrMap(MainWindow(*args, **kwargs), "default")  # type: AttrMap
     # main_window is the top most widget used to render the whole screen
     loop = MainLoop(main_window, palette)  # type: MainLoop
     main_window.base_widget.main_loop = loop
