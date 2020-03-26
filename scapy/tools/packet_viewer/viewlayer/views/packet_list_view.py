@@ -1,5 +1,6 @@
 from urwid import AttrMap, ListBox, SimpleFocusListWalker, connect_signal, Pile, Frame, Text
 
+from scapy.compat import plain_str
 from scapy.packet import Packet
 from scapy.tools.packet_viewer.viewlayer.packet import GuiPacket
 
@@ -76,7 +77,7 @@ class PacketListView(ListBox):
     ):
         cols = dict()  # type: dict
         for (name, _, fun) in self.columns:
-            cols[name] = str(fun(packet))
+            cols[name] = plain_str(fun(packet))
 
         return self.main_window.format_string.format(**cols)
 
