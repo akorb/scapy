@@ -27,3 +27,7 @@ class GuiPacket(Text):
         # count, time_variance = get_count_and_variance(packet, info)
 
         super(GuiPacket, self).__init__(*args, **kwargs)
+
+    def keypress(self, size, key):
+        # Since this text is selectable, it has to provide a keypress method.
+        return key
