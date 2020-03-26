@@ -51,7 +51,8 @@ class MainWindow(Frame):
 
         super(MainWindow, self).__init__(
             body=Pile([PacketListView(self, self.columns)]),
-            header=AttrMap(Text("   " + self.get_header()), "packet_view_header"),
+            header=AttrMap(
+                Text("   " + self.get_header()), "packet_view_header"),
             footer=CommandLineInterface(self),
             focus_part="footer",
         )
@@ -94,7 +95,9 @@ class MainWindow(Frame):
         self, packet  # type: GuiPacket
     ):
 
-        close_btn = AttrMap(Button("Close details (press this button or click c)", self.close_details), "green")
+        close_btn = AttrMap(
+            Button("Close details (press this button or click c)",
+                   self.close_details), "green")
         close_btn_widget = (close_btn, ("pack", None))
 
         show_text = packet.packet.show(dump=True)
@@ -108,7 +111,8 @@ class MainWindow(Frame):
         new_widget = (linebox, ("weight", 0.3))
 
         # must give a box widget
-        # weight 1.0 is fine, since it automatically divides it evenly between all widgets if all of its weights are 1.0
+        # weight 1.0 is fine, since it automatically divides it
+        # evenly between all widgets if all of its weights are 1.0
         if len(self.body.contents) >= DETAIL_CLOSE_BUTTON_INDEX:
             self.body.contents[DETAIL_VIEW_INDEX] = new_widget
         else:
