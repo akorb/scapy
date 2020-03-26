@@ -91,7 +91,7 @@ class PacketListView(ListBox):
             self.update_packet_in_focus(1)
         elif key in ["enter", "i"]:
             self.open_packet_details()
-        elif key in ["c"]:
+        elif key == "c":
             self.main_window.close_details()
 
     # Overwrites function from ListBox
