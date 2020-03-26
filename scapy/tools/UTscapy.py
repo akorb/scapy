@@ -29,8 +29,11 @@ from scapy.modules.six.moves import range
 from scapy.config import conf
 from scapy.compat import base64_bytes, bytes_hex, plain_str
 
-#   Util class   #
 
+scapy_session = None
+
+
+#   Util class   #
 
 class Bunch:
     __init__ = lambda self, **kw: setattr(self, '__dict__', kw)
@@ -516,8 +519,6 @@ def import_UTscapy_tools(ses):
     ses["retry_test"] = retry_test
     ses["Bunch"] = Bunch
 
-
-scapy_session = None
 
 def run_campaign(test_campaign, get_interactive_session, drop_to_interpreter=False, verb=3, ignore_globals=None):  # noqa: E501
     global scapy_session
