@@ -1,5 +1,5 @@
-from typing import List, Dict
-from urwid import Frame, Widget, Pile, AttrMap, Text, Filler, LineBox, Columns, Button
+from typing import Dict
+from urwid import Frame, Pile, AttrMap, Text, Filler, LineBox, Columns, Button
 
 from scapy.packet import Packet
 from scapy.sendrecv import AsyncSniffer
@@ -19,7 +19,7 @@ class MainWindow(Frame):
     Assembles all parts of the view.
     """
 
-    def get_header(self):
+    def get_header_string(self):
         # type: (...) -> str
         cols = dict()  # type: Dict[str, str]
         for (name, _, _) in self.columns:
@@ -35,22 +35,23 @@ class MainWindow(Frame):
         return format_string
 
     def __init__(self, socket, columns, _get_group, _get_bytes_for_analysis, basecls, **kwargs):
-        self.basecls = socket.basecls if hasattr(socket, "basecls") else basecls
+        basecls = socket.basecls if hasattr(socket, "basecls") else basecls
 
         self.columns = [("TIME", 20, lambda p: p.time), ("LENGTH", 7, lambda p: len(p))]
 
         if columns:
             self.columns += columns
 
-        for field in self.basecls.fields_desc:
+        for field in basecls.fields_desc:
             col = (field.name, 10, lambda p, name=field.name: p.fields[name])
             self.columns.append(col)
 
         self.format_string = self._create_format_string(self.columns)
 
         super(MainWindow, self).__init__(
-            body=Pile([PacketListView(self, self.columns)]),
-            header=AttrMap(Text("   " + self.get_header()), "packet_view_header"),
+            body=Pile([PacketListView(self, self.columns),
+                       ("pack", AttrMap(Text("Active"), "green"))]),
+            header=AttrMap(Text("   " + self.get_header_string()), "packet_view_header"),
             footer=CommandLineInterface(self),
             focus_part="footer",
         )
@@ -61,7 +62,6 @@ class MainWindow(Frame):
             opened_socket=socket, store=False, prn=self.add_packet, lfilter=lambda p: isinstance(p, basecls), **kwargs
         )
         self.sniffer.start()
-        self.body.contents.append((AttrMap(Text("Active"), "green"), ("pack", None)))
 
     def pause_packet_sniffer(self):
         self.sniffer.stop()
