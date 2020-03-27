@@ -94,7 +94,7 @@ class MainWindow(Frame):
         show_text = packet.packet.show(dump=True)
 
         show_text = Text(show_text)
-        hexdump_text = Text(hexdump(packet.packet, dump=True))
+        hexdump_text = Text(hexdump(packet.packet, dump=True), align="right")
 
         col = Columns([("pack", show_text), hexdump_text], dividechars=4)
         linebox = LineBox(Filler(col, "top"))
