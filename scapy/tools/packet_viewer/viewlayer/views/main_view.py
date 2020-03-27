@@ -1,3 +1,4 @@
+from itertools import count
 from typing import Dict
 from urwid import Frame, Pile, AttrMap, Text, Filler, LineBox, Columns, Button
 
@@ -37,7 +38,8 @@ class MainWindow(Frame):
     def __init__(self, socket, columns, _get_group, _get_bytes_for_analysis, basecls, **kwargs):
         basecls = socket.basecls if hasattr(socket, "basecls") else basecls
 
-        self.columns = [("TIME", 20, lambda p: p.time), ("LENGTH", 7, lambda p: len(p))]
+        c = count()
+        self.columns = [("NO", 5, lambda p: next(c)), ("TIME", 20, lambda p: p.time), ("LENGTH", 7, lambda p: len(p))]
 
         if columns:
             self.columns += columns
