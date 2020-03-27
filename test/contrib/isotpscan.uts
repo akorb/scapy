@@ -8,7 +8,6 @@ load_layer("can")
 conf.contribs['CAN']['swap-bytes'] = False
 import os, threading, six, subprocess, sys
 from subprocess import call
-from scapy.contrib.isotp import send_multiple_ext, filter_periodic_packets, scan, scan_extended
 from scapy.consts import LINUX
 
 = Definition of constants, utility functions
@@ -117,6 +116,7 @@ else:
     from scapy.contrib.isotp import ISOTPSoftSocket
     assert ISOTPSocket == ISOTPSoftSocket
 
+from scapy.contrib.isotp import send_multiple_ext, filter_periodic_packets, scan, scan_extended
 
 = Test send_multiple_ext()
 
