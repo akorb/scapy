@@ -23,8 +23,7 @@ def show_exit_pop_up(main_window):
         main_window.main_loop.widget = current_widget
 
     def exit_loop(_self):
-        if main_window.footer.sniffer is not None:
-            main_window.footer.sniffer.stop()
+        main_window.sniffer.stop()
         raise ExitMainLoop()
 
     question = Text(("bold", "Really quit?"), "center")

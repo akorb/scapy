@@ -72,9 +72,7 @@ class MainWindow(Frame):
         self.body.contents[STATUS_INDEX] = (AttrMap(Text("Active"), "green"), ("pack", None))
 
     def quit(self):
-        self.sniffer.stop()
         show_exit_pop_up(self)
-        # TODO: Popup really required?
 
     def close_details(
         self, _button=None  # type: Button
