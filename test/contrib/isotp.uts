@@ -138,7 +138,7 @@ if p1.wait() == 0 and p2.wait() == 0 and b"can_isotp" in p2.stdout.read():
 
 = Import isotp
 conf.contribs['ISOTP'] = {'use-can-isotp-kernel-module': False}
-load_contrib("isotp")
+from scapy.contrib.isotp import *
 
 ISOTPSocket = ISOTPSoftSocket
 

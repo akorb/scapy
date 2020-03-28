@@ -9,6 +9,7 @@ conf.contribs['CAN']['swap-bytes'] = False
 import os, threading, six, subprocess, sys
 from subprocess import call
 from scapy.consts import LINUX
+import importlib
 
 = Definition of constants, utility functions
 
@@ -107,13 +108,15 @@ if p1.wait() == 0 and p2.wait() == 0 and b"can_isotp" in p2.stdout.read():
 
 = Import isotp
 conf.contribs['ISOTP'] = {'use-can-isotp-kernel-module': ISOTP_KERNEL_MODULE_AVAILABLE}
-load_contrib("isotp")
+
+if "scapy.contrib.isotp" in sys.modules:
+    importlib.reload(scapy.contrib.isotp)
+
+from scapy.contrib.isotp import *
 
 if six.PY3 and ISOTP_KERNEL_MODULE_AVAILABLE:
-    from scapy.contrib.isotp import ISOTPNativeSocket
     assert ISOTPSocket == ISOTPNativeSocket
 else:
-    from scapy.contrib.isotp import ISOTPSoftSocket
     assert ISOTPSocket == ISOTPSoftSocket
 
 from scapy.contrib.isotp import send_multiple_ext, filter_periodic_packets, scan, scan_extended
