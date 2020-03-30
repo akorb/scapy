@@ -21,7 +21,6 @@ class CommandLineInterface(Edit):
     def execute_command(
             self, cmd  # type: str
     ):
-        valid_commands = ["pause", "continue", "quit"]
 
         if cmd == "pause":
             self.main_window.pause_packet_sniffer()
@@ -35,12 +34,13 @@ class CommandLineInterface(Edit):
             self.main_window.quit()
             return
 
+        valid_commands = ["pause", "continue", "quit"]
         show_info_pop_up(self.main_window.main_loop, "No valid command, choose from: " + ', '.join(valid_commands))
 
     def keypress(self, size, key):
         if key == "enter":
             command = self.get_edit_text()  # type: str
-            self.execute_command(command)
+            self.execute_command(command.strip())
             self.set_edit_text("")
             return
 

@@ -1,5 +1,7 @@
 from urwid import Text, AttrMap, Button, LineBox, Overlay, ListBox, SimpleFocusListWalker, ExitMainLoop
 
+from scapy.error import Scapy_Exception
+
 
 def show_info_pop_up(loop, info):
     current_widget = loop.widget
@@ -23,7 +25,10 @@ def show_exit_pop_up(main_window):
         main_window.main_loop.widget = current_widget
 
     def exit_loop(_self):
-        main_window.sniffer.stop()
+        try:
+            main_window.sniffer.stop()
+        except Scapy_Exception:
+            pass
         raise ExitMainLoop()
 
     question = Text(("bold", "Really quit?"), "center")

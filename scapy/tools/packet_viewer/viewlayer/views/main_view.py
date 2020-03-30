@@ -9,7 +9,7 @@ from scapy.tools.packet_viewer.viewlayer.command_line_interface import CommandLi
 from scapy.tools.packet_viewer.viewlayer.packet import GuiPacket
 from scapy.tools.packet_viewer.viewlayer.views.detail_view import DetailsView
 from scapy.tools.packet_viewer.viewlayer.views.packet_list_view import PacketListView
-from scapy.tools.packet_viewer.viewlayer.views.pop_ups import show_exit_pop_up
+from scapy.tools.packet_viewer.viewlayer.views.pop_ups import show_exit_pop_up, show_info_pop_up
 
 PACKET_VIEW_INDEX = 0
 STATUS_INDEX = 1
@@ -73,8 +73,12 @@ class MainWindow(Frame):
                          for field in basecls.fields_desc]
 
         self.format_string = self._create_format_string(self.columns)
-        self.main_loop = None
+
         self.packet_view = PacketListView(self, self.columns)
+
+        self.main_loop = None
+
+        self.details_view = DetailsView(False, self._close_details)
 
         super(MainWindow, self).__init__(
             body=Pile([self.packet_view,
@@ -84,21 +88,26 @@ class MainWindow(Frame):
             focus_part="footer",
         )
 
-        self.details_view = DetailsView(False, self._close_details)
-
         self.sniffer = AsyncSniffer(
             opened_socket=socket, store=False, prn=self.packet_view.add_packet,
             lfilter=lambda p: isinstance(p, basecls), **kwargs
         )
         self.sniffer.start()
+        self.sniffer_is_running = True
 
     def pause_packet_sniffer(self):
-        self.sniffer.stop()
-        self.body.contents[STATUS_INDEX] = (AttrMap(Text("Paused"), "red"), ("pack", None))
+        if self.sniffer_is_running:
+            self.sniffer.stop()
+            self.body.contents[STATUS_INDEX] = (AttrMap(Text("Paused"), "red"), ("pack", None))
+            self.sniffer_is_running = False
+        else:
+            show_info_pop_up(self.main_window.main_loop, "Can not pause sniffer: No active sniffer.")
 
     def continue_packet_sniffer(self):
-        self.sniffer.start()
-        self.body.contents[STATUS_INDEX] = (AttrMap(Text("Active"), "green"), ("pack", None))
+        if not self.sniffer_is_running:
+            self.sniffer.start()
+            self.body.contents[STATUS_INDEX] = (AttrMap(Text("Active"), "green"), ("pack", None))
+        show_info_pop_up(self.main_window.main_loop, "Can not start sniffer: Has already one active sniffer.")
 
     def quit(self):
         show_exit_pop_up(self)
