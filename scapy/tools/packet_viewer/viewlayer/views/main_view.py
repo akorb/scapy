@@ -1,9 +1,11 @@
 from itertools import count
-from typing import Dict
+
+from typing import Dict, Callable, List, Optional
 from urwid import Frame, Pile, AttrMap, Text, Filler, LineBox, Columns, Button
 
 from scapy.packet import Packet
 from scapy.sendrecv import AsyncSniffer
+from scapy.supersocket import SuperSocket
 from scapy.tools.packet_viewer.viewlayer.command_line_interface import CommandLineInterface
 from scapy.tools.packet_viewer.viewlayer.packet import GuiPacket
 from scapy.tools.packet_viewer.viewlayer.views.packet_list_view import PacketListView
@@ -15,6 +17,25 @@ DETAIL_VIEW_INDEX = 2
 DETAIL_CLOSE_BUTTON_INDEX = 3
 
 
+class MainWindowColumn:
+    """
+    Class to define size and content of a column in main view
+    """
+
+    def __init__(self, name,  # type: str
+                 width,  # type: int
+                 func,  # type: Callable
+                 ):
+        """
+        :param name: String that is used as Header of the column and reference
+        :param width: Width of the column
+        :param func: A callable function that should take Packet as input and return what will be displayed in the column
+        """
+        self.name = name
+        self.width = width
+        self.func = func
+
+
 class MainWindow(Frame):
     """
     Assembles all parts of the view.
@@ -23,29 +44,33 @@ class MainWindow(Frame):
     def get_header_string(self):
         # type: (...) -> str
         cols = dict()  # type: Dict[str, str]
-        for (name, _, _) in self.columns:
-            cols[name] = name.upper()
+        for column in self.columns:
+            cols[column.name] = column.name.upper()
 
         return self.format_string.format(**cols)
 
     @staticmethod
-    def _create_format_string(columns):
+    def _create_format_string(columns  # type: List[MainWindowColumn]
+                              ):
         format_string = ""
-        for (name, length, _) in columns:
-            format_string += "{" + name + ":<" + str(length) + "}"
+        for column in columns:
+            format_string += "{" + column.name + ":<" + str(column.width) + "}"
         return format_string
 
-    def __init__(self, socket, columns, _get_group, _get_bytes_for_analysis, basecls, **kwargs):
+    def __init__(self, socket,  # type: SuperSocket
+                 columns,  # type: Optional[List[MainWindowColumn]]
+                 _get_group, _get_bytes_for_analysis, basecls, **kwargs):
         basecls = socket.basecls if hasattr(socket, "basecls") else basecls
 
         c = count()
-        self.columns = [("NO", 5, lambda p: next(c)), ("TIME", 20, lambda p: p.time), ("LENGTH", 7, lambda p: len(p))]
+        self.columns = [MainWindowColumn("NO", 5, lambda p: next(c)), MainWindowColumn("TIME", 20, lambda p: p.time),
+                        MainWindowColumn("LENGTH", 7, lambda p: len(p))]
 
         if columns:
             self.columns += columns
 
         for field in basecls.fields_desc:
-            col = (field.name, 10, lambda p, name=field.name: p.fields[name])
+            col = MainWindowColumn(field.name, 10, lambda p, name=field.name: p.fields[name])
             self.columns.append(col)
 
         self.format_string = self._create_format_string(self.columns)
@@ -77,7 +102,7 @@ class MainWindow(Frame):
         show_exit_pop_up(self)
 
     def close_details(
-        self, _button=None  # type: Button
+            self, _button=None  # type: Button
     ):
         # if it is not four, the detail window is not shown yet
         if len(self.body.contents) == 4:
@@ -85,7 +110,7 @@ class MainWindow(Frame):
             self.body.contents.pop(DETAIL_VIEW_INDEX)
 
     def show_details(
-        self, packet  # type: GuiPacket
+            self, packet  # type: GuiPacket
     ):
 
         close_btn = AttrMap(Button("Close details (press this button or click c)", self.close_details), "green")
@@ -110,7 +135,7 @@ class MainWindow(Frame):
             self.body.contents.append(close_btn_widget)
 
     def update_details(
-        self, packet  # type: GuiPacket
+            self, packet  # type: GuiPacket
     ):
         if len(self.body.contents) >= DETAIL_CLOSE_BUTTON_INDEX:
             self.show_details(packet)

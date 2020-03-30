@@ -63,8 +63,8 @@ class PacketListView(ListBox):
         self, packet  # type: Packet
     ):
         cols = dict()  # type: dict
-        for (name, _, fun) in self.columns:
-            cols[name] = str(fun(packet))
+        for column in self.columns:
+            cols[column.name] = str(column.func(packet))
 
         return self.main_window.format_string.format(**cols)
 

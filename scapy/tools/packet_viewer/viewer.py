@@ -3,12 +3,12 @@ from urwid import AttrMap, MainLoop
 
 from scapy.packet import Raw
 from scapy.supersocket import SuperSocket
-from scapy.tools.packet_viewer.viewlayer.views.main_view import MainWindow
+from scapy.tools.packet_viewer.viewlayer.views.main_view import MainWindow, MainWindowColumn
 
 
 def viewer(
     socket,  # type: SuperSocket
-    columns=None,  # type: Optional[List[Tuple[str, str, str]]]
+    columns=None,  # type: Optional[List[MainWindowColumn]]
     get_group=lambda p: len(p),  # type: Optional[Callable]
     get_bytes_for_analysis=lambda p: bytearray(bytes(p)),  # type: Optional[Callable]
     basecls=Raw,
@@ -54,7 +54,7 @@ def get_isotp_preset():
 def get_can_preset():
     # type: (...) -> Dict[str, Union[List[Tuple], Callable]]
     return {
-        "columns": [("ID", 8, lambda p: format(p.identifier, "03X"))],
+        "columns": [MainWindowColumn("ID", 8, lambda p: format(p.identifier, "03X"))],
         "get_group": lambda p: p.identifier,
         "get_bytes_for_analysis": lambda p: p.data,
     }
