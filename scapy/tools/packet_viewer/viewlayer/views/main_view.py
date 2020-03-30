@@ -60,18 +60,14 @@ class MainWindow(Frame):
     def __init__(self, socket,  # type: SuperSocket
                  columns,  # type: Optional[List[MainWindowColumn]]
                  _get_group, _get_bytes_for_analysis, basecls, **kwargs):
-        basecls = socket.basecls if hasattr(socket, "basecls") else basecls
+        basecls = getattr(socket, "basecls", basecls)
 
         c = count()
         self.columns = [MainWindowColumn("NO", 5, lambda p: next(c)), MainWindowColumn("TIME", 20, lambda p: p.time),
-                        MainWindowColumn("LENGTH", 7, lambda p: len(p))]
+                        MainWindowColumn("LENGTH", 7, len)] + (columns or [])
 
-        if columns:
-            self.columns += columns
-
-        for field in basecls.fields_desc:
-            col = MainWindowColumn(field.name, 10, lambda p, name=field.name: p.fields[name])
-            self.columns.append(col)
+        self.columns += [MainWindowColumn(field.name, 10, lambda p, name=field.name: p.fields[name])
+                         for field in basecls.fields_desc]
 
         self.format_string = self._create_format_string(self.columns)
         self.main_loop = None

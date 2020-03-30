@@ -9,7 +9,7 @@ from scapy.tools.packet_viewer.viewlayer.views.main_view import MainWindow, Main
 def viewer(
     socket,  # type: SuperSocket
     columns=None,  # type: Optional[List[MainWindowColumn]]
-    get_group=lambda p: len(p),  # type: Optional[Callable]
+    get_group=len,  # type: Optional[Callable]
     get_bytes_for_analysis=lambda p: bytearray(bytes(p)),  # type: Optional[Callable]
     basecls=Raw,
     **kwargs
@@ -48,7 +48,8 @@ def viewer(
 
 def get_isotp_preset():
     # type: (...) -> Dict[str, List[Tuple[str, int, Callable]]]
-    return {"columns": [("SRC", 6, lambda p: format(p.src, "03X")), ("DST", 6, lambda p: format(p.dst, "03X")),]}
+    return {"columns": [("SRC", 6, lambda p: format(p.src, "03X")),
+                        ("DST", 6, lambda p: format(p.dst, "03X")),]}
 
 
 # TODO: This show Identifier(integer?) and ID(hex)
