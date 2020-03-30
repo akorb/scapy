@@ -67,7 +67,7 @@ class PacketListView(ListBox):
     ):
         cols = dict()  # type: dict
         for column in self.columns:
-            cols[column.name] = str(column.func(packet))[:(column.width - 1) or 0]
+            cols[column.name] = str(column.func(packet))[:column.width - 1]
 
         return self.main_window.format_string.format(**cols)
 

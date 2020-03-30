@@ -31,6 +31,9 @@ class MainWindowColumn:
         :param width: Width of the column
         :param func: A callable function that should take Packet as input and return what will be displayed in the column
         """
+        if width < 1:
+            raise ValueError("Columns must have a width of at least 1.")
+
         self.name = name
         self.width = width
         self.func = func
