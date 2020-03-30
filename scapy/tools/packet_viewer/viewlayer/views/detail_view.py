@@ -21,6 +21,4 @@ class DetailsView:
         col = Columns([("pack", show_text), hexdump_text], dividechars=4)
         linebox = LineBox(Filler(col, "top"))
 
-        return (linebox, ("weight", 0.3))
-
-
+        return linebox, ("weight", 0.3)
