@@ -42,6 +42,7 @@ def viewer(
     # main_window is the top most widget used to render the whole screen
     loop = MainLoop(main_window, palette)  # type: MainLoop
     main_window.base_widget.main_loop = loop
+    main_window.base_widget.packet_view.main_loop = loop
     loop.run()
 
 

@@ -12,13 +12,14 @@ class PacketListView(ListBox):
     Lists all the packets which have been sniffed so far. Is part of the packet_view.
     """
 
-    def __init__(self, main_window, columns):
+    def __init__(self, main_window, columns, ):
         """
         :param main_window: Main window, which contains the packet view
         :type main_window: view.MainWindow
         """
 
         self.main_window = main_window
+        self.main_loop = None
         self.columns = columns
         body = SimpleFocusListWalker([])  # type: SimpleFocusListWalker
         # registers `self.on_focus_change` as a callback method, whenever the list is modified
@@ -45,6 +46,8 @@ class PacketListView(ListBox):
         gui_packet = GuiPacket(packet, [("cursor", u">> "), text])
 
         self.body.append(AttrMap(gui_packet, {"cursor": "unfocused"}, {"cursor": "focused"}))
+        if self.main_loop:
+            self.main_loop.draw_screen()
 
     def open_packet_details(
         self, is_update=False  # type: bool
