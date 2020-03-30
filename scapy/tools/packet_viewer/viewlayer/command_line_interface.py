@@ -1,18 +1,6 @@
-import shlex
-from argparse import ArgumentParser as NativeArgumentParser, Namespace
-
-from scapy.tools.packet_viewer.viewlayer.views.pop_ups import show_info_pop_up
-from typing import Tuple, Union
 from urwid import Edit
 
-
-class ArgumentError(Exception):
-    pass
-
-
-class ArgumentParser(NativeArgumentParser):
-    def error(self, message):
-        raise ArgumentError(message)
+from scapy.tools.packet_viewer.viewlayer.views.pop_ups import show_info_pop_up
 
 
 class CommandLineInterface(Edit):
@@ -31,52 +19,37 @@ class CommandLineInterface(Edit):
         self.set_caption(":")  # required, because the initial focus is on the command line
 
     def execute_command(
-        self, infos  # type: Namespace
+            self, cmd  # type: str
     ):
-        if infos.cmd == "pause":
+        valid_commands = ["pause", "continue", "quit"]
+
+        if cmd == "pause":
             self.main_window.pause_packet_sniffer()
-        elif infos.cmd == "continue":
+            return
+
+        if cmd == "continue":
             self.main_window.continue_packet_sniffer()
-        elif infos.cmd == "quit":
+            return
+
+        if cmd == "quit":
             self.main_window.quit()
+            return
+
+        show_info_pop_up(self.main_window.main_loop, "No valid command, choose from: " + ', '.join(valid_commands))
 
     def keypress(self, size, key):
         if key == "enter":
-            text = self.get_edit_text()  # type: str
-            success, infos_or_error = self._parse_user_input(text)
-            if success:
-                self.execute_command(infos_or_error)
-            else:
-                show_info_pop_up(self.main_window.main_loop, infos_or_error)
-
+            command = self.get_edit_text()  # type: str
+            self.execute_command(command)
             self.set_edit_text("")
-        elif key == "up":
+            return
+
+        if key == "up":
             self.main_window.focus_position = "body"
             self.remove_display_text()
-        else:
-            super(CommandLineInterface, self).keypress(size, key)
+            return
 
-    @staticmethod
-    def _parse_user_input(
-        text,  # type: str
-    ):
-        # type: (...) -> Tuple[bool, Union[str, Namespace]]
-        """
-        :param text: The input of the user.
-        :return: First parameter determines if input was valid.
-                 Second parameter contains information the user specified if valid input, otherwise error message.
-        """
-        parser = ArgumentParser()
-        parser.add_argument("cmd", choices=["pause", "continue", "quit"])
-
-        split_text = shlex.split(text)
-
-        try:
-            args = parser.parse_args(split_text)
-        except ArgumentError as ex:
-            return False, ex.args[0]
-
-        return True, args
+        super(CommandLineInterface, self).keypress(size, key)
 
     # Overwrites function from Edit
     # pylint: disable=too-many-arguments

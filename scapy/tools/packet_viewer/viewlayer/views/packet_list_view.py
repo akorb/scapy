@@ -75,10 +75,13 @@ class PacketListView(ListBox):
 
         if key in ["enter", "i"]:
             self.open_packet_details()
-        elif key == "c":
+            return
+
+        if key == "c":
             self.main_window.close_details()
-        else:
-            super(PacketListView, self).keypress(size, key)
+            return
+
+        super(PacketListView, self).keypress(size, key)
 
     # Overwrites function from ListBox
     # pylint: disable=too-many-arguments
