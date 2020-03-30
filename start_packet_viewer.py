@@ -10,7 +10,7 @@ from scapy.tools.packet_viewer.viewer import viewer, get_can_preset
 
 # socket = ISOTPSocket("vcan0", did=0x123, sid=0x456)
 socket = PythonCANSocket(bustype='virtual', channel="vcan1")
-#socket = CANSocket("vcan0")
+socket = CANSocket("vcan0")
 # socket = L2Socket("enp4s0")
 # viewer(socket, basecls=socket.basecls, **get_isotp_preset())
 viewer(socket, basecls=socket.basecls, **get_can_preset())

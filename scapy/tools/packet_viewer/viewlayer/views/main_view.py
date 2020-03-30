@@ -1,4 +1,5 @@
 from itertools import count
+from multiprocessing import Process
 
 from typing import Dict, Callable, List, Optional
 from urwid import Frame, Pile, AttrMap, Text, Button
@@ -92,22 +93,25 @@ class MainWindow(Frame):
             opened_socket=socket, store=False, prn=self.packet_view.add_packet,
             lfilter=lambda p: isinstance(p, basecls), **kwargs
         )
+
         self.sniffer.start()
         self.sniffer_is_running = True
 
     def pause_packet_sniffer(self):
         if self.sniffer_is_running:
-            self.sniffer.stop()
+            self.sniffer.stop(False)
+
             self.body.contents[STATUS_INDEX] = (AttrMap(Text("Paused"), "red"), ("pack", None))
             self.sniffer_is_running = False
         else:
-            show_info_pop_up(self.main_window.main_loop, "Can not pause sniffer: No active sniffer.")
+            show_info_pop_up(self.main_loop, "Can not pause sniffer: No active sniffer.")
 
     def continue_packet_sniffer(self):
         if not self.sniffer_is_running:
             self.sniffer.start()
             self.body.contents[STATUS_INDEX] = (AttrMap(Text("Active"), "green"), ("pack", None))
-        show_info_pop_up(self.main_window.main_loop, "Can not start sniffer: Has already one active sniffer.")
+        else:
+            show_info_pop_up(self.main_loop, "Can not start sniffer: Has already one active sniffer.")
 
     def quit(self):
         show_exit_pop_up(self)

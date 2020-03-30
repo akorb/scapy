@@ -12,7 +12,7 @@ class PacketListView(ListBox):
     Lists all the packets which have been sniffed so far. Is part of the packet_view.
     """
 
-    def __init__(self, main_window, columns, ):
+    def __init__(self, main_window, columns):
         """
         :param main_window: Main window, which contains the packet view
         :type main_window: view.MainWindow
