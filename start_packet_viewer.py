@@ -13,7 +13,7 @@ from scapy.tools.packet_viewer.viewer import viewer, get_can_preset
 socket = CANSocket("vcan0")
 # socket = L2Socket("enp4s0")
 # viewer(socket, basecls=socket.basecls, **get_isotp_preset())
-viewer(socket, basecls=socket.basecls, **get_can_preset())
+viewer(socket, **get_can_preset())
 # viewer(socket, Ether)
 # socket.close()
 

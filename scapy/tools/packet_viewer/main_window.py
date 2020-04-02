@@ -3,6 +3,7 @@ from itertools import count
 from typing import Dict, Callable, List, Optional
 from urwid import Frame, Pile, AttrMap, Text, Button
 
+from scapy.packet import Raw
 from scapy.sendrecv import AsyncSniffer
 from scapy.supersocket import SuperSocket
 from scapy.tools.packet_viewer.command_line_interface import CommandLineInterface
@@ -63,7 +64,7 @@ class MainWindow(Frame):
     def __init__(self, socket,  # type: SuperSocket
                  columns,  # type: Optional[List[MainWindowColumn]]
                  basecls, **kwargs):
-        basecls = getattr(socket, "basecls", basecls)
+        basecls = basecls if basecls else getattr(socket, "basecls", Raw)
 
         c = count()
         self.columns = [MainWindowColumn("NO", 5, lambda p: next(c)), MainWindowColumn("TIME", 20, lambda p: p.time),

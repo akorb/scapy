@@ -19,7 +19,7 @@ socket = PythonCANSocket(bustype='virtual', channel="vcan1")
 thread1 = threading.Thread(target=send_msg)
 thread1.start()
 
-viewer(socket, basecls=socket.basecls, **get_can_preset())
+viewer(socket, **get_can_preset())
 
 thread1.join()
 
