@@ -62,7 +62,7 @@ class MainWindow(Frame):
 
     def __init__(self, socket,  # type: SuperSocket
                  columns,  # type: Optional[List[MainWindowColumn]]
-                 _get_group, _get_bytes_for_analysis, basecls, **kwargs):
+                 basecls, **kwargs):
         basecls = getattr(socket, "basecls", basecls)
 
         c = count()

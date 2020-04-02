@@ -9,8 +9,6 @@ from scapy.tools.packet_viewer.main_window import MainWindow, MainWindowColumn
 def viewer(
     socket,  # type: SuperSocket
     columns=None,  # type: Optional[List[MainWindowColumn]]
-    get_group=len,  # type: Optional[Callable]
-    get_bytes_for_analysis=lambda p: bytearray(bytes(p)),  # type: Optional[Callable]
     basecls=Raw,
     **kwargs
 ):
@@ -37,7 +35,7 @@ def viewer(
     ]  # type: List[Union[Tuple[str, str, str],Tuple[str, str, str, str], Tuple[str, str, str, str, str, str] ]]
 
     main_window = AttrMap(
-        MainWindow(socket, columns, get_group, get_bytes_for_analysis, basecls, **kwargs), "default"
+        MainWindow(socket, columns, basecls, **kwargs), "default"
     )  # type: AttrMap
     # main_window is the top most widget used to render the whole screen
     loop = MainLoop(main_window, palette)  # type: MainLoop
@@ -57,6 +55,4 @@ def get_can_preset():
     # type: (...) -> Dict[str, Union[List[MainWindowColumn], Callable]]
     return {
         "columns": [MainWindowColumn("ID", 8, lambda p: format(p.identifier, "03X"))],
-        "get_group": lambda p: p.identifier,
-        "get_bytes_for_analysis": lambda p: p.data,
     }
