@@ -47,14 +47,14 @@ def viewer(
 
 
 def get_isotp_preset():
-    # type: (...) -> Dict[str, List[Tuple[str, int, Callable]]]
-    return {"columns": [("SRC", 6, lambda p: format(p.src, "03X")),
-                        ("DST", 6, lambda p: format(p.dst, "03X")), ]}
+    # type: (...) -> Dict[str, Union[List[MainWindowColumn], Callable]]
+    return {"columns": [MainWindowColumn("SRC", 6, lambda p: format(p.src, "03X")),
+                        MainWindowColumn("DST", 6, lambda p: format(p.dst, "03X")), ]}
 
 
 # TODO: This show Identifier(integer?) and ID(hex)
 def get_can_preset():
-    # type: (...) -> Dict[str, Union[List[Tuple], Callable]]
+    # type: (...) -> Dict[str, Union[List[MainWindowColumn], Callable]]
     return {
         "columns": [MainWindowColumn("ID", 8, lambda p: format(p.identifier, "03X"))],
         "get_group": lambda p: p.identifier,
