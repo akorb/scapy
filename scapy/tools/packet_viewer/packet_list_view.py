@@ -1,6 +1,5 @@
 from urwid import AttrMap, ListBox, SimpleFocusListWalker, connect_signal
 
-from scapy.compat import plain_str
 from scapy.packet import Packet
 from scapy.tools.packet_viewer.selectable_text import SelectableText
 
@@ -67,7 +66,7 @@ class PacketListView(ListBox):
     ):
         cols = dict()
         for column in self.columns:
-            cols[column.name] = plain_str(column.func(packet))[:column.width - 1]
+            cols[column.name] = str(column.func(packet))[:column.width - 1]
 
         return self.main_window.format_string.format(**cols)
 
