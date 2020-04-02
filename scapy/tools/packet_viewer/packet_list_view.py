@@ -65,7 +65,7 @@ class PacketListView(ListBox):
     def packet_to_string(
         self, packet  # type: Packet
     ):
-        cols = dict()  # type: dict
+        cols = dict()
         for column in self.columns:
             cols[column.name] = plain_str(column.func(packet))[:column.width - 1]
 

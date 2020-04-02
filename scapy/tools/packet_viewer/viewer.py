@@ -1,4 +1,4 @@
-from typing import List, Union, Tuple, Optional, Dict, Callable
+from typing import List, Union, Optional, Dict, Callable
 from urwid import AttrMap, MainLoop
 
 from scapy.supersocket import SuperSocket
@@ -31,13 +31,13 @@ def viewer(
         ("bg 2", "black", "dark cyan", "standout"),
         ("bg 1 line", "dark red", "dark blue"),
         ("bg 2 line", "dark red", "dark cyan"),
-    ]  # type: List[Union[Tuple[str, str, str],Tuple[str, str, str, str], Tuple[str, str, str, str, str, str] ]]
+    ]
 
     main_window = AttrMap(
         MainWindow(socket, columns, basecls, **kwargs), "default"
-    )  # type: AttrMap
+    )
     # main_window is the top most widget used to render the whole screen
-    loop = MainLoop(main_window, palette)  # type: MainLoop
+    loop = MainLoop(main_window, palette)
     main_window.base_widget.main_loop = loop
     main_window.base_widget.packet_view.main_loop = loop
     loop.run()

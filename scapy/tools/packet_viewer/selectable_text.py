@@ -5,9 +5,9 @@ class SelectableText(Text):
     def __init__(self, tag, *args, **kwargs):
         # The tag holds the object this widget represents
         self.tag = tag
-        self._selectable = True  # type: bool
+        self._selectable = True
         super(SelectableText, self).__init__(*args, **kwargs)
 
-    def keypress(self, size, key):
+    def keypress(self, _, key):
         # Since this text is selectable, it has to provide a keypress method.
         return key
