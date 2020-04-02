@@ -21,26 +21,27 @@ class CommandLineInterface(Edit):
     def execute_command(
             self, cmd  # type: str
     ):
+        cmd = cmd.strip()
 
-        if cmd == "pause":
+        if cmd == "":
+            pass
+        elif "pause".startswith(cmd):
             self.main_window.pause_packet_sniffer()
-            return
-
-        if cmd == "continue":
+        elif "continue".startswith(cmd):
             self.main_window.continue_packet_sniffer()
-            return
-
-        if cmd == "quit":
+        elif "quit".startswith(cmd):
             self.main_window.quit()
+        else:
+            valid_commands = ["pause", "continue", "quit"]
+            show_info_pop_up(self.main_window.main_loop, "No valid command, choose from: " + ', '.join(valid_commands))
             return
 
-        valid_commands = ["pause", "continue", "quit"]
-        show_info_pop_up(self.main_window.main_loop, "No valid command, choose from: " + ', '.join(valid_commands))
+        self.main_window.focus_position = "body"
 
     def keypress(self, size, key):
         if key == "enter":
             command = self.get_edit_text()  # type: str
-            self.execute_command(command.strip())
+            self.execute_command(command)
             self.set_edit_text("")
             return
 
