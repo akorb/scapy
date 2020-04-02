@@ -1,6 +1,6 @@
 from urwid import Button, AttrMap, Text, Columns, LineBox, Filler
 
-from scapy.tools.packet_viewer.viewlayer.packet import GuiPacket
+from scapy.tools.packet_viewer.gui_packet import GuiPacket
 from scapy.utils import hexdump
 
 

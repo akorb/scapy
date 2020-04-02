@@ -3,7 +3,7 @@ from urwid import AttrMap, MainLoop
 
 from scapy.packet import Raw
 from scapy.supersocket import SuperSocket
-from scapy.tools.packet_viewer.viewlayer.views.main_view import MainWindow, MainWindowColumn
+from scapy.tools.packet_viewer.main_window import MainWindow, MainWindowColumn
 
 
 def viewer(

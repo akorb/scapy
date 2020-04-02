@@ -1,6 +1,6 @@
 from urwid import Edit
 
-from scapy.tools.packet_viewer.viewlayer.views.pop_ups import show_info_pop_up
+from scapy.tools.packet_viewer.pop_ups import show_info_pop_up
 
 
 class CommandLineInterface(Edit):

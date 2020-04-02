@@ -2,7 +2,7 @@ from urwid import AttrMap, ListBox, SimpleFocusListWalker, connect_signal
 
 from scapy.compat import plain_str
 from scapy.packet import Packet
-from scapy.tools.packet_viewer.viewlayer.packet import GuiPacket
+from scapy.tools.packet_viewer.gui_packet import GuiPacket
 
 SCROLL_WHEEL_UP = 4
 SCROLL_WHEEL_DOWN = 5

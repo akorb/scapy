@@ -5,11 +5,11 @@ from urwid import Frame, Pile, AttrMap, Text, Button
 
 from scapy.sendrecv import AsyncSniffer
 from scapy.supersocket import SuperSocket
-from scapy.tools.packet_viewer.viewlayer.command_line_interface import CommandLineInterface
-from scapy.tools.packet_viewer.viewlayer.packet import GuiPacket
-from scapy.tools.packet_viewer.viewlayer.views.detail_view import DetailsView
-from scapy.tools.packet_viewer.viewlayer.views.packet_list_view import PacketListView
-from scapy.tools.packet_viewer.viewlayer.views.pop_ups import show_exit_pop_up, show_info_pop_up
+from scapy.tools.packet_viewer.command_line_interface import CommandLineInterface
+from scapy.tools.packet_viewer.gui_packet import GuiPacket
+from scapy.tools.packet_viewer.details_view import DetailsView
+from scapy.tools.packet_viewer.packet_list_view import PacketListView
+from scapy.tools.packet_viewer.pop_ups import show_exit_pop_up, show_info_pop_up
 
 PACKET_VIEW_INDEX = 0
 STATUS_INDEX = 1

@@ -1,7 +1,7 @@
 from urwid import Button, ListBox, SimpleFocusListWalker, Pile, LineBox
 
 from scapy.tools.packet_viewer.custom_views import MessageDetailsData
-from scapy.tools.packet_viewer.viewlayer.packet import Packet, GuiPacket
+from scapy.tools.packet_viewer.gui_packet import Packet, GuiPacket
 
 
 # TODO: Close button muss wo anders hin
