@@ -1,6 +1,6 @@
 from urwid import Button, AttrMap, Text, Columns, LineBox, Filler
 
-from scapy.tools.packet_viewer.gui_packet import GuiPacket
+from scapy.tools.packet_viewer.selectable_text import SelectableText
 from scapy.utils import hexdump
 
 
@@ -11,12 +11,12 @@ class DetailsView:
         self.close_btn_widget = (close_btn, ("pack", None))
 
     def create_details_view(
-            self, packet  # type: GuiPacket
+            self, packet  # type: SelectableText
     ):
-        show_text = packet.packet.show(dump=True)
+        show_text = packet.tag.show(dump=True)
 
         show_text = Text(show_text)
-        hexdump_text = Text(hexdump(packet.packet, dump=True), align="right")
+        hexdump_text = Text(hexdump(packet.tag, dump=True), align="right")
 
         col = Columns([("pack", show_text), hexdump_text], dividechars=4)
         linebox = LineBox(Filler(col, "top"))

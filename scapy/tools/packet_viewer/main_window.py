@@ -7,7 +7,7 @@ from scapy.packet import Raw
 from scapy.sendrecv import AsyncSniffer
 from scapy.supersocket import SuperSocket
 from scapy.tools.packet_viewer.command_line_interface import CommandLineInterface
-from scapy.tools.packet_viewer.gui_packet import GuiPacket
+from scapy.tools.packet_viewer.selectable_text import SelectableText
 from scapy.tools.packet_viewer.details_view import DetailsView
 from scapy.tools.packet_viewer.packet_list_view import PacketListView
 from scapy.tools.packet_viewer.pop_ups import show_exit_pop_up, show_info_pop_up
@@ -117,7 +117,7 @@ class MainWindow(Frame):
         show_exit_pop_up(self)
 
     def show_details(
-            self, packet  # type: GuiPacket
+            self, packet  # type: SelectableText
     ):
         if self.details_view.visible:
             self.body.contents[DETAIL_VIEW_INDEX] = self.details_view.create_details_view(packet)
@@ -137,7 +137,7 @@ class MainWindow(Frame):
             self.details_view.visible = False
 
     def update_details(
-            self, packet  # type: GuiPacket
+            self, packet  # type: SelectableText
     ):
         if self.details_view.visible:
             self.show_details(packet)

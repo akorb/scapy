@@ -2,7 +2,7 @@ from urwid import AttrMap, ListBox, SimpleFocusListWalker, connect_signal
 
 from scapy.compat import plain_str
 from scapy.packet import Packet
-from scapy.tools.packet_viewer.gui_packet import GuiPacket
+from scapy.tools.packet_viewer.selectable_text import SelectableText
 
 SCROLL_WHEEL_UP = 4
 SCROLL_WHEEL_DOWN = 5
@@ -20,9 +20,8 @@ class PacketListView(ListBox):
         """
 
         self.main_window = main_window
-        self.main_loop = None
         self.columns = columns
-        body = SimpleFocusListWalker([])  # type: SimpleFocusListWalker
+        body = SimpleFocusListWalker([])
         # registers `self.on_focus_change` as a callback method, whenever the list is modified
         connect_signal(body, "modified", self.on_focus_change)
         super(PacketListView, self).__init__(body)
@@ -41,14 +40,12 @@ class PacketListView(ListBox):
         :return: None
         """
 
-        # add_new_packet(packet, behavior)
-
         text = self.packet_to_string(packet)
-        gui_packet = GuiPacket(packet, [("cursor", u">> "), text])
+        gui_packet = SelectableText(packet, [("cursor", u">> "), text])
 
         self.body.append(AttrMap(gui_packet, {"cursor": "unfocused"}, {"cursor": "focused"}))
-        if self.main_loop:
-            self.main_loop.draw_screen()
+        if self.main_window.main_loop:
+            self.main_window.main_loop.draw_screen()
 
     def open_packet_details(
         self, is_update=False  # type: bool
