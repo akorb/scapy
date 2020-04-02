@@ -1,5 +1,3 @@
-import sys
-
 from urwid import Text, AttrMap, Button, LineBox, Overlay, ListBox, SimpleFocusListWalker, ExitMainLoop
 
 from scapy.error import Scapy_Exception

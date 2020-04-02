@@ -1,5 +1,4 @@
 from itertools import count
-from multiprocessing import Process
 
 from typing import Dict, Callable, List, Optional
 from urwid import Frame, Pile, AttrMap, Text, Button
@@ -79,7 +78,7 @@ class MainWindow(Frame):
 
         self.main_loop = None
 
-        self.details_view = DetailsView(False, self._close_details)
+        self.details_view = DetailsView(False, self.close_details)
 
         super(MainWindow, self).__init__(
             body=Pile([self.packet_view,
@@ -128,12 +127,13 @@ class MainWindow(Frame):
 
         self.details_view.visible = True
 
-    def _close_details(
+    def close_details(
             self, _button=None  # type: Button
     ):
-        self.body.contents.pop(DETAIL_CLOSE_BUTTON_INDEX)
-        self.body.contents.pop(DETAIL_VIEW_INDEX)
-        self.details_view.visible = False
+        if self.details_view.visible:
+            self.body.contents.pop(DETAIL_CLOSE_BUTTON_INDEX)
+            self.body.contents.pop(DETAIL_VIEW_INDEX)
+            self.details_view.visible = False
 
     def update_details(
             self, packet  # type: GuiPacket
