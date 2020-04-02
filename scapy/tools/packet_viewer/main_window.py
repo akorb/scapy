@@ -3,11 +3,10 @@ from itertools import count
 from typing import Dict, Callable, List, Optional
 from urwid import Frame, Pile, AttrMap, Text, Button
 
-from scapy.packet import Raw
+from scapy.packet import Packet, Raw
 from scapy.sendrecv import AsyncSniffer
 from scapy.supersocket import SuperSocket
 from scapy.tools.packet_viewer.command_line_interface import CommandLineInterface
-from scapy.tools.packet_viewer.selectable_text import SelectableText
 from scapy.tools.packet_viewer.details_view import DetailsView
 from scapy.tools.packet_viewer.packet_list_view import PacketListView
 from scapy.tools.packet_viewer.pop_ups import show_exit_pop_up, show_info_pop_up
@@ -79,7 +78,7 @@ class MainWindow(Frame):
 
         self.main_loop = None
 
-        self.details_view = DetailsView(False, self.close_details)
+        self.details_view = DetailsView(self.close_details)
 
         super(MainWindow, self).__init__(
             body=Pile([self.packet_view,
@@ -117,13 +116,16 @@ class MainWindow(Frame):
         show_exit_pop_up(self)
 
     def show_details(
-            self, packet  # type: SelectableText
+            self, packet  # type: Packet
     ):
+        self.details_view.update(packet)
+
+        dv_with_options = (self.details_view, ("weight", 0.3))
         if self.details_view.visible:
-            self.body.contents[DETAIL_VIEW_INDEX] = self.details_view.create_details_view(packet)
+            self.body.contents[DETAIL_VIEW_INDEX] = dv_with_options
             self.body.contents[DETAIL_CLOSE_BUTTON_INDEX] = self.details_view.close_btn_widget
         else:
-            self.body.contents.append(self.details_view.create_details_view(packet))
+            self.body.contents.append(dv_with_options)
             self.body.contents.append(self.details_view.close_btn_widget)
 
         self.details_view.visible = True
@@ -137,7 +139,7 @@ class MainWindow(Frame):
             self.details_view.visible = False
 
     def update_details(
-            self, packet  # type: SelectableText
+            self, packet  # type: Packet
     ):
         if self.details_view.visible:
             self.show_details(packet)

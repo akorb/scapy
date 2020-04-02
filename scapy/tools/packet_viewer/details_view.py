@@ -1,24 +1,21 @@
 from urwid import Button, AttrMap, Text, Columns, LineBox, Filler
 
-from scapy.tools.packet_viewer.selectable_text import SelectableText
+from scapy.packet import Packet
 from scapy.utils import hexdump
 
 
-class DetailsView:
-    def __init__(self, visible, close_details_func):
-        self.visible = visible
+class DetailsView(LineBox):
+    def __init__(self, close_details_func):
+        self.visible = False
         close_btn = AttrMap(Button("Close details (press this button or click c)", close_details_func), "green")
         self.close_btn_widget = (close_btn, ("pack", None))
+        self.detail_text = Text("")
+        self.hex_text = Text("", align="right")
+        col = Columns([("pack", self.detail_text), self.hex_text], dividechars=4)
+        super(DetailsView, self).__init__(Filler(col, "top"))
 
-    def create_details_view(
-            self, packet  # type: SelectableText
+    def update(
+            self, packet  # type: Packet
     ):
-        show_text = packet.tag.show(dump=True)
-
-        show_text = Text(show_text)
-        hexdump_text = Text(hexdump(packet.tag, dump=True), align="right")
-
-        col = Columns([("pack", show_text), hexdump_text], dividechars=4)
-        linebox = LineBox(Filler(col, "top"))
-
-        return linebox, ("weight", 0.3)
+        self.detail_text.set_text(packet.show(dump=True))
+        self.hex_text.set_text(hexdump(packet, dump=True))

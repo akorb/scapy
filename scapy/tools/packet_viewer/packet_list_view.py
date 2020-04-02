@@ -55,7 +55,7 @@ class PacketListView(ListBox):
         if self.focus is None:
             return
 
-        packet_in_focus = self.focus.original_widget
+        packet_in_focus = self.focus.original_widget.tag
         if is_update:
             self.main_window.update_details(packet_in_focus)
         else:
