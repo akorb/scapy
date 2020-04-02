@@ -55,8 +55,10 @@ class PacketListView(ListBox):
         """
         Gets the packet, currently in focus and creates or updates an existing view with the packets details.
         """
+        if self.focus is None:
+            return
 
-        packet_in_focus = self.body[self.focus_position].original_widget
+        packet_in_focus = self.focus.original_widget
         if is_update:
             self.main_window.update_details(packet_in_focus)
         else:
