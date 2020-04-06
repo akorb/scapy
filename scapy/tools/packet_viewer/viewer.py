@@ -2,9 +2,8 @@ from typing import List, Union, Optional, Dict, Callable
 from urwid import AttrMap, MainLoop
 
 from scapy.packet import Packet_metaclass, Raw
-from scapy.sendrecv import AsyncSniffer
 from scapy.supersocket import SuperSocket
-from scapy.tools.packet_viewer.columns_manager import PacketListColumn, ColumnsManager
+from scapy.tools.packet_viewer.columns_manager import PacketListColumn
 from scapy.tools.packet_viewer.main_window import MainWindow
 
 
