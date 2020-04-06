@@ -12,7 +12,7 @@ class TextTest(unittest.TestCase):
         self.command_line = CommandLineInterface(main_window_mock)
 
     def test_focus_text(self):
-        expected_text = [':']
+        expected_text = [b':']
         got = self.command_line.render((1,)).text
         assert got == expected_text, "got: %r expected: %r" % (got, expected_text)
 
