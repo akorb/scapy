@@ -33,14 +33,13 @@ class CommandLineInterface(Edit):
         else:
             valid_commands = ["pause", "continue", "quit"]
             show_info_pop_up(self.main_window.main_loop, "No valid command, choose from: " + ', '.join(valid_commands))
-            return
 
     def keypress(self, size, key):
         if key == "enter":
             command = self.get_edit_text()  # type: str
             self.execute_command(command)
-            self.set_edit_text("")
-            self.set_caption(":")
+            self.main_window.focus_position = "body"
+            self.remove_display_text()
             return
 
         if key == "up":
