@@ -5,7 +5,7 @@ import mock
 from scapy.tools.packet_viewer.command_line_interface import CommandLineInterface
 
 
-class TextTest(unittest.TestCase):
+class CmdTest(unittest.TestCase):
     @mock.patch("scapy.tools.packet_viewer.main_window.MainWindow")
     def setUp(self, main_window_mock):
         self.main_window_mock = main_window_mock
