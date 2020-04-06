@@ -16,7 +16,6 @@ class CommandLineInterface(Edit):
         """
         super(CommandLineInterface, self).__init__()
         self.main_window = main_window
-        self.set_caption(":")  # required, because the initial focus is on the command line
 
     def execute_command(
             self, cmd  # type: str

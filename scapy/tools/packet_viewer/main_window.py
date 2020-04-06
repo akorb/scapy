@@ -89,8 +89,7 @@ class MainWindow(Frame):
             body=Pile([self.packet_view,
                        ("pack", AttrMap(Text("Active"), "green"))]),
             header=AttrMap(Text("   " + self.get_header_string()), "packet_view_header"),
-            footer=CommandLineInterface(self),
-            focus_part="footer",
+            footer=CommandLineInterface(self)
         )
 
         self.sniffer = AsyncSniffer(
