@@ -34,7 +34,11 @@ class ColumnsManager:
     def format(self, packet):
         cols = dict()
         for column in self.columns:
-            cols[column.name] = str(column.func(packet))[:column.width - 1]
+            val = column.func(packet)
+            if isinstance(val, str):
+                cols[column.name] = repr(val)[:column.width - 1]
+            else:
+                cols[column.name] = str(val)
 
         return self._format_string.format(**cols)
 
