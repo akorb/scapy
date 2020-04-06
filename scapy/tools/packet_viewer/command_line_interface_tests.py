@@ -12,7 +12,7 @@ class TextTest(unittest.TestCase):
         self.command_line = CommandLineInterface(main_window_mock)
 
     def test_focus_text(self):
-        expected_text = [b':']
+        expected_text = [b' ']
         got = self.command_line.render((1,)).text
         assert got == expected_text, "got: %r expected: %r" % (got, expected_text)
 
@@ -23,7 +23,7 @@ class TextTest(unittest.TestCase):
         got = self.command_line.edit_text
         assert got == expected_edit_text, "got: %r expected: %r" % (got, expected_edit_text)
 
-        expected_caption_text = ':'
+        expected_caption_text = ''
         got = self.command_line.caption
         assert got == expected_caption_text, "got: %r expected: %r" % (got, expected_caption_text)
 
@@ -48,7 +48,7 @@ class TextTest(unittest.TestCase):
         got = self.command_line.edit_text
         assert got == expected_edit_text, "got: %r expected: %r" % (got, expected_edit_text)
 
-        expected_caption_text = ':'
+        expected_caption_text = ''
         got = self.command_line.caption
         assert got == expected_caption_text, "got: %r expected: %r" % (got, expected_caption_text)
 
@@ -62,7 +62,7 @@ class TextTest(unittest.TestCase):
         got = self.command_line.edit_text
         assert got == expected_edit_text, "got: %r expected: %r" % (got, expected_edit_text)
 
-        expected_caption_text = ':'
+        expected_caption_text = ''
         got = self.command_line.caption
         assert got == expected_caption_text, "got: %r expected: %r" % (got, expected_caption_text)
 
@@ -76,6 +76,6 @@ class TextTest(unittest.TestCase):
         got = self.command_line.edit_text
         assert got == expected_edit_text, "got: %r expected: %r" % (got, expected_edit_text)
 
-        expected_caption_text = ':'
+        expected_caption_text = ''
         got = self.command_line.caption
         assert got == expected_caption_text, "got: %r expected: %r" % (got, expected_caption_text)
