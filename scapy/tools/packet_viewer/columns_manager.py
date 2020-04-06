@@ -11,12 +11,15 @@ class ColumnsManager:
             cls  # type: Packet_metaclass
     ):
         nr_messages = count()
+        # First default columns
         default_cols = [PacketListColumn("NO", 5, lambda p: next(nr_messages)),
                         PacketListColumn("TIME", 20, lambda p: p.time),
                         PacketListColumn("LENGTH", 7, len)]
 
+        # Then user-defined columns
         self.columns = default_cols + (columns or [])
 
+        # Last the fields of the specified cls
         self.columns += [
             PacketListColumn(field.name, max(10, len(field.name) + 1), lambda p, name=field.name: p.getfieldval(name))
             for field in cls.fields_desc]
