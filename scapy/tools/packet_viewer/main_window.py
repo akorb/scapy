@@ -1,11 +1,10 @@
-from itertools import count
-
-from typing import Dict, Callable, List, Optional
+from typing import List
 from urwid import Frame, Pile, AttrMap, Text, Button
 
 from scapy.packet import Packet, Raw
 from scapy.sendrecv import AsyncSniffer
 from scapy.supersocket import SuperSocket
+from scapy.tools.packet_viewer.columns_manager import ColumnsManager
 from scapy.tools.packet_viewer.command_line_interface import CommandLineInterface
 from scapy.tools.packet_viewer.details_view import DetailsView
 from scapy.tools.packet_viewer.packet_list_view import PacketListView
@@ -17,69 +16,20 @@ DETAIL_VIEW_INDEX = 2
 DETAIL_CLOSE_BUTTON_INDEX = 3
 
 
-class MainWindowColumn:
-    """
-    Class to define size and content of a column in main view
-    """
-
-    def __init__(self, name,  # type: str
-                 width,  # type: int
-                 func,  # type: Callable
-                 ):
-        """
-        :param name: String that is used as Header of the column and reference
-        :param width: Width of the column
-        :param func: A callable function that should take Packet as input and return what will be displayed in the column
-        """
-        if width < 1:
-            raise ValueError("Columns must have a width of at least 1.")
-
-        self.name = name
-        self.width = width
-        self.func = func
-
-
 class MainWindow(Frame):
     """
     Assembles all parts of the view.
     """
-
-    def get_header_string(self):
-        # type: (...) -> str
-        cols = dict()  # type: Dict[str, str]
-        for column in self.columns:
-            cols[column.name] = column.name.upper()
-
-        return self.format_string.format(**cols)
-
-    @staticmethod
-    def _create_format_string(columns  # type: List[MainWindowColumn]
-                              ):
-        # type: (...) -> str
-        format_string = ""
-        for column in columns:
-            format_string += "{" + column.name + ":<" + str(column.width) + "}"
-        return format_string
-
     def __init__(self, socket,  # type: SuperSocket
-                 columns,  # type: Optional[List[MainWindowColumn]]
-                 basecls,  # type: Packet
+                 columns,  # type: List[MainWindowColumn]
+                 basecls,
                  **kwargs):
 
         basecls = basecls if basecls else getattr(socket, "basecls", Raw)
 
-        nr_messages = count()
-        self.columns = [MainWindowColumn("NO", 5, lambda p: next(nr_messages)),
-                        MainWindowColumn("TIME", 20, lambda p: p.time),
-                        MainWindowColumn("LENGTH", 7, len)] + (columns or [])
+        cm = ColumnsManager(columns, basecls)
 
-        self.columns += [
-            MainWindowColumn(field.name, max(10, len(field.name) + 1), lambda p, name=field.name: p.fields[name])
-            for field in basecls.fields_desc]
-
-        self.format_string = self._create_format_string(self.columns)
-
-        self.packet_view = PacketListView(self, self.columns)
+        self.packet_view = PacketListView(self, cm)
 
         self.main_loop = None
 
@@ -88,7 +38,7 @@ class MainWindow(Frame):
         super(MainWindow, self).__init__(
             body=Pile([self.packet_view,
                        ("pack", AttrMap(Text("Active"), "green"))]),
-            header=AttrMap(Text("   " + self.get_header_string()), "packet_view_header"),
+            header=AttrMap(Text("   " + cm.get_header_string()), "packet_view_header"),
             footer=CommandLineInterface(self)
         )
 
