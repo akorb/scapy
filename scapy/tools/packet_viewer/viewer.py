@@ -1,16 +1,17 @@
 from typing import List, Union, Optional, Dict, Callable
 from urwid import AttrMap, MainLoop
 
-from scapy.packet import Packet
+from scapy.packet import Packet_metaclass, Raw
+from scapy.sendrecv import AsyncSniffer
 from scapy.supersocket import SuperSocket
-from scapy.tools.packet_viewer.columns_manager import MainWindowColumn
+from scapy.tools.packet_viewer.columns_manager import PacketListColumn, ColumnsManager
 from scapy.tools.packet_viewer.main_window import MainWindow
 
 
 def viewer(
     socket,  # type: SuperSocket
-    columns=None,  # type: Optional[List[MainWindowColumn]]
-    basecls=None,  # type: Packet
+    columns=None,  # type: Optional[List[PacketListColumn]]
+    basecls=None,  # type: Packet_metaclass
     **kwargs
 ):
     palette = [
@@ -24,6 +25,8 @@ def viewer(
         ("default_bold", "light gray,bold", "black"),
     ]
 
+    basecls = basecls if basecls else getattr(socket, "basecls", Raw)
+
     main_window = AttrMap(
         MainWindow(socket, columns, basecls, **kwargs), "default"
     )
@@ -35,14 +38,14 @@ def viewer(
 
 
 def get_isotp_preset():
-    # type: (...) -> Dict[str, Union[List[MainWindowColumn], Callable]]
-    return {"columns": [MainWindowColumn("SRC", 6, lambda p: format(p.src, "03X")),
-                        MainWindowColumn("DST", 6, lambda p: format(p.dst, "03X")), ]}
+    # type: (...) -> Dict[str, Union[List[PacketListColumn], Callable]]
+    return {"columns": [PacketListColumn("SRC", 6, lambda p: format(p.src, "03X")),
+                        PacketListColumn("DST", 6, lambda p: format(p.dst, "03X")), ]}
 
 
 # TODO: This show Identifier(integer?) and ID(hex)
 def get_can_preset():
-    # type: (...) -> Dict[str, Union[List[MainWindowColumn], Callable]]
+    # type: (...) -> Dict[str, Union[List[PacketListColumn], Callable]]
     return {
-        "columns": [MainWindowColumn("ID", 8, lambda p: format(p.identifier, "03X"))],
+        "columns": [PacketListColumn("ID", 8, lambda p: format(p.identifier, "03X"))],
     }

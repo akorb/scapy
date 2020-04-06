@@ -1,24 +1,24 @@
 from itertools import count
 from typing import List, Dict, Callable
 
-from scapy.packet import Packet
+from scapy.packet import Packet_metaclass
 
 
 class ColumnsManager:
     def __init__(
             self,
-            columns,  # type: List[MainWindowColumn]
-            cls  # type: Packet
+            columns,  # type: List[PacketListColumn]
+            cls  # type: Packet_metaclass
     ):
         nr_messages = count()
-        default_cols = [MainWindowColumn("NO", 5, lambda p: next(nr_messages)),
-                        MainWindowColumn("TIME", 20, lambda p: p.time),
-                        MainWindowColumn("LENGTH", 7, len)]
+        default_cols = [PacketListColumn("NO", 5, lambda p: next(nr_messages)),
+                        PacketListColumn("TIME", 20, lambda p: p.time),
+                        PacketListColumn("LENGTH", 7, len)]
 
         self.columns = default_cols + (columns or [])
 
         self.columns += [
-            MainWindowColumn(field.name, max(10, len(field.name) + 1), lambda p, name=field.name: p.fields[name])
+            PacketListColumn(field.name, max(10, len(field.name) + 1), lambda p, name=field.name: p.fields[name])
             for field in cls.fields_desc]
 
         self._format_string = self._create_format_string()
@@ -46,7 +46,7 @@ class ColumnsManager:
         return format_string
 
 
-class MainWindowColumn:
+class PacketListColumn:
     """
     Class to define size and content of a column in main view
     """
