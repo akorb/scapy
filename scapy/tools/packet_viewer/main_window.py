@@ -55,6 +55,7 @@ class MainWindow(Frame):
     @staticmethod
     def _create_format_string(columns  # type: List[MainWindowColumn]
                               ):
+        # type: (...) -> str
         format_string = ""
         for column in columns:
             format_string += "{" + column.name + ":<" + str(column.width) + "}"
@@ -62,15 +63,19 @@ class MainWindow(Frame):
 
     def __init__(self, socket,  # type: SuperSocket
                  columns,  # type: Optional[List[MainWindowColumn]]
-                 basecls, **kwargs):
+                 basecls,  # type: Packet
+                 **kwargs):
+
         basecls = basecls if basecls else getattr(socket, "basecls", Raw)
 
-        c = count()
-        self.columns = [MainWindowColumn("NO", 5, lambda p: next(c)), MainWindowColumn("TIME", 20, lambda p: p.time),
+        nr_messages = count()
+        self.columns = [MainWindowColumn("NO", 5, lambda p: next(nr_messages)),
+                        MainWindowColumn("TIME", 20, lambda p: p.time),
                         MainWindowColumn("LENGTH", 7, len)] + (columns or [])
 
-        self.columns += [MainWindowColumn(field.name, 10, lambda p, name=field.name: p.fields[name])
-                         for field in basecls.fields_desc]
+        self.columns += [
+            MainWindowColumn(field.name, max(10, len(field.name) + 1), lambda p, name=field.name: p.fields[name])
+            for field in basecls.fields_desc]
 
         self.format_string = self._create_format_string(self.columns)
 

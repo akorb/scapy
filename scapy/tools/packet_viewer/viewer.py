@@ -1,6 +1,7 @@
 from typing import List, Union, Optional, Dict, Callable
 from urwid import AttrMap, MainLoop
 
+from scapy.packet import Packet
 from scapy.supersocket import SuperSocket
 from scapy.tools.packet_viewer.main_window import MainWindow, MainWindowColumn
 
@@ -8,29 +9,18 @@ from scapy.tools.packet_viewer.main_window import MainWindow, MainWindowColumn
 def viewer(
     socket,  # type: SuperSocket
     columns=None,  # type: Optional[List[MainWindowColumn]]
-    basecls=None,
+    basecls=None,  # type: Packet
     **kwargs
 ):
     palette = [
         ("default", "light gray", "black"),
         ("header", "light blue", "black"),
         ("packet_view_header", "light cyan", "black"),
-        ("focused", "light green", "black"),
-        ("unfocused", "black", "black"),
-        ("reversed", "standout", "black"),
+        ("cursor_focused", "light green", "black"),
+        ("cursor_unfocused", "black", "black"),
         ("green", "dark green", "black"),
         ("red", "dark red", "black"),
-        ("bold", "light gray,bold", "black"),
-        ("bold-blue", "light blue,bold", "black"),
-        ("green", "light green", "black"),
-        ("bold-yellow", "yellow,bold", "black"),
-        ("bold-orange", "", "black", "", "", "#f80"),
-        ("bold-red", "dark red,bold", "black"),
-        ("bg background", "light gray", "black"),
-        ("bg 1", "black", "dark blue", "standout"),
-        ("bg 2", "black", "dark cyan", "standout"),
-        ("bg 1 line", "dark red", "dark blue"),
-        ("bg 2 line", "dark red", "dark cyan"),
+        ("default_bold", "light gray,bold", "black"),
     ]
 
     main_window = AttrMap(

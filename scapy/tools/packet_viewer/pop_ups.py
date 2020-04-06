@@ -9,7 +9,7 @@ def show_info_pop_up(loop, info):
     def delete_overlay(_self):
         loop.widget = current_widget
 
-    info = Text(("bold", info), "center")
+    info = Text(("default_bold", info), "center")
     ok_btn = AttrMap(Button("OK", delete_overlay), "green")
 
     prompt = LineBox(ListBox(SimpleFocusListWalker([info, ok_btn])))
@@ -34,7 +34,7 @@ def show_exit_pop_up(main_window):
         print("exit loop")
         raise ExitMainLoop()
 
-    question = Text(("bold", "Really quit?"), "center")
+    question = Text(("default_bold", "Really quit?"), "center")
     yes_btn = AttrMap(Button("Yes", exit_loop), "red")
     no_btn = AttrMap(Button("No", delete_overlay), "green")
     prompt = LineBox(ListBox(SimpleFocusListWalker([question, no_btn, yes_btn])))

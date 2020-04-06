@@ -42,7 +42,7 @@ class PacketListView(ListBox):
         text = self.packet_to_string(packet)
         gui_packet = SelectableText(packet, [("cursor", u">> "), text])
 
-        self.body.append(AttrMap(gui_packet, {"cursor": "unfocused"}, {"cursor": "focused"}))
+        self.body.append(AttrMap(gui_packet, {"cursor": "cursor_unfocused"}, {"cursor": "cursor_focused"}))
         if self.main_window.main_loop:
             self.main_window.main_loop.draw_screen()
 
