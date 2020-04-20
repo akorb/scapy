@@ -1,3 +1,5 @@
+import six
+
 from itertools import count
 from typing import Callable, Dict, List, Optional
 
@@ -21,7 +23,7 @@ class ColumnsManager:
 
         # Last the fields of the specified cls
         self.columns += [
-            PacketListColumn(field.name, max(10, len(field.name) + 1),
+            PacketListColumn(field.name, 12,
                              lambda p, name=field.name: p.getfieldval(name))
             for field in cls.fields_desc]
 
@@ -37,14 +39,36 @@ class ColumnsManager:
 
     def format(self, packet):
         cols = dict()
-        for column in self.columns:
+        for column in self.columns[:-1]:
             val = column.func(packet)
-            if isinstance(val, str):
-                cols[column.name] = repr(val)[:column.width - 1]
-            else:
-                cols[column.name] = str(val)
+            text = self._to_string(val)
+            cols[column.name] = text[:column.width - 1]
+
+        # Do not trim last column. Usually it's the data column
+        # so allow it to be as long as necessary
+        column = self.columns[-1]
+        val = column.func(packet)
+        text = self._to_string(val)
+        cols[column.name] = text
 
         return self._format_string.format(**cols)
+
+    @staticmethod
+    def _to_string(obj):
+        """
+        Converts an object to a string.
+        It takes care of escaping special characters like '\n'
+        and also beautifies the string (no " or b' encapsulating the string).
+        :param obj: The object.
+        :return: The string.
+        """
+        if six.PY3 and isinstance(obj, bytes):
+            return repr(obj)[2:-1]
+
+        if six.PY2 and isinstance(obj, str):
+            return repr(obj)[1:-1]
+
+        return str(obj)
 
     def _create_format_string(self):
         # type: (...) -> str

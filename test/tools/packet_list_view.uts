@@ -1,6 +1,4 @@
 % Regression tests for PacketListView
-* Waiting for PR 2549 to be merged to implement tests for python2
-~ python3_only
 
 + Configuration
 ~ conf
@@ -30,14 +28,14 @@ packet = CAN(identifier=0x123, data=b'\x90\x0a\xff')
 packet = CAN(bytes(packet))
 packet_list_view.add_packet(packet)
 assert len(packet_list_view.body) == 1
-assert re.match(r">> 0 +\d+\.\d+ +11 +291 +3 +0 +b'\\x90\\n\\xff'",
+assert re.match(r">> 0 +\d+\.\d+ +11 +291 +3 +0 +\\x90\\n\\xff",
                 packet_list_view.body[0].base_widget.text)
 
 packet = CAN(identifier=0x7ff, data=b'')
 packet = CAN(packet.build())
 packet_list_view.add_packet(packet)
 assert len(packet_list_view.body) == 2
-assert re.match(r">> 1 +\d+\.\d+ +8 +2047 +0 +0 +b'' *",
+assert re.match(r">> 1 +\d+\.\d+ +8 +2047 +0 +0 + *",
                 packet_list_view.body[1].base_widget.text)
 
 = test_show_details
