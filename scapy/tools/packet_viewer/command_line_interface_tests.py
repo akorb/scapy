@@ -11,15 +11,14 @@ class CmdTest(unittest.TestCase):
         self.main_window_mock = main_window_mock
         self.command_line = CommandLineInterface(main_window_mock)
 
-    def assert_command_execution(self, command=None, func=None, key="enter"):
+    def assert_command_execution(self, command=None, func_assert_once=None, key="enter", expected_edit_text=""):
         if command:
             self.command_line.set_edit_text(command)
         self.command_line.keypress((12,), key)
 
-        if func:
-            func.assert_called_once()
+        if func_assert_once:
+            func_assert_once.assert_called_once()
 
-        expected_edit_text = ''
         got = self.command_line.edit_text
         assert got == expected_edit_text, "got: %r expected: %r" % (got, expected_edit_text)
 
@@ -64,3 +63,7 @@ class CmdTest(unittest.TestCase):
 
     def test_execute_continue_command_single(self):
         self.assert_command_execution("c", self.main_window_mock.continue_packet_sniffer)
+
+    def test_execute_invalid_command(self):
+        self.assert_command_execution("invalid",
+                                      expected_edit_text="Error: Invalid command. Choose from: quit, pause, continue")
