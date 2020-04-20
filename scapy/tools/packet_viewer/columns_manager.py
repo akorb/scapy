@@ -1,5 +1,5 @@
 from itertools import count
-from typing import List, Dict, Callable
+from typing import Callable, Dict, List, Optional
 
 from scapy.packet import Packet_metaclass
 
@@ -7,7 +7,7 @@ from scapy.packet import Packet_metaclass
 class ColumnsManager:
     def __init__(
             self,
-            columns,  # type: List[PacketListColumn]
+            columns,  # type: Optional[List[PacketListColumn]]
             cls  # type: Packet_metaclass
     ):
         nr_messages = count()
