@@ -20,12 +20,12 @@ class PacketListViewTest(unittest.TestCase):
         packet = CAN(bytes(packet))
         self.packet_list_view.add_packet(packet)
         assert len(self.packet_list_view.body) == 1
-        assert re.match(r">> 0 +\d*.\d* +11 +291 +3 +0 +b'\\x90\\n\\xff'",
+        assert re.match(r">> 0 +\d+\.\d+ +11 +291 +3 +0 +b'\\x90\\n\\xff'",
                         self.packet_list_view.body[0].base_widget.text)
 
         packet = CAN(identifier=0x7ff, data=b'')
         packet = CAN(packet.build())
         self.packet_list_view.add_packet(packet)
         assert len(self.packet_list_view.body) == 2
-        assert re.match(r">> 1 +\d*.\d* +8 +2047 +0 +0 +b''.*",
+        assert re.match(r">> 1 +\d+\.\d+ +8 +2047 +0 +0 +b'' *",
                         self.packet_list_view.body[1].base_widget.text)
