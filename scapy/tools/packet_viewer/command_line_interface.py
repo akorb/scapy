@@ -52,9 +52,6 @@ class CommandLineInterface(Edit):
     # Overwrites function from Edit
     # pylint: disable=too-many-arguments
     def mouse_event(self, size, event, button, x, y, focus):
-        """
-        Handles mouse events.
-        """
         if event == "mouse press" and button == 1:
             self.set_focused_state()
 

@@ -63,9 +63,10 @@ class PacketListColumn:
                  func,  # type: Callable
                  ):
         """
-        :param name: String that is used as Header of the column and reference
-        :param width: Width of the column
-        :param func: A callable function that should take Packet as input and return what will be displayed in the column
+        :param name: String that is used as the header of the column
+        :param width: Width of the column. Must be at least 1
+        :param func: A callable that takes Packet as input and
+                     returns what will be displayed in the column
         """
         if width < 1:
             raise ValueError("Columns must have a width of at least 1.")
