@@ -29,3 +29,23 @@ class PacketListViewTest(unittest.TestCase):
         assert len(self.packet_list_view.body) == 2
         assert re.match(r">> 1 +\d+\.\d+ +8 +2047 +0 +0 +b'' *",
                         self.packet_list_view.body[1].base_widget.text)
+
+    def test_show_details(self):
+        self.packet_list_view.keypress(None, 'enter')
+        # Nothing focused since no packet received
+        self.main_window_mock.show_details.assert_not_called()
+
+        # Add packet
+        packet = CAN(identifier=0x123, data=b'\x90\x0a\xff')
+        packet = CAN(bytes(packet))
+        self.packet_list_view.add_packet(packet)
+
+        self.packet_list_view.keypress(None, 'enter')
+        self.main_window_mock.show_details.assert_called_once()
+
+        # Here we have to add a size (100, 100) because 'down' is handled by the widget itself
+        # and this handler expects a size. The (100, 100) is arbitrary.
+        self.packet_list_view.keypress((100, 100), 'down')
+        self.main_window_mock.update_details.assert_called_once()
+        self.packet_list_view.keypress(None, 'c')
+        self.main_window_mock.close_details.assert_called_once()
