@@ -8,6 +8,7 @@ class SelectableText(Text):
         self._selectable = True
         super(SelectableText, self).__init__(*args, **kwargs)
 
-    def keypress(self, _, key):
+    @staticmethod
+    def keypress(_, key):
         # Since this text is selectable, it has to provide a keypress method.
         return key
