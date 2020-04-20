@@ -100,7 +100,7 @@ class MainWindow(Frame):
 
     def set_focus_footer(self):
         self.focus_position = "footer"
-        self.footer.set_caption(":")
+        self.footer.set_focused_state()
 
     # Keypress handling explained: http://urwid.org/manual/widgets.html
     def keypress(self, size, key):

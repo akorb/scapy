@@ -93,7 +93,7 @@ class PacketListView(ListBox):
             self.keypress(size, "down")
             return
 
-        self.main_window.footer.remove_display_text()
+        self.main_window.footer.set_unfocused_state()
         super(PacketListView, self).mouse_event(size, event, button, col, row, focus)
 
     def on_focus_change(self):

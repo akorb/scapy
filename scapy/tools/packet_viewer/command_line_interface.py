@@ -1,7 +1,5 @@
 from urwid import Edit
 
-from scapy.tools.packet_viewer.pop_ups import show_info_pop_up
-
 
 class CommandLineInterface(Edit):
     """
@@ -26,25 +24,27 @@ class CommandLineInterface(Edit):
             pass
         elif "pause".startswith(cmd):
             self.main_window.pause_packet_sniffer()
+            self.set_unfocused_state()
         elif "continue".startswith(cmd):
             self.main_window.continue_packet_sniffer()
+            self.set_unfocused_state()
         elif "quit".startswith(cmd):
             self.main_window.quit()
+            self.set_unfocused_state()
         else:
-            valid_commands = ["pause", "continue", "quit"]
-            show_info_pop_up(self.main_window.main_loop, "No valid command, choose from: " + ', '.join(valid_commands))
+            valid_commands = ["quit", "pause", "continue"]
+            self.set_unfocused_state(edit="Error: Invalid command. Choose from: " + ", ".join(valid_commands))
 
     def keypress(self, size, key):
         if key == "enter":
             command = self.get_edit_text()  # type: str
             self.execute_command(command)
             self.main_window.focus_position = "body"
-            self.remove_display_text()
             return
 
         if key == "up":
             self.main_window.focus_position = "body"
-            self.remove_display_text()
+            self.set_unfocused_state()
             return
 
         super(CommandLineInterface, self).keypress(size, key)
@@ -56,8 +56,12 @@ class CommandLineInterface(Edit):
         Handles mouse events.
         """
         if event == "mouse press" and button == 1:
-            self.set_caption(":")
+            self.set_focused_state()
 
-    def remove_display_text(self):
-        self.set_edit_text("")
-        self.set_caption("")
+    def set_unfocused_state(self, edit="", caption=""):
+        self.set_edit_text(edit)
+        self.set_caption(caption)
+
+    def set_focused_state(self, edit="", caption=":"):
+        self.set_edit_text(edit)
+        self.set_caption(caption)
