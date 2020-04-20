@@ -23,14 +23,14 @@ class CommandLineInterface(Edit):
         if cmd == "":
             pass
         elif "pause".startswith(cmd):
+            self.set_unfocused_state()
             self.main_window.pause_packet_sniffer()
-            self.set_unfocused_state()
         elif "continue".startswith(cmd):
+            self.set_unfocused_state()
             self.main_window.continue_packet_sniffer()
-            self.set_unfocused_state()
         elif "quit".startswith(cmd):
-            self.main_window.quit()
             self.set_unfocused_state()
+            self.main_window.quit()
         else:
             valid_commands = ["quit", "pause", "continue"]
             self.set_unfocused_state(edit="Error: Invalid command. Choose from: " + ", ".join(valid_commands))

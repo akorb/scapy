@@ -8,7 +8,7 @@ from scapy.tools.packet_viewer.columns_manager import ColumnsManager, PacketList
 from scapy.tools.packet_viewer.command_line_interface import CommandLineInterface
 from scapy.tools.packet_viewer.details_view import DetailsView
 from scapy.tools.packet_viewer.packet_list_view import PacketListView
-from scapy.tools.packet_viewer.pop_ups import show_exit_pop_up, show_info_pop_up
+from scapy.tools.packet_viewer.pop_ups import show_exit_pop_up
 
 PACKET_VIEW_INDEX = 0
 STATUS_INDEX = 1
@@ -51,20 +51,20 @@ class MainWindow(Frame):
         self.sniffer_is_running = True
 
     def pause_packet_sniffer(self):
-        if self.sniffer_is_running:
-            self.sniffer.stop(False)
+        if not self.sniffer_is_running:
+            return
 
-            self.body.contents[STATUS_INDEX] = (AttrMap(Text("Paused"), "red"), ("pack", None))
-            self.sniffer_is_running = False
-        else:
-            show_info_pop_up(self.main_loop, "Can not pause sniffer: No active sniffer.")
+        self.sniffer.stop(False)
+        self.body.contents[STATUS_INDEX] = (AttrMap(Text("Paused"), "red"), ("pack", None))
+        self.sniffer_is_running = False
 
     def continue_packet_sniffer(self):
         if not self.sniffer_is_running:
             self.sniffer.start()
             self.body.contents[STATUS_INDEX] = (AttrMap(Text("Active"), "green"), ("pack", None))
+            self.sniffer_is_running = True
         else:
-            show_info_pop_up(self.main_loop, "Can not start sniffer: Has already one active sniffer.")
+            self.footer.set_unfocused_state(edit="Error: Cannot continue sniffer since it is not paused.")
 
     def quit(self):
         show_exit_pop_up(self)
