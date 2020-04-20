@@ -7,11 +7,14 @@ from scapy.utils import hexdump
 class DetailsView(LineBox):
     def __init__(self, close_details_func):
         self.visible = False
-        close_btn = AttrMap(Button("Close details (press this button or click c)", close_details_func), "green")
+        close_btn = Button("Close details (press this button or click c)",
+                           close_details_func)
+        close_btn = AttrMap(close_btn, "green")
         self.close_btn_widget = (close_btn, ("pack", None))
         self.detail_text = Text("")
         self.hex_text = Text("", align="right")
-        col = Columns([("pack", self.detail_text), self.hex_text], dividechars=4)
+        col = Columns([("pack", self.detail_text), self.hex_text],
+                      dividechars=4)
         super(DetailsView, self).__init__(Filler(col, "top"))
 
     def update(

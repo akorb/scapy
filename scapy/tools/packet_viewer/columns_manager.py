@@ -21,7 +21,8 @@ class ColumnsManager:
 
         # Last the fields of the specified cls
         self.columns += [
-            PacketListColumn(field.name, max(10, len(field.name) + 1), lambda p, name=field.name: p.getfieldval(name))
+            PacketListColumn(field.name, max(10, len(field.name) + 1),
+                             lambda p, name=field.name: p.getfieldval(name))
             for field in cls.fields_desc]
 
         self._format_string = self._create_format_string()

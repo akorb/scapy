@@ -4,8 +4,10 @@ from urwid import Frame, Pile, AttrMap, Text, Button
 from scapy.packet import Packet, Raw
 from scapy.sendrecv import AsyncSniffer
 from scapy.supersocket import SuperSocket
-from scapy.tools.packet_viewer.columns_manager import ColumnsManager, PacketListColumn
-from scapy.tools.packet_viewer.command_line_interface import CommandLineInterface
+from scapy.tools.packet_viewer.columns_manager import ColumnsManager, \
+    PacketListColumn
+from scapy.tools.packet_viewer.command_line_interface import \
+    CommandLineInterface
 from scapy.tools.packet_viewer.details_view import DetailsView
 from scapy.tools.packet_viewer.packet_list_view import PacketListView
 from scapy.tools.packet_viewer.pop_ups import show_exit_pop_up
@@ -38,7 +40,8 @@ class MainWindow(Frame):
         super(MainWindow, self).__init__(
             body=Pile([self.packet_view,
                        ("pack", AttrMap(Text("Active"), "green"))]),
-            header=AttrMap(Text("   " + cm.get_header_string()), "packet_view_header"),
+            header=AttrMap(Text("   " + cm.get_header_string()),
+                           "packet_view_header"),
             footer=CommandLineInterface(self)
         )
 
@@ -55,16 +58,19 @@ class MainWindow(Frame):
             return
 
         self.sniffer.stop(False)
-        self.body.contents[STATUS_INDEX] = (AttrMap(Text("Paused"), "red"), ("pack", None))
+        self.body.contents[STATUS_INDEX] = (AttrMap(Text("Paused"), "red"),
+                                            ("pack", None))
         self.sniffer_is_running = False
 
     def continue_packet_sniffer(self):
         if not self.sniffer_is_running:
             self.sniffer.start()
-            self.body.contents[STATUS_INDEX] = (AttrMap(Text("Active"), "green"), ("pack", None))
+            text = AttrMap(Text("Active"), "green")
+            self.body.contents[STATUS_INDEX] = (text, ("pack", None))
             self.sniffer_is_running = True
         else:
-            self.footer.set_unfocused_state(edit="Error: Cannot continue sniffer since it is not paused.")
+            msg = "Error: Cannot continue sniffer since it is not paused."
+            self.footer.set_unfocused_state(edit=msg)
 
     def quit(self):
         show_exit_pop_up(self)
@@ -77,7 +83,8 @@ class MainWindow(Frame):
         dv_with_options = (self.details_view, ("weight", 0.3))
         if self.details_view.visible:
             self.body.contents[DETAIL_VIEW_INDEX] = dv_with_options
-            self.body.contents[DETAIL_CLOSE_BUTTON_INDEX] = self.details_view.close_btn_widget
+            self.body.contents[DETAIL_CLOSE_BUTTON_INDEX] = \
+                self.details_view.close_btn_widget
         else:
             self.body.contents.append(dv_with_options)
             self.body.contents.append(self.details_view.close_btn_widget)

@@ -8,10 +8,10 @@ from scapy.tools.packet_viewer.main_window import MainWindow
 
 
 def viewer(
-    socket,  # type: SuperSocket
-    columns=None,  # type: Optional[List[PacketListColumn]]
-    basecls=None,  # type: Packet_metaclass
-    **kwargs
+        socket,  # type: SuperSocket
+        columns=None,  # type: Optional[List[PacketListColumn]]
+        basecls=None,  # type: Packet_metaclass
+        **kwargs
 ):
     palette = [
         ("default", "light gray", "black"),
@@ -38,13 +38,15 @@ def viewer(
 
 def get_isotp_preset():
     # type: (...) -> Dict[str, Union[List[PacketListColumn], Callable]]
-    return {"columns": [PacketListColumn("SRC", 6, lambda p: format(p.src, "03X")),
-                        PacketListColumn("DST", 6, lambda p: format(p.dst, "03X")), ]}
+    return {"columns":
+            [PacketListColumn("SRC", 6, lambda p: format(p.src, "03X")),
+             PacketListColumn("DST", 6, lambda p: format(p.dst, "03X")), ]}
 
 
 # TODO: This show Identifier(integer?) and ID(hex)
 def get_can_preset():
     # type: (...) -> Dict[str, Union[List[PacketListColumn], Callable]]
     return {
-        "columns": [PacketListColumn("ID", 8, lambda p: format(p.identifier, "03X"))],
+        "columns": [
+            PacketListColumn("ID", 8, lambda p: format(p.identifier, "03X"))],
     }

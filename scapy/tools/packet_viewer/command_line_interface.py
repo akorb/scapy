@@ -33,7 +33,8 @@ class CommandLineInterface(Edit):
             self.main_window.quit()
         else:
             valid_commands = ["quit", "pause", "continue"]
-            self.set_unfocused_state(edit="Error: Invalid command. Choose from: " + ", ".join(valid_commands))
+            self.set_unfocused_state("Error: Invalid command. Choose from: " +
+                                     ", ".join(valid_commands))
 
     def keypress(self, size, key):
         if key == "enter":

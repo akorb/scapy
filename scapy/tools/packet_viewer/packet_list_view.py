@@ -9,7 +9,7 @@ SCROLL_WHEEL_DOWN = 5
 
 class PacketListView(ListBox):
     """
-    Lists all the packets which have been sniffed so far. Is part of the packet_view.
+    Lists all the packets which have been sniffed so far.
     """
 
     def __init__(self, main_window, cm):
@@ -21,7 +21,8 @@ class PacketListView(ListBox):
         self.main_window = main_window
         self.cm = cm
         body = SimpleFocusListWalker([])
-        # registers `self.on_focus_change` as a callback method, whenever the list is modified
+        # registers `self.on_focus_change` as a callback method,
+        # whenever the list is modified
         connect_signal(body, "modified", self.on_focus_change)
         super(PacketListView, self).__init__(body)
 
@@ -31,8 +32,10 @@ class PacketListView(ListBox):
         # type: (...) -> None
         """
         Creates and appends a Packet widget to the end of the list.
-        The cursor in front of the packet content is colored in the default background color.
-        This way, it is invisible and only the cursor in front of the packet in focus is colored.
+        The cursor in front of the packet content is colored
+        in the default background color.
+        This way, it is invisible and only the cursor
+        in front of the packet in focus is colored.
 
         :param packet: packet, which is passed on from the sniffer
         :type packet: Packet
@@ -42,7 +45,9 @@ class PacketListView(ListBox):
         text = self.cm.format(packet)
         gui_packet = SelectableText(packet, [("cursor", u">> "), text])
 
-        self.body.append(AttrMap(gui_packet, {"cursor": "cursor_unfocused"}, {"cursor": "cursor_focused"}))
+        self.body.append(AttrMap(gui_packet,
+                                 {"cursor": "cursor_unfocused"},
+                                 {"cursor": "cursor_focused"}))
         if self.main_window.main_loop:
             self.main_window.main_loop.draw_screen()
 
@@ -50,7 +55,8 @@ class PacketListView(ListBox):
         self, is_update=False  # type: bool
     ):
         """
-        Gets the packet, currently in focus and creates or updates an existing view with the packets details.
+        Gets the packet currently in focus and
+        creates or updates a view with the packet details.
         """
         if self.focus is None:
             return
@@ -81,7 +87,8 @@ class PacketListView(ListBox):
     def mouse_event(self, size, event, button, col, row, focus):
         """
         Handles mouse events.
-        Unhandled mouse events are being passed on to the keypress method of the super class.
+        Unhandled mouse events are being passed on
+        to the keypress method of the super class.
         """
 
         # Translate mouse scrolling to up and down keys
@@ -94,14 +101,8 @@ class PacketListView(ListBox):
             return
 
         self.main_window.footer.set_unfocused_state()
-        super(PacketListView, self).mouse_event(size, event, button, col, row, focus)
+        super(PacketListView, self).mouse_event(size, event, button,
+                                                col, row, focus)
 
     def on_focus_change(self):
-        """
-        Whenever the focus changes from one packet widget to another,
-        the cursor of the packet widget previously in focus is colored in the default background color
-        and the cursor in front of the packet now in focus is colored in green, so it is visible.
-        :return: None
-        """
-
         self.open_packet_details(is_update=True)
