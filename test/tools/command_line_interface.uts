@@ -30,60 +30,57 @@ def assert_command_execution(command_line, command=None, func_assert_once=None, 
 
 + Tests
 
-
-
-
-= test_focus_text
+= Test focus
 _, command_line = setUp()
 expected_text = [b' ']
 got = command_line.render((1,)).text
 assert got == expected_text, "got: %r expected: %r" % (got, expected_text)
 
-= test_execute_empty_command
+= Test empty command
 _, command_line = setUp()
 assert_command_execution(command_line)
 
-= test_execute_up_command
+= Test 'up' key
 _, command_line = setUp()
 assert_command_execution(command_line, key="up")
 
-= test_execute_pause_command
+= Test pause command
 main_window_mock, command_line = setUp()
 assert_command_execution(command_line, "pause", main_window_mock.pause_packet_sniffer)
 
-= test_execute_pause_command_partial
+= Test pause partial command
 main_window_mock, command_line = setUp()
 assert_command_execution(command_line, "pau", main_window_mock.pause_packet_sniffer)
 
-= test_execute_pause_command_single
+= Test pause single command
 main_window_mock, command_line = setUp()
 assert_command_execution(command_line, "p", main_window_mock.pause_packet_sniffer)
 
-= test_execute_quit_command
+= Test quit command
 main_window_mock, command_line = setUp()
 assert_command_execution(command_line, "quit", main_window_mock.quit)
 
-= test_execute_quit_command_partial
+= Test quit partial command
 main_window_mock, command_line = setUp()
 assert_command_execution(command_line, "qu", main_window_mock.quit)
 
-= test_execute_quit_command_single
+= Test quit single command
 main_window_mock, command_line = setUp()
 assert_command_execution(command_line, "q", main_window_mock.quit)
 
-= test_execute_continue_command
+= Test continue command
 main_window_mock, command_line = setUp()
 assert_command_execution(command_line, "continue", main_window_mock.continue_packet_sniffer)
 
-= test_execute_continue_command_partial
+= Test continue partial command
 main_window_mock, command_line = setUp()
 assert_command_execution(command_line, "cont", main_window_mock.continue_packet_sniffer)
 
-= test_execute_continue_command_single
+= Test continue single command
 main_window_mock, command_line = setUp()
 assert_command_execution(command_line, "c", main_window_mock.continue_packet_sniffer)
 
-= test_execute_invalid_command
+= Test invalid command
 main_window_mock, command_line = setUp()
 assert_command_execution(command_line, "invalid",
                          expected_edit_text="Error: Invalid command. Choose from: quit, pause, continue")

@@ -16,7 +16,7 @@ def assert_column(col, name, width):
 
 + Tests
 
-= test_empty_with_Raw
+= Without additional columns and Raw
 
 cm = ColumnsManager(None, Raw)
 
@@ -31,7 +31,7 @@ for f_desc in Raw.fields_desc:
 
 assert len(cm.columns) == index
 
-= test_with_Can_and_additional_columns
+= With additional columns and CAN
 columns = [PacketListColumn("SRC", 3, lambda p: format(p.src, "03X")),
            PacketListColumn("DST", 4, lambda p: format(p.dst, "03X"))]
 cm = ColumnsManager(columns, CAN)
@@ -50,7 +50,7 @@ for f_desc in CAN.fields_desc:
 
 assert len(cm.columns) == index
 
-= test_NO_LENGTH
+= Test default columns 'NO' and 'LENGTH'
 cm = ColumnsManager(None, Raw)
 
 packet = Raw(b'\x01\x02\x03')
