@@ -26,12 +26,13 @@ assert_column(cm.columns[2], "LENGTH", 7)
 
 index = 3
 for f_desc in Raw.fields_desc:
-    assert_column(cm.columns[index], f_desc.name, max(10, len(f_desc.name) + 1))
+    assert_column(cm.columns[index], f_desc.name, 12)
     index += 1
 
 assert len(cm.columns) == index
 
 = With additional columns and CAN
+
 columns = [PacketListColumn("SRC", 3, lambda p: format(p.src, "03X")),
            PacketListColumn("DST", 4, lambda p: format(p.dst, "03X"))]
 cm = ColumnsManager(columns, CAN)
@@ -45,7 +46,7 @@ assert_column(cm.columns[4], "DST", 4)
 
 index = 5
 for f_desc in CAN.fields_desc:
-    assert_column(cm.columns[index], f_desc.name, max(10, len(f_desc.name) + 1))
+    assert_column(cm.columns[index], f_desc.name, 12)
     index += 1
 
 assert len(cm.columns) == index
