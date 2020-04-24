@@ -10,7 +10,7 @@ import re
 from scapy.fields import FlagValue
 from scapy.layers.can import CAN
 from scapy.packet import Raw
-from scapy.tools.packet_viewer.columns_manager import ColumnsManager, PacketListColumn
+from scapy.tools.packet_viewer.columns_manager import ColumnsManager
 from scapy.tools.packet_viewer.command_line_interface import CommandLineInterface
 from scapy.tools.packet_viewer.packet_list_view import PacketListView
 
@@ -18,9 +18,10 @@ plain_repr = ColumnsManager.plain_repr
 
 = Function definitions
 def assert_column(col, name, width):
-    assert col.name == name
-    assert col.width == width
-    assert col.func is not None
+    name, width, func = col
+    assert name == name
+    assert width == width
+    assert func is not None
 
 @mock.patch("scapy.tools.packet_viewer.main_window.MainWindow")
 def setUpPlv(main_window_mock):
@@ -66,8 +67,8 @@ assert len(cm.columns) == index
 
 = Test with additional columns and CAN
 
-columns = [PacketListColumn("SRC", 3, lambda p: format(p.src, "03X")),
-           PacketListColumn("DST", 4, lambda p: format(p.dst, "03X"))]
+columns = [("SRC", 3, lambda p: format(p.src, "03X")),
+           ("DST", 4, lambda p: format(p.dst, "03X"))]
 cm = ColumnsManager(columns, CAN)
 
 assert_column(cm.columns[0], "NO", 5)
@@ -88,12 +89,12 @@ assert len(cm.columns) == index
 cm = ColumnsManager(None, Raw)
 
 packet = Raw(b'\x01\x02\x03')
-assert cm.columns[0].func(packet) == 0
-assert cm.columns[2].func(packet) == 3
+assert cm.columns[0][2](packet) == 0
+assert cm.columns[2][2](packet) == 3
 
 packet = Raw(b'\xab' * 50)
-assert cm.columns[0].func(packet) == 1
-assert cm.columns[2].func(packet) == 50
+assert cm.columns[0][2](packet) == 1
+assert cm.columns[2][2](packet) == 50
 
 
 + Command Line Interface

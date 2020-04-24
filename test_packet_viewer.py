@@ -3,7 +3,7 @@ import time
 
 from scapy.contrib.cansocket_python_can import PythonCANSocket
 from scapy.layers.can import CAN
-from scapy.tools.packet_viewer.viewer import viewer, get_can_preset
+from scapy.tools.packet_viewer.viewer import viewer
 
 
 def send_msg():
@@ -19,7 +19,7 @@ socket = PythonCANSocket(bustype='virtual', channel="vcan1")
 thread1 = threading.Thread(target=send_msg)
 thread1.start()
 
-viewer(socket, **get_can_preset())
+viewer(socket)
 
 thread1.join()
 

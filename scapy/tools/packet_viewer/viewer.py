@@ -1,16 +1,25 @@
-from typing import List, Union, Optional, Dict, Callable
+from typing import Callable, List, Optional, Tuple
 from urwid import AttrMap, MainLoop
 
+from scapy.config import conf
+from scapy.contrib.isotp import ISOTP
+from scapy.layers.can import CAN
 from scapy.packet import Packet_metaclass, Raw
 from scapy.supersocket import SuperSocket
-from scapy.tools.packet_viewer.columns_manager import PacketListColumn
 from scapy.tools.packet_viewer.main_window import MainWindow
+
+conf.contribs["packet_viewer_columns"] = {
+    ISOTP: [("SRC", 6, lambda p: format(p.src, "03X")),
+            ("DST", 6, lambda p: format(p.dst, "03X"))],
+
+    CAN: [("ID", 8, lambda p: format(p.identifier, "03X"))]
+}
 
 
 def viewer(
         socket,  # type: SuperSocket
-        columns=None,  # type: Optional[List[PacketListColumn]]
-        basecls=None,  # type: Packet_metaclass
+        columns=None,  # type: Optional[List[Tuple[str, int, Callable]]]
+        basecls=None,  # type: Optional[Packet_metaclass]
         **kwargs
 ):
     palette = [
@@ -24,7 +33,10 @@ def viewer(
         ("default_bold", "light gray,bold", "black"),
     ]
 
-    basecls = basecls if basecls else getattr(socket, "basecls", Raw)
+    basecls = basecls or getattr(socket, "basecls", Raw)
+
+    if columns is None:
+        columns = conf.contribs["packet_viewer_columns"].get(basecls)
 
     main_window = AttrMap(
         MainWindow(socket, columns, basecls, **kwargs), "default"
@@ -34,19 +46,3 @@ def viewer(
     main_window.base_widget.main_loop = loop
     main_window.base_widget.packet_view.main_loop = loop
     loop.run()
-
-
-def get_isotp_preset():
-    # type: (...) -> Dict[str, Union[List[PacketListColumn], Callable]]
-    return {"columns":
-            [PacketListColumn("SRC", 6, lambda p: format(p.src, "03X")),
-             PacketListColumn("DST", 6, lambda p: format(p.dst, "03X")), ]}
-
-
-# TODO: This show Identifier(integer?) and ID(hex)
-def get_can_preset():
-    # type: (...) -> Dict[str, Union[List[PacketListColumn], Callable]]
-    return {
-        "columns": [
-            PacketListColumn("ID", 8, lambda p: format(p.identifier, "03X"))],
-    }
