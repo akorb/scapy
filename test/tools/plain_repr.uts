@@ -1,0 +1,49 @@
+% Regression tests for plain_repr function
+
++ Configuration
+~ conf
+
+= Imports
+
+from scapy.fields import FlagValue
+from scapy.tools.packet_viewer.columns_manager import ColumnsManager
+
+plain_repr = ColumnsManager.plain_repr
+
++ Tests
+
+= Test string
+
+r = plain_repr("\n\012\t3'\r\x03''")
+print(r)
+assert r == r"\n\n\t3'\r\x03''"
+
+= Test bytes
+
+r = plain_repr(b"\x01\x90\xff\x00\x09\x0a\x03test\n")
+print(r)
+assert r == r"\x01\x90\xff\x00\t\n\x03test\n"
+
+= Test num
+
+r = plain_repr(5)
+print(r)
+assert r == r"5"
+
+= Test float
+
+r = plain_repr(1.23)
+print(r)
+assert r == r"1.23"
+
+= Test FlagValue
+
+ff = FlagValue("test1", ["test1", "test2"])
+r = plain_repr(ff)
+print(r)
+assert r == r"test1"
+
+ff = FlagValue(["test1", "test2"], ["test1", "test2"])
+r = plain_repr(ff)
+print(r)
+assert r == r"test1+test2"

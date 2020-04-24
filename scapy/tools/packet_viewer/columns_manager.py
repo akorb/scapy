@@ -41,20 +41,20 @@ class ColumnsManager:
         cols = dict()
         for column in self.columns[:-1]:
             val = column.func(packet)
-            text = self._to_string(val)
+            text = self.plain_repr(val)
             cols[column.name] = text[:column.width - 1]
 
         # Do not trim last column. Usually it's the data column
         # so allow it to be as long as necessary
         column = self.columns[-1]
         val = column.func(packet)
-        text = self._to_string(val)
+        text = self.plain_repr(val)
         cols[column.name] = text
 
         return self._format_string.format(**cols)
 
     @staticmethod
-    def _to_string(obj):
+    def plain_repr(obj):
         """
         Converts an object to a string.
         It takes care of escaping special characters like '\n'
@@ -65,10 +65,10 @@ class ColumnsManager:
         if six.PY3 and isinstance(obj, bytes):
             return repr(obj)[2:-1]
 
-        if six.PY2 and isinstance(obj, str):
-            return repr(obj)[1:-1]
-
-        return str(obj)
+        # Calling str first because repr is sometimes not a really "nice"
+        # representation of the value.
+        # Example: FlagValue.__repr__
+        return repr(str(obj))[1:-1]
 
     def _create_format_string(self):
         # type: (...) -> str
