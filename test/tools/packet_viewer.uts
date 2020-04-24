@@ -1,0 +1,233 @@
+% Regression tests for Packet Viewer
+
++ Configuration
+~ conf
+
+= Imports
+import mock
+import re
+
+from scapy.fields import FlagValue
+from scapy.layers.can import CAN
+from scapy.packet import Raw
+from scapy.tools.packet_viewer.columns_manager import ColumnsManager, PacketListColumn
+from scapy.tools.packet_viewer.command_line_interface import CommandLineInterface
+from scapy.tools.packet_viewer.packet_list_view import PacketListView
+
+plain_repr = ColumnsManager.plain_repr
+
+= Function definitions
+def assert_column(col, name, width):
+    assert col.name == name
+    assert col.width == width
+    assert col.func is not None
+
+@mock.patch("scapy.tools.packet_viewer.main_window.MainWindow")
+def setUpPlv(main_window_mock):
+    main_window_mock = main_window_mock
+    cm = ColumnsManager(None, CAN)
+    packet_list_view = PacketListView(main_window_mock, cm)
+    return main_window_mock, packet_list_view
+
+@mock.patch("scapy.tools.packet_viewer.main_window.MainWindow")
+def setUp_cmd(main_window_mock):
+    main_window_mock = main_window_mock
+    command_line = CommandLineInterface(main_window_mock)
+    return main_window_mock, command_line
+
+def assert_command_execution(command_line, command=None, func_assert_once=None, key="enter", expected_edit_text=""):
+    if command:
+        command_line.set_edit_text(command)
+    command_line.keypress((12,), key)
+    if func_assert_once:
+        func_assert_once.assert_called_once()
+    got = command_line.edit_text
+    assert got == expected_edit_text, "got: %r expected: %r" % (got, expected_edit_text)
+    expected_caption_text = ''
+    got = command_line.caption
+    assert got == expected_caption_text, "got: %r expected: %r" % (got, expected_caption_text)
+
++ Columns Manager
+
+= Test without additional columns and Raw
+
+cm = ColumnsManager(None, Raw)
+
+assert_column(cm.columns[0], "NO", 5)
+assert_column(cm.columns[1], "TIME", 20)
+assert_column(cm.columns[2], "LENGTH", 7)
+
+index = 3
+for f_desc in Raw.fields_desc:
+    assert_column(cm.columns[index], f_desc.name, 12)
+    index += 1
+
+assert len(cm.columns) == index
+
+= Test with additional columns and CAN
+
+columns = [PacketListColumn("SRC", 3, lambda p: format(p.src, "03X")),
+           PacketListColumn("DST", 4, lambda p: format(p.dst, "03X"))]
+cm = ColumnsManager(columns, CAN)
+
+assert_column(cm.columns[0], "NO", 5)
+assert_column(cm.columns[1], "TIME", 20)
+assert_column(cm.columns[2], "LENGTH", 7)
+
+assert_column(cm.columns[3], "SRC", 3)
+assert_column(cm.columns[4], "DST", 4)
+
+index = 5
+for f_desc in CAN.fields_desc:
+    assert_column(cm.columns[index], f_desc.name, 12)
+    index += 1
+
+assert len(cm.columns) == index
+
+= Test default columns 'NO' and 'LENGTH'
+cm = ColumnsManager(None, Raw)
+
+packet = Raw(b'\x01\x02\x03')
+assert cm.columns[0].func(packet) == 0
+assert cm.columns[2].func(packet) == 3
+
+packet = Raw(b'\xab' * 50)
+assert cm.columns[0].func(packet) == 1
+assert cm.columns[2].func(packet) == 50
+
+
++ Command Line Interface
+
+= Test focus
+_, command_line = setUp_cmd()
+expected_text = [b' ']
+got = command_line.render((1,)).text
+assert got == expected_text, "got: %r expected: %r" % (got, expected_text)
+
+= Test empty command
+_, command_line = setUp_cmd()
+assert_command_execution(command_line)
+
+= Test 'up' key
+_, command_line = setUp_cmd()
+assert_command_execution(command_line, key="up")
+
+= Test pause command
+main_window_mock, command_line = setUp_cmd()
+assert_command_execution(command_line, "pause", main_window_mock.pause_packet_sniffer)
+
+= Test pause partial command
+main_window_mock, command_line = setUp_cmd()
+assert_command_execution(command_line, "pau", main_window_mock.pause_packet_sniffer)
+
+= Test pause single command
+main_window_mock, command_line = setUp_cmd()
+assert_command_execution(command_line, "p", main_window_mock.pause_packet_sniffer)
+
+= Test quit command
+main_window_mock, command_line = setUp_cmd()
+assert_command_execution(command_line, "quit", main_window_mock.quit)
+
+= Test quit partial command
+main_window_mock, command_line = setUp_cmd()
+assert_command_execution(command_line, "qu", main_window_mock.quit)
+
+= Test quit single command
+main_window_mock, command_line = setUp_cmd()
+assert_command_execution(command_line, "q", main_window_mock.quit)
+
+= Test continue command
+main_window_mock, command_line = setUp_cmd()
+assert_command_execution(command_line, "continue", main_window_mock.continue_packet_sniffer)
+
+= Test continue partial command
+main_window_mock, command_line = setUp_cmd()
+assert_command_execution(command_line, "cont", main_window_mock.continue_packet_sniffer)
+
+= Test continue single command
+main_window_mock, command_line = setUp_cmd()
+assert_command_execution(command_line, "c", main_window_mock.continue_packet_sniffer)
+
+= Test invalid command
+main_window_mock, command_line = setUp_cmd()
+assert_command_execution(command_line, "invalid",
+                         expected_edit_text="Error: Invalid command. Choose from: quit, pause, continue")
+
+
++ PacketListView
+
+= Test packets received
+main_window_mock, packet_list_view = setUpPlv()
+packet = CAN(identifier=0x123, data=b'\x90\x0a\xff')
+packet = CAN(bytes(packet))
+packet_list_view.add_packet(packet)
+assert len(packet_list_view.body) == 1
+assert re.match(r">> 0 +\d+\.\d+ +11 +291 +3 +0 +\\x90\\n\\xff",
+                packet_list_view.body[0].base_widget.text)
+
+# Second packet
+packet = CAN(identifier=0x7ff, data=b'')
+packet = CAN(packet.build())
+packet_list_view.add_packet(packet)
+assert len(packet_list_view.body) == 2
+assert re.match(r">> 1 +\d+\.\d+ +8 +2047 +0 +0 + *",
+                packet_list_view.body[1].base_widget.text)
+
+= Test show details functionality
+main_window_mock, packet_list_view = setUpPlv()
+packet_list_view.keypress(None, 'enter')
+# Nothing focused since no packet received
+main_window_mock.show_details.assert_not_called()
+
+packet = CAN(identifier=0x123, data=b'\x90\x0a\xff')
+packet = CAN(bytes(packet))
+packet_list_view.add_packet(packet)
+
+packet_list_view.keypress(None, 'enter')
+main_window_mock.show_details.assert_called_once()
+
+# Here we have to add a size (100, 100) because 'down' is handled by the widget itself
+# and this handler expects a size. The (100, 100) is arbitrary.
+packet_list_view.keypress((100, 100), 'down')
+main_window_mock.update_details.assert_called_once()
+packet_list_view.keypress(None, 'c')
+main_window_mock.close_details.assert_called_once()
+
+
++ plain_repr
+
+= Test string
+
+r = plain_repr("\n\012\t3'\r\x03''")
+print(r)
+assert r == r"\n\n\t3'\r\x03''"
+
+= Test bytes
+
+r = plain_repr(b"\x01\x90\xff\x00\x09\x0a\x03test\n")
+print(r)
+assert r == r"\x01\x90\xff\x00\t\n\x03test\n"
+
+= Test num
+
+r = plain_repr(5)
+print(r)
+assert r == r"5"
+
+= Test float
+
+r = plain_repr(1.23)
+print(r)
+assert r == r"1.23"
+
+= Test FlagValue
+
+ff = FlagValue("test1", ["test1", "test2"])
+r = plain_repr(ff)
+print(r)
+assert r == r"test1"
+
+ff = FlagValue(["test1", "test2"], ["test1", "test2"])
+r = plain_repr(ff)
+print(r)
+assert r == r"test1+test2"
