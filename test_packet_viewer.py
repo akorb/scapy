@@ -10,7 +10,7 @@ def send_msg():
     socket2 = PythonCANSocket(bustype='virtual', channel="vcan1")
 
     for i in range(10):
-        socket2.send(CAN(identifier=0x1001, data="test" + str(i)))
+        socket2.send(CAN(flags=["extended"], identifier=0x123456, data="test" + str(i)))
         time.sleep(1)
 
 
