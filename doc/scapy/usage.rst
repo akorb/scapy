@@ -1609,6 +1609,77 @@ To allow Scapy to reach target destination additional options must be used::
 
 
 
+Viewing packets as in Wireshark
+-------------------------------
+
+.. index::
+   single: viewer()
+
+Problem
+^^^^^^^
+You want to see packets as in Wireshark with great flexibility.
+
+Solution
+^^^^^^^^
+That's what :py:func:``viewer`` is for!
+Per default it just does you the packet which has been received just as Wireshark.
+But it's very flexible.
+With the ``viewer(socket, columns=None, basecls=None, **kwargs)`` constructor you can specify how you want to see the packets.
+
+``socket``: Specifies the socket to receive the packets with.
+``columns``: Specifies the user-defined columns.
+``basecls``: Specifies the type with which the packets should be interpreted.
+If None, it uses ``socket.basecls``. If ``socket.basecls`` does not exist, it uses ``Raw``.
+``**kwargs``: Arguments which are passed to the ``sniff`` call. For example you can specify the ``started_callback`` with this.
+
+Control
+^^^^^^^^
+
+The control is vim-like. So with ":" and commands.
+There are three commands:
+
+* ``quit``: Exits the viewer.
+* ``pause``: Pauses the sniffing.
+* ``continue``: Continues the sniffing.
+
+You do not have to type the full command. E.g. the following commands are sufficient:
+
+* :q
+* :cont
+* :pa
+
+Columns
+^^^^^^^^^^^^^^^^
+
+There are three groups of columns.
+
++---------------------+----------------------------+---------------------------------------------+
+| Default             | Additional columns         | basecls                                     |
++=====================+============================+=============================================+
+| no, time, length    | Defined by the user        | The fields of the basecls.                  |
+|                     | with                       | Example: UDP --> sport, dport, len, chksum  |
+|                     | `viewer(s, cols, ...)`     |                                             |
+|                     | or defined in config       |                                             |
++---------------------+----------------------------+---------------------------------------------+
+
+
+The columns shown in the viewer are ordered as in the table. So for: `viewer(s, [("MyColumn", 10, lambda p: "asdf")], UDP)` the column order would be:
+
+no, time, length, MyColumn, sport, dport, len, chksum
+
+The columns of the group 'Default' and 'basecls' are fixed. If you want to use your own columns, use the 'Additional columns'.
+
+The 'Additional columns' are the second parameter ``columns`` of the ``viewer`` function.
+
+If ``columns`` is None (default), scapy uses the columns for this basecls from ``conf.contribs["packet_viewer_columns"]``.
+
+If ``columns`` is a List of tuples, they are used as the additional columns. The config is ignroed.
+
+If you explicitly don't want to use any additional columns not even from the config, you can pass ``columns=[]``.
+
+
+
+
 Viewing packets with Wireshark
 ------------------------------
 
