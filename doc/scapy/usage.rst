@@ -1673,7 +1673,7 @@ The 'Additional columns' are the second parameter ``columns`` of the ``viewer`` 
 
 If ``columns`` is None (default), scapy uses the columns for this basecls from ``conf.contribs["packet_viewer_columns"]``.
 
-If ``columns`` is a List of tuples, they are used as the additional columns. The config is ignroed.
+If ``columns`` is a List of tuples, they are used as the additional columns. The config is ignored.
 
 If you explicitly don't want to use any additional columns not even from the config, you can pass ``columns=[]``.
 
