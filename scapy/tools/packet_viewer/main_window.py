@@ -1,7 +1,7 @@
-from typing import List, Tuple, Callable
+from typing import List, Tuple, Callable, Optional
 from urwid import Frame, Pile, AttrMap, Text, Button
 
-from scapy.packet import Packet, Raw
+from scapy.packet import Packet, Raw, Packet_metaclass
 from scapy.sendrecv import AsyncSniffer
 from scapy.supersocket import SuperSocket
 from scapy.tools.packet_viewer.command_line_interface import \
@@ -22,11 +22,11 @@ class MainWindow(Frame):
     Assembles all parts of the view.
     """
     def __init__(self, socket,  # type: SuperSocket
-                 columns,  # type: List[Tuple[str, int, Callable]]
-                 basecls,
+                 columns=None,  # type: Optional[List[Tuple[str, int, Callable]]]   # noqa:  E501
+                 basecls=None,  # type: Optional[Packet_metaclass]
                  **kwargs):
 
-        basecls = basecls if basecls else getattr(socket, "basecls", Raw)
+        basecls = basecls or getattr(socket, "basecls", Raw)
 
         cm = ColumnsManager(columns, basecls)
 

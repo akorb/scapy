@@ -92,6 +92,12 @@ class CAN(Packet):
 conf.l2types.register(DLT_CAN_SOCKETCAN, CAN)
 bind_layers(CookedLinux, CAN, proto=12)
 
+if conf.contribs["packet_viewer_columns"] is None:
+    conf.contribs["packet_viewer_columns"] = dict()
+
+conf.contribs["packet_viewer_columns"][CAN] = \
+    [("ID", 8, lambda p: format(p.identifier, "03X"))]
+
 
 class SignalField(ScalingField):
     __slots__ = ["start", "size"]

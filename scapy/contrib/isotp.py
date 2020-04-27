@@ -201,6 +201,14 @@ class ISOTP(Packet):
         return results[0]
 
 
+if conf.contribs["packet_viewer_columns"] is None:
+    conf.contribs["packet_viewer_columns"] = dict()
+
+conf.contribs["packet_viewer_columns"][ISOTP] = [
+    ("SRC", 6, lambda p: format(p.src, "03X")),
+    ("DST", 6, lambda p: format(p.dst, "03X"))]
+
+
 class ISOTPHeader(CAN):
     name = 'ISOTPHeader'
     fields_desc = [

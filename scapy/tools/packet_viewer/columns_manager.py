@@ -4,27 +4,37 @@ from itertools import count
 from typing import Callable, Dict, List, Optional, Tuple
 
 from scapy.packet import Packet_metaclass
+from scapy.config import conf
 
 
 class ColumnsManager:
     def __init__(
             self,
             columns,  # type: Optional[List[Tuple[str, int, Callable]]]
-            cls  # type: Packet_metaclass
+            basecls  # type: Packet_metaclass
     ):
         nr_messages = count()
         # First default columns
-        default_cols = [("NO", 5, lambda p: next(nr_messages)),
+        self.columns = [("NO", 5, lambda p: next(nr_messages)),
                         ("TIME", 20, lambda p: p.time),
                         ("LENGTH", 7, len)]
 
-        # Then user-defined columns
-        self.columns = default_cols + (columns or [])
+        try:
+            conf_columns = conf.contribs["packet_viewer_columns"].get(basecls)
+        except KeyError:
+            conf_columns = []
 
-        # Last the fields of the specified cls
-        self.columns += [
-            (field.name, 12, lambda p, name=field.name: p.getfieldval(name))
-            for field in cls.fields_desc]
+        if columns:
+            # Then user-defined columns if provided
+            self.columns += columns
+        elif conf_columns:
+            # Or columns from config if provided
+            self.columns += conf_columns
+        else:
+            # Or the fields of the specified cls as columns
+            self.columns += [(field.name, 12,
+                              lambda p, name=field.name: p.getfieldval(name))
+                             for field in basecls.fields_desc]
 
         self._format_string = self._create_format_string()
 
