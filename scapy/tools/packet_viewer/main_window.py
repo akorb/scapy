@@ -22,8 +22,8 @@ class MainWindow(Frame):
     """
     Assembles all parts of the view.
     """
-    def __init__(self, source,  # type: Union[SuperSocket, Iterable[Packet_metaclass]]    # noqa: E501
-                 columns=None,  # type: Optional[List[Tuple[str, int, Callable]]]         # noqa:  E501
+    def __init__(self, source,  # type: Union[SuperSocket, Iterable[Packet]]       # noqa: E501
+                 columns=None,  # type: Optional[List[Tuple[str, int, Callable]]]  # noqa:  E501
                  basecls=None,  # type: Optional[Packet_metaclass]
                  **kwargs):
 
