@@ -92,7 +92,7 @@ class CAN(Packet):
 conf.l2types.register(DLT_CAN_SOCKETCAN, CAN)
 bind_layers(CookedLinux, CAN, proto=12)
 
-if conf.contribs["packet_viewer_columns"] is None:
+if "packet_viewer_columns" not in conf.contribs.keys():
     conf.contribs["packet_viewer_columns"] = dict()
 
 conf.contribs["packet_viewer_columns"][CAN] = \

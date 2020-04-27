@@ -201,7 +201,7 @@ class ISOTP(Packet):
         return results[0]
 
 
-if conf.contribs["packet_viewer_columns"] is None:
+if "packet_viewer_columns" not in conf.contribs.keys():
     conf.contribs["packet_viewer_columns"] = dict()
 
 conf.contribs["packet_viewer_columns"][ISOTP] = [
