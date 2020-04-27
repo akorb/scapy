@@ -1,9 +1,10 @@
-from typing import List, Tuple, Callable, Optional
+from typing import List, Tuple, Callable, Optional, Union, Iterable
 from urwid import Frame, Pile, AttrMap, Text, Button
 
 from scapy.packet import Packet, Raw, Packet_metaclass
 from scapy.sendrecv import AsyncSniffer
 from scapy.supersocket import SuperSocket
+from scapy.error import Scapy_Exception
 from scapy.tools.packet_viewer.command_line_interface import \
     CommandLineInterface
 from scapy.tools.packet_viewer.columns_manager import ColumnsManager
@@ -21,12 +22,12 @@ class MainWindow(Frame):
     """
     Assembles all parts of the view.
     """
-    def __init__(self, socket,  # type: SuperSocket
-                 columns=None,  # type: Optional[List[Tuple[str, int, Callable]]]   # noqa:  E501
+    def __init__(self, source,  # type: Union[SuperSocket, Iterable[Packet_metaclass]]    # noqa: E501
+                 columns=None,  # type: Optional[List[Tuple[str, int, Callable]]]         # noqa:  E501
                  basecls=None,  # type: Optional[Packet_metaclass]
                  **kwargs):
 
-        basecls = basecls or getattr(socket, "basecls", Raw)
+        basecls = basecls or getattr(source, "basecls", Raw)
 
         cm = ColumnsManager(columns, basecls)
 
@@ -43,17 +44,25 @@ class MainWindow(Frame):
                            "packet_view_header"),
             footer=CommandLineInterface(self)
         )
+        if isinstance(source, SuperSocket):
+            self.sniffer = AsyncSniffer(
+                opened_socket=source, store=False,
+                prn=self.packet_view.add_packet,
+                lfilter=lambda p: isinstance(p, basecls), **kwargs
+            )
 
-        self.sniffer = AsyncSniffer(
-            opened_socket=socket, store=False, prn=self.packet_view.add_packet,
-            lfilter=lambda p: isinstance(p, basecls), **kwargs
-        )
-
-        self.sniffer.start()
-        self.sniffer_is_running = True
+            self.sniffer.start()
+            self.sniffer_is_running = True
+        elif hasattr(source, "__iter__"):
+            self.sniffer = None
+            for p in source:
+                self.packet_view.add_packet(p)
+            self.sniffer_is_running = False
+        else:
+            raise Scapy_Exception("Provide list of packets or Socket")
 
     def pause_packet_sniffer(self):
-        if not self.sniffer_is_running:
+        if self.sniffer is None or not self.sniffer_is_running:
             return
 
         self.sniffer.stop(False)
@@ -62,6 +71,9 @@ class MainWindow(Frame):
         self.sniffer_is_running = False
 
     def continue_packet_sniffer(self):
+        if self.sniffer is None:
+            return
+
         if not self.sniffer_is_running:
             self.sniffer.start()
             text = AttrMap(Text("Active"), "green")

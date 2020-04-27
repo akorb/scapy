@@ -30,7 +30,7 @@ def show_exit_pop_up(main_window):
     def exit_loop(_self):
         try:
             main_window.sniffer.stop(False)
-        except Scapy_Exception:
+        except (Scapy_Exception, AttributeError):
             pass
 
         print("exit loop")
