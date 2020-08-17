@@ -162,7 +162,7 @@ class MainWindow(Frame):
     def pause_packet_sniffer(self):
         # type: () -> None
         try:
-            self.sniffer.stop(False)
+            self.sniffer.stop()
         except (Scapy_Exception, AttributeError):
             pass
 
@@ -216,7 +216,7 @@ class MainWindow(Frame):
 
     def _on_exit(self, _sender=None):
         try:
-            self.sniffer.stop(False)
+            self.sniffer.stop()
         except (Scapy_Exception, AttributeError):
             pass
         finally:
