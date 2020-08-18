@@ -4,6 +4,7 @@
 # Copyright (C) Nils Weiss <nils@we155.de>
 # This program is published under a GPLv2 license
 
+from six import PY2
 from typing import List
 from urwid import AttrMap, SimpleFocusListWalker, CheckBox
 
@@ -39,7 +40,13 @@ class PacketListView(ExtendedListBox):
 
         # Unfortunately we need to access some protected variables here,
         # to customize the underlying widgets
-        gui_packet._label.set_layout("left", "ellipsis")
+
+        # urwid crashes with Py2 and ellipsis
+        # Fixed with https://github.com/urwid/urwid/pull/427
+        # Todo: Revert fallback to "clip" for PY2 when
+        # new urwid version is released.
+        # Current 2.1.1
+        gui_packet._label.set_layout("left", "clip" if PY2 else "ellipsis")
 
         # The cursor of `urwid.SelectableIcon` doesn't take a color scheme.
         # So just hide the cursor.

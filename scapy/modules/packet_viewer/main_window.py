@@ -151,9 +151,15 @@ class MainWindow(Frame):
                                                   self.text_to_packet)
         self._setup_source(kwargs_for_sniff)
 
+        from six import PY2
         super(MainWindow, self).__init__(
+            # urwid crashes with Py2 and ellipsis
+            # Fixed with https://github.com/urwid/urwid/pull/427
+            # Todo: Revert fallback to "clip" for PY2 when
+            # new urwid version is released.
+            # Current 2.1.1
             header=AttrMap(Text(u"    " + row_formatter.get_header_string(),
-                                wrap="ellipsis"),
+                                wrap="clip" if PY2 else "ellipsis"),
                            "header"),
             body=Pile([self.packet_view]),
             # OrderedDict to ensure the order of the buttons
