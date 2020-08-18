@@ -73,7 +73,8 @@ class ButtonBar(Columns):
         key, action = cmd
 
         btn = Button(("row_focused", action.text),
-                     on_press=self._execute_and_change_state,
+                     on_press=lambda _sender, k:
+                     self._execute_and_change_state(k),
                      user_data=key)
         # We need to access the underlying Columns widget
         cols = btn._w
