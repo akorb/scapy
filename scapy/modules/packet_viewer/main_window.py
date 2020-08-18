@@ -235,7 +235,7 @@ class MainWindow(Frame):
 
             # Allowed elements
             if isinstance(node, (ast.Load, ast.BinOp, ast.Call, ast.operator,
-                                 ast.Expression)):
+                                 ast.Expression, ast.List)):
                 continue
 
             # Python >= 3.8 (For future usage)
