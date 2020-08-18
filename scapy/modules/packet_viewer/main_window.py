@@ -11,6 +11,7 @@ from typing import Union, Iterable, List, Type, Dict, Any, Optional
 
 from urwid import Frame, Pile, AttrMap, Text, ExitMainLoop, connect_signal
 
+from scapy.base_classes import Packet_metaclass
 from scapy.error import Scapy_Exception
 from scapy.packet import Packet
 from scapy.plist import PacketList
@@ -183,6 +184,49 @@ class MainWindow(Frame):
         if isinstance(self.source, SuperSocket):
             self.source.send(pkt)
 
+    @staticmethod
+    def is_valid_packet(text):
+        # eval enforces only one expression
+        tree = ast.parse(text, mode="eval")
+        # only single expression
+        # For example it avoids "CAN() and do_something_else()"
+        if not isinstance(tree.body, ast.Call):
+            return False
+        # get type, unfortunately with eval
+        t = eval(tree.body.func.id)
+        # has to be of type Packet
+        if not isinstance(t, Packet_metaclass):
+            return False
+        for keyword in tree.body.keywords:
+            # print("Keyword: " + str(keyword.__dict__))
+            # Next two lines probably not needed
+            # But I'll leave them here, in the case
+            # there is a type which should be avoided.
+            #
+            # if isinstance(keyword, ast.keyword) or \
+            #         isinstance(keyword, ast.List):
+
+            gen = ast.walk(keyword)
+            for node in gen:
+                # walk() also walks through the given node
+                # Ignore them
+                # Only their children are interesting
+                if isinstance(node, ast.keyword) or \
+                        isinstance(node, ast.List):
+                    continue
+                # print("Node: " + str(node))
+                # print("Node dict: " + str(node.__dict__))
+                if isinstance(node, ast.Load):
+                    # doesn't have any attributes
+                    # just ignore
+                    continue
+                if not hasattr(node, "value"):
+                    # We only accept values
+                    return False
+
+        # If all checks succeeded, it seems to be valid
+        return True
+
     def text_to_packet(self, text):
         # type: (str) -> bool
         """
@@ -191,12 +235,15 @@ class MainWindow(Frame):
         :param text: String that describes a Scapy Packet
         """
         try:
-            exec(compile(ast.parse("locals()['pkt_parse_result'] = " + text),
-                         filename="", mode="exec"))
-            pkt = locals()['pkt_parse_result']
-            self.send_packet(pkt)
+            if MainWindow.is_valid_packet(text):
+                pkt = eval(text)
+                self.send_packet(pkt)
+            else:
+                self._emit("info_popup", "Only simple values allowed.")
+
             return True
-        except (SyntaxError, AttributeError, Scapy_Exception, TypeError) as e:
+        except (SyntaxError, AttributeError, Scapy_Exception, TypeError,
+                NameError) as e:
             self._emit("info_popup", str(e))
             return False
 
