@@ -208,55 +208,54 @@ class MainWindow(Frame):
         if isinstance(self.source, SuperSocket):
             self.source.send(pkt)
 
+    # noinspection PyUnresolvedReferences
     @staticmethod
     def is_valid_packet(text):
         # For some reason this is needed.
         # It doesn't know CAN here and then the eval() fails
         # TODO: fix
-        # noinspection PyUnresolvedReferences
         from scapy.layers.can import CAN
+        from scapy.layers.inet import Ether
+        from scapy.packet import Raw
 
         # eval enforces only one expression
         tree = ast.parse(text, mode="eval")
-        # only single expression
-        # For example it avoids "CAN() and do_something_else()"
-        if not isinstance(tree.body, ast.Call):
-            return False
-        # get type, unfortunately with eval
-        t = eval(tree.body.func.id)
-        # has to be of type Packet
-        if not isinstance(t, Packet_metaclass):
-            return False
-        for keyword in tree.body.keywords:
-            # print("Keyword: " + str(keyword.__dict__))
-            # Next two lines probably not needed
-            # But I'll leave them here, in the case
-            # there is a type which should be avoided.
-            #
-            # if isinstance(keyword, ast.keyword) or \
-            #         isinstance(keyword, ast.List):
+        gen = ast.walk(tree)
+        from six import PY3
+        for node in gen:
+            # Set parent to use it again later (probably next iterations)
+            for child in ast.iter_child_nodes(node):
+                child.parent = node
 
-            gen = ast.walk(keyword)
-            for node in gen:
-                # walk() also walks through the given node
-                # Ignore them
-                # Only their children are interesting
-                if isinstance(node, ast.keyword) or \
-                        isinstance(node, ast.List):
-                    continue
-                # print("Node: " + str(node))
-                # print("Node dict: " + str(node.__dict__))
-                if isinstance(node, ast.Load):
-                    # doesn't have any attributes
-                    # just ignore
-                    continue
-                if not hasattr(node, "value"):
-                    # We only accept values
+            # Allowed elements
+            if isinstance(node, (ast.Load, ast.BinOp, ast.Call, ast.operator,
+                                 ast.Expression)):
+                continue
+
+            # Python >= 3.8 (For future usage)
+            # isinstance(node, ast.Constant)
+            if isinstance(node, (ast.keyword, ast.Num, ast.Str)) or \
+                    PY3 and isinstance(node, ast.Bytes):
+                continue
+
+            if isinstance(node, ast.Name):
+                # A name must be a child of a call
+                # Allowed: CAN()
+                # Disallowed: CAN
+                if not isinstance(node.parent, ast.Call):
                     return False
+                # get type, unfortunately with eval
+                t = eval(node.id)
+                # has to be of type Packet
+                if not isinstance(t, Packet_metaclass):
+                    return False
+                continue
 
-        # If all checks succeeded, it seems to be valid
+            return False
+
         return True
 
+    # noinspection PyUnresolvedReferences
     def text_to_packet(self, text):
         # type: (str) -> bool
         """
@@ -267,8 +266,9 @@ class MainWindow(Frame):
         # For some reason this is needed.
         # It doesn't know CAN here and then the eval() fails
         # TODO: fix
-        # noinspection PyUnresolvedReferences
         from scapy.layers.can import CAN
+        from scapy.layers.inet import Ether
+        from scapy.packet import Raw
         try:
             if MainWindow.is_valid_packet(text):
                 pkt = eval(text)
