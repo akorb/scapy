@@ -302,18 +302,6 @@ class MainWindow(Frame):
                 return view
         return None
 
-    @staticmethod
-    def evaluate_filter(p, filter_text):
-        # type: (Packet, str) -> bool
-        try:
-            exec(compile(ast.parse(
-                "locals()['filter_eval_result'] = " + filter_text),
-                filename="",
-                mode="exec"))
-            return locals()['filter_eval_result']
-        except AttributeError:
-            return False
-
     def filter_changed(self, new_filter):
         # type: (str) -> None
         # strip avoids some crashes
@@ -325,10 +313,15 @@ class MainWindow(Frame):
             return
 
         try:
+            compiled_code = compile(new_filter,
+                                    filename="",
+                                    mode="eval")
             for cb in self.packet_view.body:
-                pkt = cb.base_widget.tag
-                cb.base_widget.state = \
-                    self.evaluate_filter(pkt, new_filter)
+                # p will be used in eval
+                # noinspection PyUnusedLocal
+                p = cb.base_widget.tag
+                matches = bool(eval(compiled_code))
+                cb.base_widget.state = matches
         except NameError:
             self._emit(
                 "info_popup",
@@ -336,6 +329,8 @@ class MainWindow(Frame):
                 "Example: p.attr == 'something'")
         except (SyntaxError, Scapy_Exception, TypeError) as e:
             self._emit("info_popup", str(e))
+        except AttributeError as e:
+            self._emit("info_popup", "Attribute " + str(e) + " unknown.")
 
     def show_bottom_line(self, index, widget_tuple, initial=""):
         # type: (int, Tuple, Optional[str]) -> None
