@@ -7,7 +7,8 @@
 import ast
 
 from collections import OrderedDict
-from typing import Union, Iterable, List, Type, Dict, Any, Optional
+from typing import Union, Iterable, List, Type, Dict, Any, Optional, Tuple, \
+    Callable
 
 from urwid import Frame, Pile, AttrMap, Text, ExitMainLoop, connect_signal
 
@@ -32,8 +33,10 @@ class MainWindow(Frame):
     PACKET_VIEW_INDEX = 0
     DETAILS_VIEW_INDEX = 1
     FILTER_INDEX = 2
+    SEND_INDEX = 3
 
     FILTER = "Filter"
+    SEND = "Send"
     signals = ["question_popup", "info_popup", "input_popup"]
 
     def _create_buttons_for_footer(self):
@@ -50,9 +53,22 @@ class MainWindow(Frame):
                 [self.pause_packet_sniffer, self.continue_packet_sniffer])
 
         self.actions["f4"] = Action(["Quit"], [self.quit])
+
         self.actions["f5"] = Action([MainWindow.FILTER] * 2,
-                                    [self.show_filter, self.hide_filter])
-        self.actions["f6"] = Action(["Craft&Send"], [self.craft_packet])
+                                    [lambda: self.show_bottom_line(
+                                        MainWindow.FILTER_INDEX,
+                                        self.filter_box),
+                                     lambda: self.hide_bottom_line(
+                                         self.filter_box)])
+
+        self.actions["f6"] = Action(["Craft&Send"] * 2,
+                                    [lambda: self.show_bottom_line(
+                                        MainWindow.FILTER_INDEX,
+                                        self.send_box,
+                                        self.focused_packet.command()
+                                        if self.focused_packet else ""),
+                                     lambda: self.hide_bottom_line(
+                                         self.send_box)])
 
     def _create_details_views(self, views):
         # type: (List[Type[DetailsView]]) -> None
@@ -79,16 +95,20 @@ class MainWindow(Frame):
                 view, "notification",
                 lambda _, message: self._emit("info_popup", message))
 
-    def _create_filter(self):
-        # type: () -> None
+    @staticmethod
+    def _create_bottom_input(caption, callback):
+        # type: (str, Callable) -> Tuple[AttrMap, Tuple]
         """
-        This function creates and connects the filter box
+        This function creates an object for the bottom line.
+        :param callback: Called if enter pressed.
+        Should take only two parameters.
+        `self` and a string containing the current text.
         """
-        filter_edit = FieldEdit(MainWindow.FILTER + ": ")
-        connect_signal(filter_edit, "apply",
-                       lambda _sender, text: self.filter_changed(text))
+        edit = FieldEdit(caption + ": ")
+        connect_signal(edit, "apply",
+                       lambda _sender, text: callback(text))
 
-        self.filter_box = (AttrMap(filter_edit, "row_focused"), ("pack", None))
+        return AttrMap(edit, "row_focused"), ("pack", None)
 
     def _setup_source(self, kwargs_for_sniff):
         # type: (Dict[str, Any]) -> None
@@ -124,7 +144,11 @@ class MainWindow(Frame):
 
         self._create_buttons_for_footer()
         self._create_details_views(views)
-        self._create_filter()
+
+        self.filter_box = self._create_bottom_input(MainWindow.FILTER,
+                                                    self.filter_changed)
+        self.send_box = self._create_bottom_input(MainWindow.SEND,
+                                                  self.text_to_packet)
         self._setup_source(kwargs_for_sniff)
 
         super(MainWindow, self).__init__(
@@ -186,6 +210,12 @@ class MainWindow(Frame):
 
     @staticmethod
     def is_valid_packet(text):
+        # For some reason this is needed.
+        # It doesn't know CAN here and then the eval() fails
+        # TODO: fix
+        # noinspection PyUnresolvedReferences
+        from scapy.layers.can import CAN
+
         # eval enforces only one expression
         tree = ast.parse(text, mode="eval")
         # only single expression
@@ -234,6 +264,11 @@ class MainWindow(Frame):
         Shows a info_popup on error
         :param text: String that describes a Scapy Packet
         """
+        # For some reason this is needed.
+        # It doesn't know CAN here and then the eval() fails
+        # TODO: fix
+        # noinspection PyUnresolvedReferences
+        from scapy.layers.can import CAN
         try:
             if MainWindow.is_valid_packet(text):
                 pkt = eval(text)
@@ -246,16 +281,6 @@ class MainWindow(Frame):
                 NameError) as e:
             self._emit("info_popup", str(e))
             return False
-
-    def craft_packet(self):
-        # type: () -> None
-        """
-        Show input_popup to enter the description of a Scapy Packet
-        """
-        self._emit(
-            "input_popup", "Packet: ",
-            self.focused_packet.command() if self.focused_packet else "",
-            "SEND", self.text_to_packet)
 
     def quit(self):
         # type: () -> None
@@ -291,6 +316,8 @@ class MainWindow(Frame):
 
     def filter_changed(self, new_filter):
         # type: (str) -> None
+        # strip avoids some crashes
+        new_filter = new_filter.strip()
         if new_filter == "":
             # deselect all packets
             for cb in self.packet_view.body:
@@ -310,16 +337,16 @@ class MainWindow(Frame):
         except (SyntaxError, Scapy_Exception, TypeError) as e:
             self._emit("info_popup", str(e))
 
-    def show_filter(self):
-        # type: () -> None
-        self.body.contents.insert(MainWindow.FILTER_INDEX, self.filter_box)
+    def show_bottom_line(self, index, widget_tuple, initial=""):
+        # type: (int, Tuple, Optional[str]) -> None
+        widget_tuple[0].base_widget.edit_text = initial
+        self.body.contents.insert(index, widget_tuple)
         self.focus_position = "body"
-        self.body.focus_item = self.filter_box[0]
+        self.body.focus_item = widget_tuple[0]
 
-    def hide_filter(self):
-        # type: () -> None
-        self.body.contents.pop(self.body.contents.index(self.filter_box))
-        self.filter_changed("")
+    def hide_bottom_line(self, widget_tuple):
+        # type: (Tuple) -> None
+        self.body.contents.pop(self.body.contents.index(widget_tuple))
 
     def show_view(self, toggled_view):
         # type: (DetailsView) -> None
