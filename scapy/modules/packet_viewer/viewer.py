@@ -8,7 +8,8 @@ import re
 
 from platform import platform
 from urwid import MainLoop, connect_signal, WidgetMeta, raw_display
-from typing import Optional, Union, Iterable, List, Tuple, Callable, Dict, Any
+from typing import Optional, Union, Iterable, List, Tuple, Callable, Dict, \
+    Any, Type
 
 from scapy.config import conf
 from scapy.packet import Packet_metaclass, Packet
@@ -186,7 +187,7 @@ class Viewer(object):
 
 
 def viewer(source, columns=None, basecls=None, views=None, **kwargs_for_sniff):
-    # type: (Union[SuperSocket, Iterable[Packet]], Optional[List[Tuple[str, int, Callable[[Packet], str]]]], Optional[Packet_metaclass], Optional[List[WidgetMeta]], Optional[Dict[str, Any]]) -> Tuple[PacketList, PacketList]  # noqa: E501
+    # type: (Union[SuperSocket, Iterable[Packet]], Optional[List[Tuple[str, int, Callable[[Packet], str]]]], Optional[Type[Packet]], Optional[List[WidgetMeta]], Optional[Dict[str, Any]]) -> Tuple[PacketList, PacketList]  # noqa: E501
     """
     Convenience function for Viewer
     :param source: Socket or list of Packets

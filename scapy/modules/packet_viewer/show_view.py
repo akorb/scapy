@@ -137,7 +137,7 @@ class ShowView(DetailsView):
             return False
 
     def _update_show(self, lines):
-        # type: (List[str]) -> None
+        # type: (List[Text]) -> None
         """
         :param lines: Lines to display in show part of this view
         """
@@ -153,7 +153,7 @@ class ShowView(DetailsView):
 
     @staticmethod
     def _update_existing_lines(listbox, lines):
-        # type: (ExtendedListBox, List[Union[Text, FieldEdit]]) -> None
+        # type: (ExtendedListBox, List[Text]) -> None
         """
         This method reuses existing lines.
         If there are too many, they are stripped.
