@@ -42,8 +42,8 @@ class FieldEdit(Edit):
             self._had_focus = False
             self._emit("apply", self.edit_text)
             return None
-        else:
-            return super(FieldEdit, self).keypress(size, key)
+
+        return super(FieldEdit, self).keypress(size, key)
 
     def render(self, size, focus=False):
         """

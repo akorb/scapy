@@ -7,7 +7,7 @@
 import struct
 
 from itertools import count
-from hashlib import sha256
+from hashlib import sha1
 from typing import Callable, Dict, List, Tuple, Optional, Any
 
 from scapy.config import conf
@@ -33,7 +33,7 @@ class RowFormatter(object):
         self.basecls = basecls
         self.columns = columns or self.get_all_columns()
         self._format_string = self._create_format_string()
-        self._time = 0.0  # type: float
+        self._time = -1.0  # type: float
         self._id_map = {}  # type: Dict[bytes, int]
         '''
         holds the mapping of a packet (with its time as key) to the sequential
@@ -116,10 +116,16 @@ class RowFormatter(object):
         # TODO: Check if _id_map can be refactored
         return [
             ("NO", 5, lambda p: str(self._id_map.setdefault(
-                sha256(struct.pack("d", float(p.time)) + bytes(p)).digest(),
-                next(nr_messages)))),
+                self._unique_identifier(p), next(nr_messages)))),
             ("TIME", 11, self.relative_time)
         ]
+
+    @staticmethod
+    def _unique_identifier(p):
+        # type: (Packet) -> bytes
+        # A packet is uniquely identified by its received time and its data.
+        time_bytes = struct.pack("d", p.time)
+        return sha1(time_bytes + bytes(p)).digest()
 
     def get_config_columns(self):
         # type: () -> List[Tuple[str, int, Callable[[Packet], str]]]
@@ -174,7 +180,7 @@ class RowFormatter(object):
         :param packet: Current Packet
         :return: Time difference between received and first Packet
         """
-        if self._time == 0.0:
+        if self._time == -1.0:
             self._time = packet.time
         return str(packet.time - self._time)
 

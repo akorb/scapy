@@ -241,7 +241,7 @@ class MainWindow(Frame):
             # Python >= 3.8 (For future usage)
             # isinstance(node, ast.Constant)
             if isinstance(node, (ast.keyword, ast.Num, ast.Str)) or \
-                    PY3 and isinstance(node, ast.Bytes):
+                    (PY3 and isinstance(node, ast.Bytes)):
                 continue
 
             if isinstance(node, ast.Name):
@@ -319,9 +319,7 @@ class MainWindow(Frame):
             return
 
         try:
-            compiled_code = compile(new_filter,
-                                    filename="",
-                                    mode="eval")
+            compiled_code = compile(new_filter, filename="", mode="eval")
             for cb in self.packet_view.body:
                 # p will be used in eval
                 # noinspection PyUnusedLocal
@@ -380,7 +378,7 @@ class MainWindow(Frame):
 
     # Keypress handling explained: http://urwid.org/manual/widgets.html
     def keypress(self, size, key):
-        if key.startswith("f") and len(key) >= 2:
+        if key.startswith("f") and 2 <= len(key) <= 3:
             # Redirect Fxx keypresses to footer even if footer is not focused
             return self.footer.keypress(size, key)
 

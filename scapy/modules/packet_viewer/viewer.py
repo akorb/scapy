@@ -158,6 +158,7 @@ class Viewer(object):
 
         self.loop = MainLoop(self.main_window, palette=self.palette,
                              screen=ScreenWSL())
+        # noinspection PyBroadException
         try:
             self._connect_signals()
             self.loop.run()
@@ -168,12 +169,12 @@ class Viewer(object):
 
         return self.main_window.selected_packets, self.main_window.all_packets
 
-    def _update_screen(self, *args):
+    def _update_screen(self, *_args):
         # type: (Optional[Any]) -> None
         """
         Internal function to update screen. Used by signals that get emitted on
         modifications of internal contents
-        :param args: Not used. Required by urwid signal
+        :param _args: Not used. Required by urwid signal
         """
         if self.loop is None:
             return

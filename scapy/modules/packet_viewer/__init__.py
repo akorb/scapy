@@ -9,6 +9,6 @@ try:
     import urwid  # noqa: F401
     from scapy.modules.packet_viewer.viewer import viewer  # noqa: F401
 except ImportError:
-    raise ImportError("urwid is not installed ! "
+    raise ImportError("urwid is not installed! "
                       "You may install urwid in order to use the "
                       "packet_viewer, via `pip install urwid`")

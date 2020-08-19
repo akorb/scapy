@@ -5,13 +5,12 @@
 # This program is published under a GPLv2 license
 
 from scapy.config import conf
-from scapy.packet import Packet
 
 if "packet_viewer_columns" not in conf.contribs:
     conf.contribs["packet_viewer_columns"] = dict()
 
 payload_column = [("PAYLOAD", 50, lambda p: repr(p.payload))]
-repr_column = [("REPR", 50, Packet.__repr__)]
+repr_column = [("REPR", 50, repr)]
 
 # ############### ISOTP ###################
 
