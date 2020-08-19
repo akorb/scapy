@@ -323,7 +323,7 @@ class MainWindow(Frame):
             for cb in self.packet_view.body:
                 # p will be used in eval
                 # noinspection PyUnusedLocal
-                p = cb.base_widget.tag
+                p = cb.base_widget.tag  # noqa: F841
                 matches = bool(eval(compiled_code))
                 cb.base_widget.state = matches
         except NameError:
