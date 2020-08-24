@@ -18,7 +18,7 @@ rw = RowFormatter()
 assert rw.basecls == None
 assert len(rw.columns) == 3  # default columns NO, TIME, REPR
 assert rw._format_string == "{NO:5.5} {TIME:11.11} {REPR}"
-assert rw._time == 0.0
+assert rw._time == -1.0
 assert len(rw._id_map.items()) == 0
 
 = Test header_string
