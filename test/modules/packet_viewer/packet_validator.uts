@@ -1,0 +1,58 @@
+% Regression tests for Packet Viewer is_valid_packet
+
++ Configuration
+
+= Imports
+from scapy.modules.packet_viewer.main_window import MainWindow
+is_valid_packet = MainWindow.is_valid_packet
+
++ Whitelist
+
+= list with different value types but all valid #1
+res = is_valid_packet("CAN(identifier=0x123, data=[1, 2, 3, 'test'])")
+assert res is True
+
+= list with different value types but all valid #2
+res = is_valid_packet("CAN(identifier=0x123, data=[1, 2, 3, b'\x01\x02'])")
+assert res is True
+
+res = is_valid_packet("CAN(identifier=0x123, data=[1, 2, 3, 5])")
+assert res is True
+
+= list with different value types but one invalid
+res = is_valid_packet("CAN(identifier=0x123, data=[1, 2, 3, test])")
+assert res is False
+
+= Connecting layers
+res = is_valid_packet("CAN(identifier=0x123, data=[1, 2, 3, 5]) / Raw(b'\x42') / Ether()")
+assert res is True
+
++ Blacklist
+
+= Second function via binary operator
+res = is_valid_packet("CAN(identifier=0x123, data=[1, 2, 3, b'\x01\x02']) and print('p')")
+assert res is False
+
+= Call of random function
+res = is_valid_packet("Test()")
+assert res is False
+
+= Printing Py3 style
+res = is_valid_packet("print('test')")
+assert res is False
+
+= Printing Py2 style
+res = is_valid_packet("print 'test'")
+assert res is False
+
+= Random letters
+res = is_valid_packet("asdfadgdsg")
+assert res is False
+
+= if keywords exist is not important for validity
+res = is_valid_packet("CAN(idhfghdf=0x123)")
+assert res is True
+
+= Injection
+res = is_valid_packet("self._emit('info_popup', 'Injected')")
+assert res is False

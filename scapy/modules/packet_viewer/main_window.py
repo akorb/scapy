@@ -225,7 +225,10 @@ class MainWindow(Frame):
         from scapy.packet import Raw
 
         # eval enforces only one expression
-        tree = ast.parse(text, mode="eval")
+        try:
+            tree = ast.parse(text, mode="eval")
+        except SyntaxError:
+            return False
         gen = ast.walk(tree)
         from six import PY3
         for node in gen:
@@ -251,9 +254,12 @@ class MainWindow(Frame):
                 if not isinstance(node.parent, ast.Call):
                     return False
                 # get type, unfortunately with eval
-                t = eval(node.id)
-                # has to be of type Packet
-                if not isinstance(t, Packet_metaclass):
+                try:
+                    t = eval(node.id)
+                    # has to be of type Packet
+                    if not isinstance(t, Packet_metaclass):
+                        return False
+                except NameError:
                     return False
                 continue
 
