@@ -27,17 +27,24 @@ assert rw.get_header_string() == "NO    TIME        REPR"
 
 = Test format method
 
-p = Raw("deadbeef")
-p.time = 42.0
-assert rw.format(p)[:18] == "0     0.0         "
+# Keep the Packet references here
+# If p1 is overriden by another Packet, the first Packet is not referenced
+# anymore and thus its id can be used again for the next object.
+# rw.format() expected the references of the Packet objects to be held.
+# This is usually the case since the packets is referenced by the packer viewer.
+# Just for this standalone usage of the formatter we need to ensure it.
 
-p = Raw("deadbeef")
-p.time = 43.0
-assert rw.format(p)[:18] == "1     1.0         "
+p1 = Raw("deadbeef")
+p1.time = 42.0
+assert rw.format(p1)[:18] == "0     0.0         "
 
-p = Raw("deadbeef")
-p.time = 43.5
-assert rw.format(p)[:18] == "2     1.5         "
+p2 = Raw("deadbeef")
+p2.time = 43.0
+assert rw.format(p2)[:18] == "1     1.0         "
+
+p3 = Raw("deadbeef")
+p3.time = 43.5
+assert rw.format(p3)[:18] == "2     1.5         "
 
 
 + Custom Column configuration based on basecls tests
@@ -63,24 +70,25 @@ assert rw.get_header_string() == "NO    TIME        RAWVAL"
 
 = Test format method
 
-p = Raw(b"\xde\xad\xbe\xef")
-p.time = 42.0
+p1 = Raw(b"\xde\xad\xbe\xef")
+p1.time = 42.0
 
-#print(rw.format(p)[:28])
+#print(rw.format(p1)[:28])
 if six.PY3:
-    assert rw.format(p)[:28] == """0     0.0         b\'\\xde\\xad"""
+    assert rw.format(p1)[:28] == """0     0.0         b\'\\xde\\xad"""
 else:
-    assert rw.format(p)[:22] == """0     0.0         """ + str(b'\xde\xad\xbe\xef')
+    assert rw.format(p1)[:22] == """0     0.0         """ + str(b'\xde\xad\xbe\xef')
 
-p = Raw(b"deadbeef")
-p.time = 43.0
+p2 = Raw(b"deadbeef")
+p2.time = 43.0
 if six.PY3:
-    assert rw.format(p)[:28] == """1     1.0         b'deadbeef"""
+    assert rw.format(p2)[:28] == """1     1.0         b'deadbeef"""
 else:
-    assert rw.format(p)[:26] == """1     1.0         deadbeef"""
+    assert rw.format(p2)[:26] == """1     1.0         deadbeef"""
 
-p.time = 43.5
-assert rw.format(p)[:18] == "2     1.5         "
+p3 = Raw(b"deadbeef")
+p3.time = 43.5
+assert rw.format(p3)[:18] == "2     1.5         "
 
 
 + Custom Column configuration based on argument tests
