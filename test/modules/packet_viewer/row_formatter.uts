@@ -31,9 +31,11 @@ p = Raw("deadbeef")
 p.time = 42.0
 assert rw.format(p)[:18] == "0     0.0         "
 
+p = Raw("deadbeef")
 p.time = 43.0
 assert rw.format(p)[:18] == "1     1.0         "
 
+p = Raw("deadbeef")
 p.time = 43.5
 assert rw.format(p)[:18] == "2     1.5         "
 
