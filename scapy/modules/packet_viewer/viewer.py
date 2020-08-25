@@ -81,9 +81,9 @@ class Viewer(object):
         attributes `src` and `dst`.
     """
 
-    def __init__(self, source, columns=None, basecls=None, views=None,
-                 **kwargs_for_sniff):
-        # type: (Union[SuperSocket, Iterable[Packet]], Optional[List[Tuple[str, int, Callable[[Packet], str]]]], Optional[Packet_metaclass], Optional[List[WidgetMeta]], Optional[Dict[str, Any]]) -> None  # noqa: E501
+    def __init__(self, source, columns, basecls, views,
+                 globals_dict, **kwargs_for_sniff):
+        # type: (Union[SuperSocket, Iterable[Packet]], Optional[List[Tuple[str, int, Callable[[Packet], str]]]], Optional[Packet_metaclass], Optional[List[WidgetMeta]], Optional[Dict], Optional[Dict[str, Any]]) -> None  # noqa: E501
         """
         Initialization of a Viewer class. Customization and basecls filtering
         can be chosen through the arguments
@@ -107,15 +107,13 @@ class Viewer(object):
 
         if views is None:
             self.views = [ShowView]
-            try:
-                self.views += conf.contribs["packet_viewer_custom_views"]
-            except KeyError:
-                pass
+            self.views += conf.contribs.get("packet_viewer_custom_views", [])
 
         for view in self.views:
             self.palette += getattr(view, "palette", [])
 
         self.source = source
+        self.globals_dict = globals_dict
         self.kwargs_for_sniff = kwargs_for_sniff
         self.formatter = RowFormatter(columns, basecls)
         self.main_window = None   # type: Optional[MainWindow]
@@ -154,8 +152,9 @@ class Viewer(object):
         """
         cf = conf.color_theme
         conf.color_theme = BlackAndWhite()
-        self.main_window = MainWindow(self.source, self.formatter,
-                                      self.views, **self.kwargs_for_sniff)
+        self.main_window = MainWindow(self.source, self.formatter, self.views,
+                                      self.globals_dict,
+                                      **self.kwargs_for_sniff)
 
         self.loop = MainLoop(self.main_window, palette=self.palette,
                              screen=ScreenWSL())
@@ -186,8 +185,9 @@ class Viewer(object):
             pass
 
 
-def viewer(source, columns=None, basecls=None, views=None, **kwargs_for_sniff):
-    # type: (Union[SuperSocket, Iterable[Packet]], Optional[List[Tuple[str, int, Callable[[Packet], str]]]], Optional[Type[Packet]], Optional[List[WidgetMeta]], Optional[Dict[str, Any]]) -> Tuple[PacketList, PacketList]  # noqa: E501
+def viewer(source, columns=None, basecls=None, views=None, globals_dict=None,
+           **kwargs_for_sniff):
+    # type: (Union[SuperSocket, Iterable[Packet]], Optional[List[Tuple[str, int, Callable[[Packet], str]]]], Optional[Type[Packet]], Optional[List[WidgetMeta]], Optional[Dict], Optional[Dict[str, Any]]) -> Tuple[PacketList, PacketList]  # noqa: E501
     """
     Convenience function for Viewer
     :param source: Socket or list of Packets
@@ -195,10 +195,13 @@ def viewer(source, columns=None, basecls=None, views=None, **kwargs_for_sniff):
     :param basecls: Packet_metaclass for basecls filtering and
                     column configuration determination
     :param views: List of custom views
+    :param globals_dict: Necessary for crafting packets in this tool,
+                         since this dictionary contains the imported
+                         Packet classes.
     :param kwargs_for_sniff: Parameters forwarded to sniff
                              if source is a socket
     :return: Tuple of two PacketLists. First list contains all selected
              Packets. Second list contains all Packets
     """
-    v = Viewer(source, columns, basecls, views, **kwargs_for_sniff)
+    v = Viewer(source, columns, basecls, views, globals_dict, **kwargs_for_sniff)
     return v.run()

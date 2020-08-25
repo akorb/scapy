@@ -131,14 +131,15 @@ class MainWindow(Frame):
         else:
             raise Scapy_Exception("Provide list of packets or Socket")
 
-    def __init__(self, source, row_formatter, views, **kwargs_for_sniff):
-        # type: (Union[SuperSocket, Iterable[Packet]], RowFormatter, List[Type[DetailsView]], Optional[Dict[str, Any]]) -> None  # noqa: E501
+    def __init__(self, source, row_formatter, views, globals_dict, **kwargs_for_sniff):
+        # type: (Union[SuperSocket, Iterable[Packet]], RowFormatter, List[Type[DetailsView]], Optional[Dict], Optional[Dict[str, Any]]) -> None  # noqa: E501
 
         self.packet_view = PacketListView(row_formatter)
         connect_signal(
             self.packet_view.body, "modified",
             self.on_focused_packet_changed)
 
+        self.globals_dict = globals_dict
         self.source = source
         self.actions = OrderedDict()  # type: OrderedDict[str, Action]
 
@@ -214,16 +215,7 @@ class MainWindow(Frame):
         if isinstance(self.source, SuperSocket):
             self.source.send(pkt)
 
-    # noinspection PyUnresolvedReferences
-    @staticmethod
-    def is_valid_packet(text):
-        # For some reason this is needed.
-        # It doesn't know CAN here and then the eval() fails
-        # TODO: fix
-        from scapy.layers.can import CAN
-        from scapy.layers.inet import Ether
-        from scapy.packet import Raw
-
+    def is_valid_packet(self, text):
         # eval enforces only one expression
         try:
             tree = ast.parse(text, mode="eval")
@@ -253,13 +245,10 @@ class MainWindow(Frame):
                 # Disallowed: CAN
                 if not isinstance(node.parent, ast.Call):
                     return False
-                # get type, unfortunately with eval
-                try:
-                    t = eval(node.id)
-                    # has to be of type Packet
-                    if not isinstance(t, Packet_metaclass):
-                        return False
-                except NameError:
+                # Must be of type Packet_metaclass
+                t = self.globals_dict.get(node.id) or \
+                    self.globals_dict["__builtins__"].__dict__.get(node.id)
+                if not isinstance(t, Packet_metaclass):
                     return False
                 continue
 
@@ -267,7 +256,6 @@ class MainWindow(Frame):
 
         return True
 
-    # noinspection PyUnresolvedReferences
     def text_to_packet(self, text):
         # type: (str) -> bool
         """
@@ -275,15 +263,9 @@ class MainWindow(Frame):
         Shows a info_popup on error
         :param text: String that describes a Scapy Packet
         """
-        # For some reason this is needed.
-        # It doesn't know CAN here and then the eval() fails
-        # TODO: fix
-        from scapy.layers.can import CAN
-        from scapy.layers.inet import Ether
-        from scapy.packet import Raw
         try:
-            if MainWindow.is_valid_packet(text):
-                pkt = eval(text)
+            if self.is_valid_packet(text):
+                pkt = eval(text, self.globals_dict)
                 self.send_packet(pkt)
             else:
                 self._emit("info_popup", "Only simple values allowed.")
