@@ -131,7 +131,8 @@ class MainWindow(Frame):
         else:
             raise Scapy_Exception("Provide list of packets or Socket")
 
-    def __init__(self, source, row_formatter, views, globals_dict, **kwargs_for_sniff):
+    def __init__(self, source, row_formatter, views, globals_dict,
+                 **kwargs_for_sniff):
         # type: (Union[SuperSocket, Iterable[Packet]], RowFormatter, List[Type[DetailsView]], Optional[Dict], Optional[Dict[str, Any]]) -> None  # noqa: E501
 
         self.packet_view = PacketListView(row_formatter)
@@ -215,13 +216,15 @@ class MainWindow(Frame):
         if isinstance(self.source, SuperSocket):
             self.source.send(pkt)
 
-    def is_valid_packet(self, text):
+    @staticmethod
+    def is_valid_packet(text, globals_dict):
         # eval enforces only one expression
         try:
             tree = ast.parse(text, mode="eval")
         except SyntaxError:
-            return False
+            return False, []
         gen = ast.walk(tree)
+        required_classes = []
         from six import PY3
         for node in gen:
             # Set parent to use it again later (probably next iterations)
@@ -244,17 +247,18 @@ class MainWindow(Frame):
                 # Allowed: CAN()
                 # Disallowed: CAN
                 if not isinstance(node.parent, ast.Call):
-                    return False
+                    return False, []
                 # Must be of type Packet_metaclass
-                t = self.globals_dict.get(node.id) or \
-                    self.globals_dict["__builtins__"].__dict__.get(node.id)
+                t = globals_dict.get(node.id) or \
+                    getattr(globals_dict["__builtins__"], "__dict__", {}).get(node.id)
                 if not isinstance(t, Packet_metaclass):
-                    return False
+                    return False, []
+                required_classes.append(t)
                 continue
 
-            return False
+            return False, []
 
-        return True
+        return True, required_classes
 
     def text_to_packet(self, text):
         # type: (str) -> bool
@@ -264,8 +268,22 @@ class MainWindow(Frame):
         :param text: String that describes a Scapy Packet
         """
         try:
-            if self.is_valid_packet(text):
-                pkt = eval(text, self.globals_dict)
+            valid, required_classes = \
+                MainWindow.is_valid_packet(text, self.globals_dict)
+            if valid:
+                # Create own minimized global symbol table
+                # to improve security
+                g = {c.__name__: c for c in required_classes}
+
+                # From https://docs.python.org/3/library/functions.html#eval
+                # If the globals dictionary is present and does not contain
+                # a value for the key __builtins__, a reference to
+                # the dictionary of the built-in module builtins is inserted
+                # under that key before expression is parsed.
+                #
+                # We don't want any builtins to be executed.
+                g["__builtins__"] = {}
+                pkt = eval(text, g)
                 self.send_packet(pkt)
             else:
                 self._emit("info_popup", "Only simple values allowed.")
