@@ -162,8 +162,10 @@ class Viewer(object):
         try:
             self._connect_signals()
             self.loop.run()
-        except Exception:
-            pass
+        except Exception as e:
+            # We don't want the user session to break if the viewer crashes.
+            # So catch everything, but at least print the exception
+            print(e)
         finally:
             conf.color_theme = cf
 

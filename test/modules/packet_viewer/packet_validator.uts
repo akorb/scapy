@@ -16,7 +16,6 @@ globals_dict=globals()
 = list with different value types but all valid #1
 res, classes = is_valid_packet("CAN(identifier=0x123, data=[1, 2, 3, 'test'])", globals_dict)
 assert res is True
-print(classes)
 assert set(classes) <= set([CAN])
 
 = list with different value types but all valid #2
