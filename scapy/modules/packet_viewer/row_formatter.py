@@ -4,6 +4,7 @@
 # Copyright (C) Nils Weiss <nils@we155.de>
 # This program is published under a GPLv2 license
 
+from collections import defaultdict
 from itertools import count
 from typing import Callable, Dict, List, Tuple, Optional, Any
 
@@ -31,7 +32,10 @@ class RowFormatter(object):
         self.columns = columns or self.get_all_columns()
         self._format_string = self._create_format_string()
         self._time = -1.0  # type: float
-        self._id_map = {}  # type: Dict[int, int]
+
+        nr_messages = count()
+        self._id_map = \
+            defaultdict(lambda: next(nr_messages))  # type: Dict[int, int]
         '''
         holds the mapping of a packet (with its time as key) to the sequential
         number this ensures that a packet, even if "re-rendered", gets the same
@@ -109,10 +113,8 @@ class RowFormatter(object):
         Return the default column configuration
         :return: The default column configuration
         """
-        nr_messages = count()
         return [
-            ("NO", 5, lambda p: str(
-                self._id_map.setdefault(id(p), next(nr_messages)))),
+            ("NO", 5, lambda p: str(self._id_map[id(p)])),
             ("TIME", 11, self.relative_time)
         ]
 
