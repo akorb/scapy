@@ -327,10 +327,10 @@ class MainWindow(Frame):
         try:
             compiled_code = compile(new_filter, filename="", mode="eval")
             for cb in self.packet_view.body:
-                # p will be used in eval
-                # noinspection PyUnusedLocal
-                p = cb.base_widget.tag  # noqa: F841
-                matches = bool(eval(compiled_code))
+                p = cb.base_widget.tag
+                # See text_to_packet() for some explanations
+                g = {"p": p, "__builtins__": {}}
+                matches = bool(eval(compiled_code, g))
                 cb.base_widget.state = matches
         except NameError:
             self._emit(
