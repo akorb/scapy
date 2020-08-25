@@ -203,5 +203,6 @@ def viewer(source, columns=None, basecls=None, views=None, globals_dict=None,
     :return: Tuple of two PacketLists. First list contains all selected
              Packets. Second list contains all Packets
     """
-    v = Viewer(source, columns, basecls, views, globals_dict, **kwargs_for_sniff)
+    v = Viewer(source, columns, basecls, views, globals_dict,
+               **kwargs_for_sniff)
     return v.run()

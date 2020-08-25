@@ -248,9 +248,11 @@ class MainWindow(Frame):
                 # Disallowed: CAN
                 if not isinstance(node.parent, ast.Call):
                     return False, []
+
+                # Use empty dictionary if builtins have been overwritten
+                builtin = getattr(globals_dict["__builtins__"], "__dict__", {})
+                t = globals_dict.get(node.id) or builtin.get(node.id)
                 # Must be of type Packet_metaclass
-                t = globals_dict.get(node.id) or \
-                    getattr(globals_dict["__builtins__"], "__dict__", {}).get(node.id)
                 if not isinstance(t, Packet_metaclass):
                     return False, []
                 required_classes.append(t)
