@@ -61,14 +61,15 @@ class MainWindow(Frame):
                                      lambda: self.hide_bottom_line(
                                          self.filter_box)])
 
-        self.actions["f6"] = Action(["Craft&Send"] * 2,
-                                    [lambda: self.show_bottom_line(
-                                        MainWindow.FILTER_INDEX,
-                                        self.send_box,
-                                        self.focused_packet.command()
-                                        if self.focused_packet else ""),
-                                     lambda: self.hide_bottom_line(
-                                         self.send_box)])
+        if self.globals_dict is not None:
+            self.actions["f6"] = Action(["Craft&Send"] * 2,
+                                        [lambda: self.show_bottom_line(
+                                            MainWindow.FILTER_INDEX,
+                                            self.send_box,
+                                            self.focused_packet.command()
+                                            if self.focused_packet else ""),
+                                         lambda: self.hide_bottom_line(
+                                             self.send_box)])
 
     def _create_details_views(self, views):
         # type: (List[Type[DetailsView]]) -> None
@@ -142,6 +143,9 @@ class MainWindow(Frame):
 
         self.globals_dict = globals_dict
         self.source = source
+
+        # OrderedDict to ensure the order of the buttons
+        # are exactly as in the dictionary.
         self.actions = OrderedDict()  # type: OrderedDict[str, Action]
 
         self._create_buttons_for_footer()
@@ -164,8 +168,6 @@ class MainWindow(Frame):
                                 wrap="clip" if PY2 else "ellipsis"),
                            "header"),
             body=Pile([self.packet_view]),
-            # OrderedDict to ensure the order of the buttons
-            # are exactly as in the dictionary.
             footer=ButtonBar(self.actions)
         )
 

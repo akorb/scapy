@@ -49,7 +49,6 @@ def show_input_pop_up(loop, caption, initial, button_text, callback,
     overlay = Overlay(prompt, current_widget.base_widget,
                       "center", width, "middle", height, 16, 8)
     loop.widget = overlay
-    loop.draw_screen()
 
 
 def show_info_pop_up(loop, info):
@@ -58,7 +57,7 @@ def show_info_pop_up(loop, info):
     Shows a popup with a information, for example an error message.
     Popup closes on button press
     :param loop: urwid MainLoop where the popup is shown
-    :param info: Informationtext
+    :param info: Information text
     """
     current_widget = loop.widget
 
@@ -72,7 +71,6 @@ def show_info_pop_up(loop, info):
     overlay = Overlay(prompt, loop.widget.base_widget, "center",
                       30, "middle", 8, 16, 8)
     loop.widget = overlay
-    loop.draw_screen()
 
 
 def show_question_pop_up(loop, message, yes_callback):
@@ -99,4 +97,3 @@ def show_question_pop_up(loop, message, yes_callback):
     overlay = Overlay(linebox, loop.widget.base_widget,
                       "center", 20, "middle", 8, 16, 8)
     loop.widget = overlay
-    loop.draw_screen()

@@ -158,8 +158,8 @@ class Viewer(object):
 
         self.loop = MainLoop(self.main_window, palette=self.palette,
                              screen=ScreenWSL())
-        # noinspection PyBroadException
         try:
+            self._initialize_warning()
             self._connect_signals()
             self.loop.run()
         except Exception as e:
@@ -185,6 +185,21 @@ class Viewer(object):
             self.loop.draw_screen()
         except (AssertionError, AttributeError):
             pass
+
+    def _initialize_warning(self):
+        # type: () -> None
+        """
+        This function allows an initial warning to be displayed
+        as soon as the viewer is opened.
+        """
+        # The loop isn't running yet thus signals are not usable yet.
+        # So call show_info_pop_up directly instead of invoking it
+        # through emitting a signal.
+        if self.globals_dict is None:
+            info = "Without giving 'globals()', the Packet Viewer " \
+                   "cannot know your currently imported classes. " \
+                   "Thus the Craft&Send feature will be disabled."
+            show_info_pop_up(self.loop, info)
 
 
 def viewer(source, columns=None, basecls=None, views=None, globals_dict=None,
