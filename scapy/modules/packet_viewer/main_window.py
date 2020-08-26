@@ -37,7 +37,7 @@ class MainWindow(Frame):
 
     FILTER = "Filter"
     SEND = "Send"
-    signals = ["question_popup", "info_popup", "input_popup"]
+    signals = ["question_popup", "info_popup"]
 
     def _create_buttons_for_footer(self):
         # type: () -> None

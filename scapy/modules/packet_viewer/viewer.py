@@ -21,7 +21,7 @@ from scapy.modules.packet_viewer.show_view import ShowView
 from scapy.modules.packet_viewer.main_window import MainWindow
 from scapy.modules.packet_viewer.row_formatter import RowFormatter
 from scapy.modules.packet_viewer.pop_ups import show_question_pop_up, \
-    show_info_pop_up, show_input_pop_up
+    show_info_pop_up
 
 import scapy.modules.packet_viewer.column_configuration  # noqa: F401
 
@@ -130,10 +130,6 @@ class Viewer(object):
         connect_signal(
             self.main_window, "question_popup",
             lambda _, msg, cb: show_question_pop_up(self.loop, msg, cb))
-
-        connect_signal(
-            self.main_window, "input_popup",
-            lambda _, caption, initial, button_text, callback: show_input_pop_up(self.loop, caption, initial, button_text, callback))  # noqa: E501
 
         connect_signal(
             self.main_window, "info_popup",
