@@ -1716,6 +1716,26 @@ will have these columns:
 
 ``NO, TIME, MyLengthColumn, PAYLOAD``
 
+Example script
+^^^^^^^^^^^^^^
+
+The following script displays all Ethernet packets received by the specified `L2Socket`.
+All selected packets will be sent on the same socket after quitting the viewer.
+Note that this script might require root privileges.
+
+
+.. code:: python
+
+    from scapy.arch import L2Socket
+    from scapy.layers.l2 import Ether
+    from scapy.modules.packet_viewer.viewer import viewer
+
+    socket = L2Socket("eth0")
+    selected, _all = viewer(socket, basecls=Ether, globals_dict=globals())
+    [socket.send(p) for p in selected]
+
+    socket.close()
+
 
 Viewing packets with Wireshark
 ------------------------------
