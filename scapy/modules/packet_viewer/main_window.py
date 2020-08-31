@@ -226,20 +226,20 @@ class MainWindow(Frame):
             return False, []
         gen = ast.walk(tree)
         required_classes = []
+
+        # Use empty dictionary if builtins have been overwritten
+        builtin = getattr(globals_dict["__builtins__"], "__dict__", {})
+
         from six import PY3
         for node in gen:
-            # Set parent to use it again later (probably next iterations)
+            # Set parent to use it again later
             for child in ast.iter_child_nodes(node):
                 child.parent = node
 
             # Allowed elements
             if isinstance(node, (ast.Load, ast.BinOp, ast.Call, ast.operator,
-                                 ast.Expression, ast.List)):
-                continue
-
-            # Python >= 3.8 (For future usage)
-            # isinstance(node, ast.Constant)
-            if isinstance(node, (ast.keyword, ast.Num, ast.Str)) or \
+                                 ast.Expression, ast.List, ast.keyword,
+                                 ast.Num, ast.Str)) or \
                     (PY3 and isinstance(node, ast.Bytes)):
                 continue
 
@@ -250,9 +250,11 @@ class MainWindow(Frame):
                 if not isinstance(node.parent, ast.Call):
                     return False, []
 
-                # Use empty dictionary if builtins have been overwritten
-                builtin = getattr(globals_dict["__builtins__"], "__dict__", {})
+                # Scapy might add classes to the built-ins
+                # That's why we need to check in the general global dictionary
+                # and the built-ins.
                 t = globals_dict.get(node.id) or builtin.get(node.id)
+
                 # Must be of type Packet_metaclass
                 if not isinstance(t, Packet_metaclass):
                     return False, []
@@ -285,7 +287,7 @@ class MainWindow(Frame):
                 # under that key before expression is parsed.
                 #
                 # We don't want any builtins to be executed.
-                g["__builtins__"] = {}
+                g["__builtins__"] = {"len": len}
                 pkt = eval(text, g)
                 self.send_packet(pkt)
             else:
@@ -332,7 +334,7 @@ class MainWindow(Frame):
             for cb in self.packet_view.body:
                 p = cb.base_widget.tag
                 # See text_to_packet() for some explanations
-                g = {"p": p, "__builtins__": {}}
+                g = {"p": p, "__builtins__": {"len": len}}
                 matches = bool(eval(compiled_code, g))
                 cb.base_widget.state = matches
         except NameError:
