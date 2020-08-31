@@ -105,7 +105,7 @@ class MainWindow(Frame):
         Should take only two parameters.
         `self` and a string containing the current text.
         """
-        edit = ExtendedEdit(caption + ": ", use_reset=False)
+        edit = ExtendedEdit(False, caption + ": ")
         connect_signal(edit, "apply", lambda _sender, text: callback(text))
 
         return AttrMap(edit, "row_focused"), ("pack", None)

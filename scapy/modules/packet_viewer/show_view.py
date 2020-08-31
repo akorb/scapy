@@ -216,7 +216,7 @@ class ShowView(DetailsView):
                 reprval = f.i2repr(pkt, fvalue)
                 if isinstance(reprval, str):
                     reprval = reprval.replace("\n", "\n" + " " * (len(label_lvl) + len(lvl) + len(f.name) + 4))    # noqa: E501
-                edit = ExtendedEdit(begn, vcol(reprval))
+                edit = ExtendedEdit(True, begn, vcol(reprval))
                 connect_signal(edit, "apply", self._edit_done_callback,
                                weak_args=[pkt], user_args=[f.name])
                 lines.append(edit)

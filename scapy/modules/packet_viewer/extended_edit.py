@@ -14,7 +14,7 @@ class ExtendedEdit(Edit):
     """
     signals = ["apply"] + Edit.signals
 
-    def __init__(self, *args, use_reset=True, **kwargs):
+    def __init__(self, use_reset, *args, **kwargs):
         """
         Initialize ExtendedEdit
         :param args: args for Edit
