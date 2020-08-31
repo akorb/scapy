@@ -28,7 +28,7 @@ assert rw.get_header_string() == "NO    TIME        REPR"
 = Test format method
 
 # Keep the Packet references here
-# If p1 is overriden by another Packet, the first Packet is not referenced
+# If p1 is overridden by another Packet, the first Packet is not referenced
 # anymore and thus its id can be used again for the next object.
 # rw.format() expected the references of the Packet objects to be held.
 # This is usually the case since the packets is referenced by the packer viewer.
