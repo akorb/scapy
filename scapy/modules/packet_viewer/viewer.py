@@ -205,7 +205,9 @@ def viewer(source, columns=None, basecls=None, views=None, globals_dict=None,
     """
     Convenience function for Viewer
     :param source: Socket or list of Packets
-    :param columns: List of column configuration tuples
+    :param columns: A list of column configuration triples.
+                    (<name>, <length>, <function returning content>).
+                    See `column_configuration.py` for examples.
     :param basecls: Packet_metaclass for basecls filtering and
                     column configuration determination
     :param views: List of custom views

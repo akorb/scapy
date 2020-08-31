@@ -1686,28 +1686,31 @@ will have this columns:
 
 ``NO, TIME, REPR``
 
+The viewer will add the ``REPR`` column if no basecls is specified.
+This allows the user to see the most important data.
+
 
 `Example: Custom configuration`
 
-``viewer(s, [("MyLengthColumn", 10, lambda p: len(p))], UDP)``
-will have this columns:
+``viewer(s, [("MyLengthColumn", 10, len)], UDP)``
+will have these columns:
 
 ``NO, TIME, MyLengthColumn, PAYLOAD``
 
 
-`Example: Basecls auto-generated columns`
+`Example: Auto-generated columns from basecls`
 
 ``viewer(s, UDP)``
-will have this columns:
+will have these columns:
 
 ``NO, TIME, SPORT, DPORT, LEN, CHKSUM, PAYLOAD``
 
 
-`Example: Basecls configurated columns`
+`Example: Columns from configuration for basecls`
 
-``conf.contribs["packet_viewer_columns"]["UDP"] = [("MyLengthColumn", 10, lambda p: len(p))]``
+``conf.contribs["packet_viewer_columns"]["UDP"] = [("MyLengthColumn", 10, len)]``
 ``viewer(s, UDP)``
-will have this columns:
+will have these columns:
 
 ``NO, TIME, MyLengthColumn, PAYLOAD``
 
