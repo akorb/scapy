@@ -1658,6 +1658,8 @@ all captured packets on an interface. All packets can be modified in the termina
 interface. Any packet can be re-send on the current interface and new packets
 can be crafted.
 
+.. image:: graphics/animations/animation-scapy-packet-viewer.svg
+
 Columns
 ^^^^^^^
 
