@@ -108,7 +108,7 @@ class MainWindow(Frame):
         edit = ExtendedEdit(False, caption + ": ")
         connect_signal(edit, "apply", lambda _sender, text: callback(text))
 
-        return AttrMap(edit, "row_focused"), ("pack", None)
+        return AttrMap(edit, "cyan"), ("pack", None)
 
     def _setup_source(self, kwargs_for_sniff):
         # type: (Dict[str, Any]) -> None
@@ -165,7 +165,7 @@ class MainWindow(Frame):
             # Current 2.1.1
             header=AttrMap(Text(u"    " + row_formatter.get_header_string(),
                                 wrap="clip" if PY2 else "ellipsis"),
-                           "header"),
+                           "green"),
             body=Pile([self.packet_view]),
             footer=ButtonBar(self.actions)
         )

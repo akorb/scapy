@@ -28,7 +28,7 @@ class ButtonBar(Columns):
         widgets = [(len(btn.get_label()) + 2, btn)
                    for btn in self._key_button_map.values()]
         # Fill the rest of the row with the right color
-        widgets.append(AttrMap(Text(""), "row_focused"))
+        widgets.append(AttrMap(Text(""), "cyan"))
         super(ButtonBar, self).__init__(widgets)
 
     def refresh(self):
@@ -38,7 +38,7 @@ class ButtonBar(Columns):
         """
         for action, btn in zip(self._actions.values(),
                                self._key_button_map.values()):
-            btn.set_label(("row_focused", action.text))
+            btn.set_label(("cyan", action.text))
 
     def keypress(self, size, key):
         # type: (int, str) -> None
@@ -60,7 +60,7 @@ class ButtonBar(Columns):
         action.execute()
 
         btn = self._key_button_map[key]
-        btn.set_label(("row_focused", action.text))
+        btn.set_label(("cyan", action.text))
 
     # noinspection PyProtectedMember
     def _create_button(self, cmd):
@@ -72,7 +72,7 @@ class ButtonBar(Columns):
         """
         key, action = cmd
 
-        btn = Button(("row_focused", action.text),
+        btn = Button(("cyan", action.text),
                      on_press=lambda _sender, k:
                      self._execute_and_change_state(k),
                      user_data=key)

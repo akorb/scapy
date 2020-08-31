@@ -88,7 +88,9 @@ class Viewer(object):
         Initialization of a Viewer class. Customization and basecls filtering
         can be chosen through the arguments
         :param source: Any list of Packets or a Socket.
-        :param columns: A list of column configuration tuples.
+        :param columns: A list of column configuration triples.
+                        (<name>, <length>, <function returning content>).
+                        See `column_configuration.py` for examples.
         :param basecls: A basecls for basecls filtering. If this argument is
                         provided, only packets from this instance are shown.
                         If a basecls is provided. The Viewer will automatically
@@ -98,8 +100,7 @@ class Viewer(object):
         :param kwargs_for_sniff: Arguments for sniff, if source is a socket.
         """
         self.palette = [
-            ("header", "black", "dark green"),
-            ("row_focused", "black", "dark cyan"),
+            ("cyan", "black", "dark cyan"),
             ("green", "black", "dark green"),
             ("red", "white", "dark red"),
             ("default_bold", "bold", ""),

@@ -78,5 +78,5 @@ class PacketListView(ExtendedListBox):
 
         self.packets.append(pkt)
         self.body.append(
-            AttrMap(self._create_gui_packet(pkt), None, "row_focused"))
+            AttrMap(self._create_gui_packet(pkt), None, "cyan"))
         self._emit("packets_modified")
