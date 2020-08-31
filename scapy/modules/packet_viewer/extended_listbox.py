@@ -33,13 +33,13 @@ class ExtendedListBox(ListBox):
         Translate mouse scrolling to up and down keys to allow scrolling
         with the scrolling wheel
         """
-        SCROLL_WHEEL_UP = 4
-        SCROLL_WHEEL_DOWN = 5
+        scroll_wheel_up = 4
+        scroll_wheel_down = 5
 
-        if button == SCROLL_WHEEL_UP:
+        if button == scroll_wheel_up:
             self.keypress(size, "up")
             return
-        if button == SCROLL_WHEEL_DOWN:
+        if button == scroll_wheel_down:
             self.keypress(size, "down")
             return
 

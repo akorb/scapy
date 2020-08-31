@@ -156,9 +156,11 @@ class RowFormatter(object):
             # like 0x0a ('\n') would change the layout
             f_name = str(field_desc.name)
             if isinstance(dummy_field_val, bytes):
-                callback = lambda p, f=f_name: self.text_to_repr(p, f)
+                def callback(p, f=f_name):
+                    return self.text_to_repr(p, f)
             else:
-                callback = lambda p, f=f_name: self.field_to_repr(p, f)
+                def callback(p, f=f_name):
+                    return self.field_to_repr(p, f)
 
             columns.append((f_name, width, callback))
         return columns
