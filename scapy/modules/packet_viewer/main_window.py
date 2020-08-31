@@ -21,7 +21,7 @@ from scapy.supersocket import SuperSocket
 from scapy.modules.packet_viewer.button_bar import ButtonBar, Action
 from scapy.modules.packet_viewer.packet_list_view import PacketListView
 from scapy.modules.packet_viewer.row_formatter import RowFormatter
-from scapy.modules.packet_viewer.field_edit import FieldEdit
+from scapy.modules.packet_viewer.extended_edit import ExtendedEdit
 from scapy.modules.packet_viewer.details_view import DetailsView
 
 
@@ -105,9 +105,8 @@ class MainWindow(Frame):
         Should take only two parameters.
         `self` and a string containing the current text.
         """
-        edit = FieldEdit(caption + ": ")
-        connect_signal(edit, "apply",
-                       lambda _sender, text: callback(text))
+        edit = ExtendedEdit(caption + ": ", use_reset=False)
+        connect_signal(edit, "apply", lambda _sender, text: callback(text))
 
         return AttrMap(edit, "row_focused"), ("pack", None)
 

@@ -18,7 +18,7 @@ from scapy.themes import BlackAndWhite
 from scapy.utils import hexdump
 from scapy.modules.packet_viewer.extended_listbox import ExtendedListBox
 from scapy.modules.packet_viewer.details_view import DetailsView
-from scapy.modules.packet_viewer.field_edit import FieldEdit
+from scapy.modules.packet_viewer.extended_edit import ExtendedEdit
 
 
 class ShowView(DetailsView):
@@ -92,7 +92,7 @@ class ShowView(DetailsView):
         return value
 
     def _edit_done_callback(self, packet, field_name, _edit_widget, new_text):
-        # type: (Packet, str, FieldEdit, str) -> None
+        # type: (Packet, str, ExtendedEdit, str) -> None
         """
         Gets called after a field has been edited. This method sets a new
         value in the field of the current packet
@@ -176,7 +176,7 @@ class ShowView(DetailsView):
 
     # noinspection PyProtectedMember,DuplicatedCode,SpellCheckingInspection
     def _show(self, pkt, lvl="", label_lvl=""):  # noqa: E501
-        # type: (Packet, str, str) -> List[Union[Text, FieldEdit]]
+        # type: (Packet, str, str) -> List[Union[Text, ExtendedEdit]]
         """
         Custom implementation of `Packet.show()`
         Returns a list of widgets which represent the show output.
@@ -216,7 +216,7 @@ class ShowView(DetailsView):
                 reprval = f.i2repr(pkt, fvalue)
                 if isinstance(reprval, str):
                     reprval = reprval.replace("\n", "\n" + " " * (len(label_lvl) + len(lvl) + len(f.name) + 4))    # noqa: E501
-                edit = FieldEdit(begn, vcol(reprval))
+                edit = ExtendedEdit(begn, vcol(reprval))
                 connect_signal(edit, "apply", self._edit_done_callback,
                                weak_args=[pkt], user_args=[f.name])
                 lines.append(edit)

@@ -7,25 +7,28 @@
 from urwid import Edit
 
 
-class FieldEdit(Edit):
+class ExtendedEdit(Edit):
     """
-    Custom Edit class to allow edits of fields in Scapy. A new signal "apply"
-    is emitted by this Edit after Enter is pressed.
+    A new signal "apply" is emitted by this Edit after Enter is pressed.
+    It also takes care of resetting the text after losing focus.
     """
     signals = ["apply"] + Edit.signals
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, use_reset=True, **kwargs):
         """
-        Initialize FieldEdit
+        Initialize ExtendedEdit
         :param args: args for Edit
+        :param use_reset: whether a reset after losing focus is desired
         :param kwargs: kwargs for Edit
         """
+
+        self._use_reset = use_reset
 
         # Holds this widgets focus state from last rendering
         self._had_focus = False
         # The text the edit field contained before gaining the focus
         self._old_value = ""
-        super(FieldEdit, self).__init__(*args, **kwargs)
+        super(ExtendedEdit, self).__init__(*args, **kwargs)
 
     def keypress(self, size, key):
         """
@@ -43,20 +46,22 @@ class FieldEdit(Edit):
             self._emit("apply", self.edit_text)
             return None
 
-        return super(FieldEdit, self).keypress(size, key)
+        return super(ExtendedEdit, self).keypress(size, key)
 
     def render(self, size, focus=False):
         """
-        Custom implementation of render to prevent errors while editing
+        Custom implementation of render to reset to old value as soon as
+        the focus is lost.
         """
-        if not self._had_focus and focus:
-            # we got the focus
-            # Cache original value
-            self._old_value = self.get_edit_text()
-        elif self._had_focus and not focus:
-            # We lost the focus
-            # Set edit_text to old one
-            self.edit_text = self._old_value
+        if self._use_reset:
+            if not self._had_focus and focus:
+                # we got the focus
+                # Cache original value
+                self._old_value = self.get_edit_text()
+            elif self._had_focus and not focus:
+                # We lost the focus
+                # Set edit_text to old one
+                self.edit_text = self._old_value
 
-        self._had_focus = focus
-        return super(FieldEdit, self).render(size, focus=focus)
+            self._had_focus = focus
+        return super(ExtendedEdit, self).render(size, focus=focus)
