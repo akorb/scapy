@@ -1640,7 +1640,7 @@ To allow Scapy to reach target destination additional options must be used::
 
 
 
-Viewing packets as in Wireshark
+Viewing packets like in Wireshark
 -------------------------------
 
 .. index::
@@ -1652,13 +1652,17 @@ You want to see packets as in Wireshark with great flexibility.
 
 Solution
 ^^^^^^^^
-That's what :py:func:``viewer`` is for!
-The ``viewer`` allows you to inspect, edit and filter lists of packets or shows
-all captured packets on an interface. All packets can be modified in the terminal
-interface. Any packet can be re-send on the current interface and new packets
-can be crafted.
+That's what :py:func:`viewer` is for!
 
 .. image:: graphics/animations/animation-scapy-packet-viewer.svg
+
+
+.. py:function:: viewer(source, ...)
+
+    It allows you to inspect, edit and filter lists of packets or shows
+    all captured packets on an interface. All packets can be modified in the terminal
+    interface. Any packet can be re-send on the current interface and new packets
+    can be crafted.
 
 Columns
 ^^^^^^^
@@ -1735,6 +1739,20 @@ Note that this script might require root privileges.
     [socket.send(p) for p in selected]
 
     socket.close()
+
+Views
+^^^^^
+
+:py:func:`viewer` takes a `views` argument. Views can offer additional information and features.
+
+The views are independent from the Packet Viewer. They communicate only over interfaces.
+So a plugin structure is used.
+
+In `DetailsView` is the interface defined. It also offers the necessary structure to create a new view.
+`ShowView` is an example of an already implemented view.
+
+The `views` argument takes the views which should be accessible in the viewer.
+If none specified, it only adds the `ShowView`.
 
 
 Viewing packets with Wireshark
