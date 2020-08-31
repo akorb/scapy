@@ -5,6 +5,7 @@
 # This program is published under a GPLv2 license
 
 import ast
+import struct
 
 from collections import OrderedDict
 from typing import Union, Iterable, List, Type, Dict, Any, Optional, Tuple, \
@@ -295,7 +296,7 @@ class MainWindow(Frame):
 
             return True
         except (SyntaxError, AttributeError, Scapy_Exception, TypeError,
-                NameError) as e:
+                NameError, OSError, struct.error) as e:
             self._emit("info_popup", str(e))
             return False
 
