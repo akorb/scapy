@@ -149,13 +149,16 @@ class Viewer(object):
         """
         cf = conf.color_theme
         conf.color_theme = BlackAndWhite()
-        self.main_window = MainWindow(self.source, self.formatter, self.views,
-                                      self.globals_dict,
-                                      **self.kwargs_for_sniff)
 
-        self.loop = MainLoop(self.main_window, palette=self.palette,
-                             screen=ScreenWSL())
         try:
+            self.main_window = MainWindow(self.source, self.formatter,
+                                          self.views,
+                                          self.globals_dict,
+                                          **self.kwargs_for_sniff)
+
+            self.loop = MainLoop(self.main_window, palette=self.palette,
+                                 screen=ScreenWSL())
+
             self._initialize_warning()
             self._connect_signals()
             self.loop.run()
@@ -163,8 +166,12 @@ class Viewer(object):
             # We don't want the user session to break if the viewer crashes.
             # So catch everything, but at least print the exception
             print(e)
+            return PacketList(), PacketList()
         finally:
             conf.color_theme = cf
+            if self.main_window and self.main_window.sniffer \
+                    and self.main_window.sniffer.running:
+                self.main_window.sniffer.stop()
 
         return self.main_window.selected_packets, self.main_window.all_packets
 
