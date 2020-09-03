@@ -1641,7 +1641,7 @@ To allow Scapy to reach target destination additional options must be used::
 
 
 Viewing packets like in Wireshark
--------------------------------
+---------------------------------
 
 .. index::
    single: viewer()
