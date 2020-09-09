@@ -7,11 +7,14 @@
 import re
 
 from platform import platform
-from urwid import MainLoop, connect_signal, WidgetMeta, raw_display
+from traceback import print_exc
+
+from urwid import MainLoop, connect_signal, raw_display
 from typing import Optional, Union, Iterable, List, Tuple, Callable, Dict, \
     Any, Type
 
 from scapy.config import conf
+from scapy.modules.packet_viewer.details_view import DetailsView
 from scapy.packet import Packet_metaclass, Packet
 from scapy.supersocket import SuperSocket
 from scapy.themes import BlackAndWhite
@@ -83,7 +86,7 @@ class Viewer(object):
 
     def __init__(self, source, columns, basecls, views,
                  globals_dict, **kwargs_for_sniff):
-        # type: (Union[SuperSocket, Iterable[Packet]], Optional[List[Tuple[str, int, Callable[[Packet], str]]]], Optional[Packet_metaclass], Optional[List[WidgetMeta]], Optional[Dict], Optional[Dict[str, Any]]) -> None  # noqa: E501
+        # type: (Union[SuperSocket, Iterable[Packet]], Optional[List[Tuple[str, int, Callable[[Packet], str]]]], Optional[Packet_metaclass], Optional[List[Type[DetailsView]]], Optional[Dict], Optional[Dict[str, Any]]) -> None  # noqa: E501
         """
         Initialization of a Viewer class. Customization and basecls filtering
         can be chosen through the arguments
@@ -109,6 +112,8 @@ class Viewer(object):
         if views is None:
             self.views = [ShowView]
             self.views += conf.contribs.get("packet_viewer_custom_views", [])
+        else:
+            self.views = views
 
         for view in self.views:
             self.palette += getattr(view, "palette", [])
@@ -162,10 +167,10 @@ class Viewer(object):
             self._initialize_warning()
             self._connect_signals()
             self.loop.run()
-        except Exception as e:
+        except Exception:
             # We don't want the user session to break if the viewer crashes.
             # So catch everything, but at least print the exception
-            print(e)
+            print_exc()
             return PacketList(), PacketList()
         finally:
             conf.color_theme = cf
@@ -208,7 +213,7 @@ class Viewer(object):
 
 def viewer(source, columns=None, basecls=None, views=None, globals_dict=None,
            **kwargs_for_sniff):
-    # type: (Union[SuperSocket, Iterable[Packet]], Optional[List[Tuple[str, int, Callable[[Packet], str]]]], Optional[Type[Packet]], Optional[List[WidgetMeta]], Optional[Dict], Optional[Dict[str, Any]]) -> Tuple[PacketList, PacketList]  # noqa: E501
+    # type: (Union[SuperSocket, Iterable[Packet]], Optional[List[Tuple[str, int, Callable[[Packet], str]]]], Optional[Type[Packet]], Optional[List[Type[DetailsView]]], Optional[Dict], Optional[Dict[str, Any]]) -> Tuple[PacketList, PacketList]  # noqa: E501
     """
     Convenience function for Viewer
     :param source: Socket or list of Packets
