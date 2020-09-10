@@ -145,7 +145,7 @@ class Viewer(object):
 
         connect_signal(
             self.main_window.packet_view, "msg_to_main_thread",
-            lambda _, msg: self.msg_pipe.send(msg))
+            lambda _, msg: self.msg_pipe.send(msg))  # type: ignore[union-attr]
 
     def run(self):
         # type: () -> Tuple[PacketList, PacketList]
@@ -182,13 +182,13 @@ class Viewer(object):
             if self.main_window and self.main_window.sniffer \
                     and self.main_window.sniffer.running:
                 self.main_window.sniffer.stop()
-            self.msg_pipe.close()
+            self.msg_pipe.close()  # type: ignore[union-attr]
 
         return self.main_window.selected_packets, self.main_window.all_packets
 
     def _dispatcher(self, *_args):
         # type: (Optional[Any]) -> None
-        cmd = self.msg_pipe.recv()
+        cmd = self.msg_pipe.recv()  # type: ignore[union-attr]
         if cmd == "redraw":
             self._update_screen()
 

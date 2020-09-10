@@ -83,10 +83,14 @@ class MainWindow(Frame):
         self.view_actions = []
         for i, view_cls in enumerate(views):
             view = view_cls()
+
+            def show_view(v=view):
+                self.show_view(v)
+
             action = Action([view.action_name.capitalize(),
                              view.action_name.upper(),
                              view.action_name.lower()],
-                            [lambda v=view: self.show_view(v),
+                            [show_view,
                              self.fullscreen_view,
                              self.hide_view])
             self.actions["f" + str(7 + i)] = action

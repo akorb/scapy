@@ -9,9 +9,11 @@ scapy/main.py
 scapy/contrib/http2.py
 scapy/plist.py
 scapy/modules/packet_viewer/button_bar.py
+scapy/modules/packet_viewer/column_configuration.py
 scapy/modules/packet_viewer/details_view.py
-scapy/modules/packet_viewer/extended_listbox.py
 scapy/modules/packet_viewer/extended_edit.py
+scapy/modules/packet_viewer/extended_listbox.py
+scapy/modules/packet_viewer/main_window.py
 scapy/modules/packet_viewer/packet_list_view.py
 scapy/modules/packet_viewer/pop_ups.py
 scapy/modules/packet_viewer/row_formatter.py
