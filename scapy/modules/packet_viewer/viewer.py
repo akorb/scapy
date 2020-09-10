@@ -13,6 +13,7 @@ from urwid import MainLoop, connect_signal, raw_display
 from typing import Optional, Union, Iterable, List, Tuple, Callable, Dict, \
     Any, Type
 
+from scapy.automaton import ObjectPipe
 from scapy.config import conf
 from scapy.modules.packet_viewer.details_view import DetailsView
 from scapy.packet import Packet_metaclass, Packet
@@ -124,6 +125,7 @@ class Viewer(object):
         self.formatter = RowFormatter(columns, basecls)
         self.main_window = None   # type: Optional[MainWindow]
         self.loop = None          # type: Optional[MainLoop]
+        self.msg_pipe = None      # type: Optional[ObjectPipe]
 
     def _connect_signals(self):
         # type: () -> None
@@ -142,8 +144,8 @@ class Viewer(object):
             lambda _, info: show_info_pop_up(self.loop, info))
 
         connect_signal(
-            self.main_window.packet_view, "packets_modified",
-            self._update_screen)
+            self.main_window.packet_view, "msg_to_main_thread",
+            lambda _, msg: self.msg_pipe.send(msg))
 
     def run(self):
         # type: () -> Tuple[PacketList, PacketList]
@@ -164,6 +166,9 @@ class Viewer(object):
             self.loop = MainLoop(self.main_window, palette=self.palette,
                                  screen=ScreenWSL())
 
+            self.msg_pipe = ObjectPipe()
+            self.loop.event_loop.watch_file(self.msg_pipe.fileno(),
+                                            self._dispatcher)
             self._initialize_warning()
             self._connect_signals()
             self.loop.run()
@@ -177,15 +182,20 @@ class Viewer(object):
             if self.main_window and self.main_window.sniffer \
                     and self.main_window.sniffer.running:
                 self.main_window.sniffer.stop()
+            self.msg_pipe.close()
 
         return self.main_window.selected_packets, self.main_window.all_packets
 
-    def _update_screen(self, *_args):
+    def _dispatcher(self, *_args):
         # type: (Optional[Any]) -> None
+        cmd = self.msg_pipe.recv()
+        if cmd == "redraw":
+            self._update_screen()
+
+    def _update_screen(self):
+        # type: () -> None
         """
-        Internal function to update screen. Used by signals that get emitted on
-        modifications of internal contents
-        :param _args: Not used. Required by urwid signal
+        Internal function to update screen.
         """
         if self.loop is None:
             return

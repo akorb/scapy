@@ -24,7 +24,7 @@ class DetailsView(LineBox):
                   information, for example error handling notification to the
                   user.
     """
-    signals = ["packet_modified", "notification"]
+    signals = ["packet_modified", "notification", "msg_to_main_thread"]
     palette = []  # type: List[Tuple[str, str, str]]
     action_name = ""
 

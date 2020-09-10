@@ -4,9 +4,12 @@
 # Copyright (C) Nils Weiss <nils@we155.de>
 # This program is published under a GPLv2 license
 
+from threading import Lock
+
 from six import PY2
-from typing import List
-from urwid import AttrMap, SimpleFocusListWalker, CheckBox
+from typing import List, Union
+from urwid import AttrMap, SimpleFocusListWalker, CheckBox, SolidCanvas, \
+    CanvasCombine
 
 from scapy.packet import Packet
 from scapy.modules.packet_viewer.extended_listbox import ExtendedListBox
@@ -19,12 +22,16 @@ class PacketListView(ExtendedListBox):
     or were given in a list.
     """
 
-    signals = ["packets_modified"]
+    signals = ["msg_to_main_thread"]
 
     def __init__(self, row_formatter):
         # type: (RowFormatter) -> None
         self.row_formatter = row_formatter
         self.packets = []  # type: List[Packet]
+
+        # Ensures that this widget is not changed in the sniffer thread
+        # while this widget is drawn in the main thread
+        self.lock = Lock()
         super(PacketListView, self).__init__(True, SimpleFocusListWalker([]))
 
     def update_selected_packet(self):
@@ -76,7 +83,14 @@ class PacketListView(ExtendedListBox):
         if not self.row_formatter.is_pkt_supported(pkt):
             return
 
-        self.packets.append(pkt)
-        self.body.append(
-            AttrMap(self._create_gui_packet(pkt), None, "cyan"))
-        self._emit("packets_modified")
+        with self.lock:
+            self.packets.append(pkt)
+            self.body.append(
+                AttrMap(self._create_gui_packet(pkt), None, "cyan"))
+            self._emit("msg_to_main_thread", "redraw")
+
+    def render(self, size, focus=False):
+        # type: (int, bool) -> Union[SolidCanvas, CanvasCombine]
+        with self.lock:
+            return super(PacketListView, self).render(
+                size, focus=focus)
