@@ -10,9 +10,10 @@ from urwid import Edit
 class ExtendedEdit(Edit):
     """
     A new signal "apply" is emitted by this Edit after Enter is pressed.
+    A new signal "exit" is emitted by this Edit after Escape is pressed.
     It also takes care of resetting the text after losing focus.
     """
-    signals = ["apply"] + Edit.signals
+    signals = ["apply", "exit"] + Edit.signals
 
     def __init__(self, use_reset, *args, **kwargs):
         """
@@ -44,6 +45,10 @@ class ExtendedEdit(Edit):
             # the old value doesn't get applied in `render`
             self._had_focus = False
             self._emit("apply", self.edit_text)
+            return None
+
+        if key == "esc":
+            self._emit("exit")
             return None
 
         return super(ExtendedEdit, self).keypress(size, key)

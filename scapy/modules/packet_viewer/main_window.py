@@ -159,6 +159,10 @@ class MainWindow(Frame):
                                                     self.filter_changed)
         self.send_box = self._create_bottom_input(MainWindow.SEND,
                                                   self.text_to_packet)
+        connect_signal(self.filter_box[0].base_widget, "exit",
+                       lambda _sender: self.actions["f5"].execute())
+        connect_signal(self.send_box[0].base_widget, "exit",
+                       lambda _sender: self.actions["f6"].execute())
         self._setup_source(kwargs_for_sniff)
 
         from six import PY2
