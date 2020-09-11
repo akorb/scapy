@@ -182,7 +182,8 @@ class Viewer(object):
             if self.main_window and self.main_window.sniffer \
                     and self.main_window.sniffer.running:
                 self.main_window.sniffer.stop()
-            self.msg_pipe.close()  # type: ignore[union-attr]
+            if self.msg_pipe:
+                self.msg_pipe.close()  # type: ignore[union-attr]
 
         return self.main_window.selected_packets, self.main_window.all_packets
 
