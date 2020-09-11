@@ -40,6 +40,13 @@ class MainWindow(Frame):
     SEND = "Send"
     signals = ["question_popup", "info_popup"]
 
+    RESEND_KEY = "f2"
+    SNIFFER_KEY = "f3"
+    QUIT_KEY = "f4"
+    FILTER_KEY = "f5"
+    CRAFT_SEND_KEY = "f6"
+    START_VIEWS = 7
+
     def _create_buttons_for_footer(self):
         # type: () -> None
         """
@@ -47,30 +54,32 @@ class MainWindow(Frame):
         """
         # f1 is sometimes reserved by Terminals. Don't use it.
         if isinstance(self.source, SuperSocket):
-            self.actions["f2"] = Action(["Re-Send"],
-                                        [self.send_selected_packet])
-            self.actions["f3"] = Action(
+            self.actions[self.RESEND_KEY] = Action(["Re-Send"],
+                                                   [self.send_selected_packet])
+            self.actions[self.SNIFFER_KEY] = Action(
                 ["Pause", "Continue"],
                 [self.pause_packet_sniffer, self.continue_packet_sniffer])
 
-        self.actions["f4"] = Action(["Quit"], [self.quit])
+        self.actions[self.QUIT_KEY] = Action(["Quit"], [self.quit])
 
-        self.actions["f5"] = Action([MainWindow.FILTER] * 2,
-                                    [lambda: self.show_bottom_line(
-                                        MainWindow.FILTER_INDEX,
-                                        self.filter_box),
-                                     lambda: self.hide_bottom_line(
-                                         self.filter_box)])
+        self.actions[self.FILTER_KEY] = \
+            Action([MainWindow.FILTER] * 2,
+                   [lambda: self.show_bottom_line(
+                       MainWindow.FILTER_INDEX,
+                       self.filter_box),
+                    lambda: self.hide_bottom_line(
+                        self.filter_box)])
 
         if self.globals_dict is not None:
-            self.actions["f6"] = Action(["Craft&Send"] * 2,
-                                        [lambda: self.show_bottom_line(
-                                            MainWindow.FILTER_INDEX,
-                                            self.send_box,
-                                            self.focused_packet.command()
-                                            if self.focused_packet else ""),
-                                         lambda: self.hide_bottom_line(
-                                             self.send_box)])
+            self.actions[self.CRAFT_SEND_KEY] = \
+                Action(["Craft&Send"] * 2,
+                       [lambda: self.show_bottom_line(
+                           MainWindow.FILTER_INDEX,
+                           self.send_box,
+                           self.focused_packet.command()
+                           if self.focused_packet else ""),
+                        lambda: self.hide_bottom_line(
+                            self.send_box)])
 
     def _create_details_views(self, views):
         # type: (List[Type[DetailsView]]) -> None
@@ -93,7 +102,7 @@ class MainWindow(Frame):
                             [show_view,
                              self.fullscreen_view,
                              self.hide_view])
-            self.actions["f" + str(7 + i)] = action
+            self.actions["f" + str(self.START_VIEWS + i)] = action
             self.details_views[view] = False
             self.view_actions.append(action)
             connect_signal(view, "packet_modified", self.on_packet_changed)
@@ -160,9 +169,9 @@ class MainWindow(Frame):
         self.send_box = self._create_bottom_input(MainWindow.SEND,
                                                   self.text_to_packet)
         connect_signal(self.filter_box[0].base_widget, "exit",
-                       lambda _sender: self.actions["f5"].execute())
+                       lambda _: self.actions[self.FILTER_KEY].execute())
         connect_signal(self.send_box[0].base_widget, "exit",
-                       lambda _sender: self.actions["f6"].execute())
+                       lambda _: self.actions[self.CRAFT_SEND_KEY].execute())
         self._setup_source(kwargs_for_sniff)
 
         from six import PY2
