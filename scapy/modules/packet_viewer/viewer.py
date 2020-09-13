@@ -145,7 +145,7 @@ class Viewer(object):
 
         connect_signal(
             self.main_window.packet_view, "msg_to_main_thread",
-            lambda _, msg: self.msg_pipe.send(msg))  # type: ignore[union-attr]
+            lambda _, *args: self.msg_pipe.send(args))  # type: ignore[union-attr]  # noqa: E501
 
     def run(self):
         # type: () -> Tuple[PacketList, PacketList]
@@ -189,13 +189,18 @@ class Viewer(object):
 
     def _dispatcher(self, *_args):
         # type: (Optional[Any]) -> None
-        cmd = self.msg_pipe.recv()  # type: ignore[union-attr]
-        if cmd == "redraw":
+        info = self.msg_pipe.recv()  # type: ignore[union-attr]
+        msg = info[0]
+        if msg == "redraw":
             # Through awaking the MainLoop it will enter idle soon again.
             # This redraws automatically.
             # So no need to start the drawing here a second time.
             # See http://urwid.org/reference/main_loop.html#urwid.MainLoop.entering_idle  # noqa: E501
             pass
+        elif msg == "call":
+            func = info[1]
+            args = info[2:]
+            func(*args)
 
     def _initialize_warning(self):
         # type: () -> None
