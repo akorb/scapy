@@ -111,7 +111,7 @@ class MainWindow(Frame):
                 lambda _, message: self._emit("info_popup", message))
             connect_signal(
                 view, "msg_to_main_thread",
-                lambda _, message: self._emit("msg_to_main_thread", message))
+                lambda _, *args: self._emit("msg_to_main_thread", *args))
 
     @staticmethod
     def _create_bottom_input(caption, callback):
