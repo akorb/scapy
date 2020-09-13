@@ -38,7 +38,7 @@ class MainWindow(Frame):
 
     FILTER = "Filter"
     SEND = "Send"
-    signals = ["question_popup", "info_popup"]
+    signals = ["question_popup", "info_popup", "msg_to_main_thread"]
 
     RESEND_KEY = "f2"
     SNIFFER_KEY = "f3"
@@ -109,6 +109,9 @@ class MainWindow(Frame):
             connect_signal(
                 view, "notification",
                 lambda _, message: self._emit("info_popup", message))
+            connect_signal(
+                view, "msg_to_main_thread",
+                lambda _, message: self._emit("msg_to_main_thread", message))
 
     @staticmethod
     def _create_bottom_input(caption, callback):

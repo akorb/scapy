@@ -144,6 +144,10 @@ class Viewer(object):
             lambda _, info: show_info_pop_up(self.loop, info))
 
         connect_signal(
+            self.main_window, "msg_to_main_thread",
+            lambda _, msg: self.msg_pipe.send(msg))  # type: ignore[union-attr]
+
+        connect_signal(
             self.main_window.packet_view, "msg_to_main_thread",
             lambda _, *args: self.msg_pipe.send(args))  # type: ignore[union-attr]  # noqa: E501
 
