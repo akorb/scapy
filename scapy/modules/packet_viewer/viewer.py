@@ -191,19 +191,10 @@ class Viewer(object):
         # type: (Optional[Any]) -> None
         cmd = self.msg_pipe.recv()  # type: ignore[union-attr]
         if cmd == "redraw":
-            self._update_screen()
-
-    def _update_screen(self):
-        # type: () -> None
-        """
-        Internal function to update screen.
-        """
-        if self.loop is None:
-            return
-
-        try:
-            self.loop.draw_screen()
-        except (AssertionError, AttributeError):
+            # Through awaking the MainLoop it will enter idle soon again.
+            # This redraws automatically.
+            # So no need to start the drawing here a second time.
+            # See http://urwid.org/reference/main_loop.html#urwid.MainLoop.entering_idle  # noqa: E501
             pass
 
     def _initialize_warning(self):
