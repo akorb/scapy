@@ -342,7 +342,7 @@ class StagedAutomotiveTestCase(AutomotiveTestCaseABC, TestCaseGenerator, StateGe
             return True
 
         # current stage is finished. We have to increase the stage
-        if self.__completion_delay < 3:
+        if self.__completion_delay < 6:
             # First we wait one more iteration of the executor
             # Maybe one more execution reveals new states of other
             # test_cases
