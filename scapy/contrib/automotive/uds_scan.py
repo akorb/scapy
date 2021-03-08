@@ -324,27 +324,29 @@ class UDS_RDBIEnumerator(UDS_Enumerator):
 
 
 class UDS_RDBISelectiveEnumerator(StagedAutomotiveTestCase):
+    block_size = 2 ** 6
+
     @staticmethod
     def __connector_random_to_sequential(rdbi_random, _):
         # type: (AutomotiveTestCaseABC, AutomotiveTestCaseABC) -> Dict[str, Any]  # noqa: E501
         rdbi_random = cast(UDS_Enumerator, rdbi_random)
-        identifiers_with_positive_response = \
-            [p.resp.dataIdentifier
-             for p in rdbi_random.results_with_positive_response]
+        identifiers_with_pr = \
+            [r.resp.dataIdentifier
+             for r in rdbi_random.results_with_positive_response]
 
-        scan_range = UDS_RDBISelectiveEnumerator. \
-            points_to_blocks(identifiers_with_positive_response)
+        block_size = UDS_RDBISelectiveEnumerator.block_size
+        scan_range = UDS_RDBISelectiveEnumerator.points_to_blocks(
+            identifiers_with_pr, block_size)
         return {"scan_range": scan_range}
 
     @staticmethod
-    def points_to_blocks(pois):
-        # type: (Sequence[int]) -> Iterable[int]
+    def points_to_blocks(pois, block_size):
+        # type: (Sequence[int], int) -> Iterable[int]
 
         if len(pois) == 0:
             # quick path for better performance
             return []
 
-        block_size = UDS_RDBIRandomEnumerator.block_size
         generators = []
         for start in range(0, 2 ** 16, block_size):
             end = start + block_size
@@ -363,8 +365,6 @@ class UDS_RDBISelectiveEnumerator(StagedAutomotiveTestCase):
 
 
 class UDS_RDBIRandomEnumerator(UDS_RDBIEnumerator):
-    block_size = 2 ** 6
-
     def _get_initial_requests(self, **kwargs):
         # type: (Any) -> Iterable[Packet]
 
@@ -385,7 +385,7 @@ class UDS_RDBIRandomEnumerator(UDS_RDBIEnumerator):
             1013: 14, 1014: 15
         }
         to_scan = []
-        block_size = UDS_RDBIRandomEnumerator.block_size
+        block_size = UDS_RDBISelectiveEnumerator.block_size
         for block_index, start in enumerate(range(0, 2 ** 16, block_size)):
             end = start + block_size
             count_samples = samples_per_block.get(block_index, 1)
@@ -696,11 +696,10 @@ class UDS_RCSelectiveEnumerator(StagedAutomotiveTestCase):
     expansion_width = 253
 
     @staticmethod
-    def points_to_ranges(pois):
-        # type: (Iterable[int]) -> Iterable[int]
-        expansion_width = UDS_RCSelectiveEnumerator.expansion_width
+    def points_to_ranges(points, expansion_width):
+        # type: (Iterable[int], int) -> Iterable[int]
         generators = []
-        for identifier in pois:
+        for identifier in points:
             start = max(identifier - expansion_width, 0)
             end = min(identifier + expansion_width + 1, 0x10000)
             generators.append(range(start, end))
@@ -708,13 +707,13 @@ class UDS_RCSelectiveEnumerator(StagedAutomotiveTestCase):
         return sorted(set(ranges_with_overlaps))
 
     @staticmethod
-    def __connector_start_to_rest(rc_start, _rc_stop):
+    def __connector_start_to_full(rc_start, _rc_full):
         # type: (AutomotiveTestCaseABC, AutomotiveTestCaseABC) -> Dict[str, Any]  # noqa: E501
         rc_start = cast(UDS_Enumerator, rc_start)
         identifiers_with_pr = [resp.routineIdentifier for _, _, resp, _, _
                                in rc_start.results_with_positive_response]
         scan_range = UDS_RCSelectiveEnumerator.points_to_ranges(
-            identifiers_with_pr)
+            identifiers_with_pr, UDS_RCSelectiveEnumerator.expansion_width)
 
         return {"type_list": [2, 3],
                 "scan_range": scan_range}
