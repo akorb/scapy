@@ -722,7 +722,7 @@ class UDS_RCSelectiveEnumerator(StagedAutomotiveTestCase):
         # type: () -> None
         super(UDS_RCSelectiveEnumerator, self).__init__(
             [UDS_RCStartEnumerator(), UDS_RCEnumerator()],
-            [None, self.__connector_start_to_rest])
+            [None, self.__connector_start_to_full])
 
 
 class UDS_IOCBIEnumerator(UDS_Enumerator):
